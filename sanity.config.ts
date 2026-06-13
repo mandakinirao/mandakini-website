@@ -40,6 +40,7 @@ const structure = (S: StructureBuilder) =>
 export default defineConfig({
   name: 'mandakini-rao',
   title: 'Mandakini Rao',
+  basePath: '/studio',
   projectId: 'i4t9kzxg',
   dataset: 'production',
   plugins: [deskTool({ structure }), visionTool()],
