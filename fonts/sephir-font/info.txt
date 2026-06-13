@@ -1,0 +1,2 @@
+﻿license: Demo
+link: https://www.fontspace.com/sephir-font-f139831

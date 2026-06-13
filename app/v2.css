@@ -1,0 +1,950 @@
+/* ═══════════════════════════════════════════════════════════════════
+   V2 — "The Gallery Poster" pitch (/?v=2)
+   Theme-token driven: dark stage by default, cream stage via
+   body.mr2-light. Marigold/indigo come from the MS Subbulakshmi
+   duotones and are reserved for surfaces, never body text.
+   ═══════════════════════════════════════════════════════════════════ */
+
+:root {
+  --v2-marigold: #efa72e;
+  --v2-indigo: #4e5180;
+  --v2-ink-on-marigold: #1a1206;
+
+  /* dark theme defaults live on :root so V2 components (footer,
+     cursor) hold together even before the body class lands */
+  --v2-bg: #0d0a07;
+  --v2-bg-deep: #060606;
+  --v2-fg: #f5efe4;
+  --v2-fg-dim: rgba(245, 239, 228, 0.6);
+  --v2-fg-faint: rgba(245, 239, 228, 0.16);
+  --v2-card: #11100c;
+
+  /* fixed values — surfaces that never theme-switch (loader,
+     card stock, night-surface ink) */
+  --v2-cream: #f5efe4;
+  --v2-night: #0d0a07;
+  --v2-void: #060606;
+  --v2-rosehip: #792318;
+
+  /* Accent system (Phase 1, June 2026) — semantic, theme-aware.
+     Raw palette values live in globals.css :root; these resolve per
+     stage so every accent holds WCAG AA (lifted dark-stage variants
+     documented in PROJECT.md §6 Color usage). */
+  --accent-index: var(--accent-amber); /* numerals — amber, 7.5:1 on dark */
+  --accent-eyebrow: #9daa7e; /* moss, lifted for the dark stage — 8:1 */
+  --accent-link: #c4685a; /* rosehip, lifted for the dark stage — 5.2:1 */
+}
+
+body.mr2-mode {
+  background: var(--v2-bg);
+  --scroll-bg: var(--v2-bg);
+  --ink-current: var(--v2-fg);
+  --ink-muted-current: var(--v2-fg-dim);
+  --rule-current: var(--v2-fg-faint);
+}
+
+body.mr2-mode.mr2-light {
+  --v2-bg: #f2ead9;
+  --v2-bg-deep: #ece2cd;
+  --v2-fg: #221408;
+  --v2-fg-dim: rgba(34, 20, 8, 0.6);
+  --v2-fg-faint: rgba(34, 20, 8, 0.16);
+  --v2-card: #faf4e8;
+
+  /* accents resolve to the raw palette on cream (AA holds unlifted);
+     amber deepens — raw amber reads 2.2:1 on cream */
+  --accent-index: #8a6312;
+  --accent-eyebrow: var(--accent-moss);
+  --accent-link: var(--accent-rosehip);
+}
+
+body.mr2-mode .mr-cursor {
+  display: none;
+}
+
+/* ── Theme toggle ──────────────────────────────────────────────────── */
+
+.mr2-theme-toggle {
+  position: fixed;
+  top: clamp(18px, 3.4vh, 32px);
+  right: clamp(86px, 10vw, 150px); /* clear of the nav burger */
+  z-index: 250;
+  display: flex;
+  align-items: center;
+  gap: 0.55rem;
+  padding: 0.55rem 1rem;
+  border: 1px solid var(--v2-fg-dim);
+  border-radius: 999px;
+  background: var(--v2-bg);
+  color: var(--v2-fg);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  transition:
+    color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-theme-toggle:hover {
+  color: var(--v2-fg);
+  border-color: var(--v2-fg-dim);
+}
+
+/* ── Keyboard focus — visible in both themes ───────────────────────── */
+
+body.mr2-mode a:focus-visible,
+body.mr2-mode button:focus-visible {
+  outline: 2px solid var(--accent-link); /* rosehip family, both stages */
+  outline-offset: 3px;
+}
+
+.mr2-theme-toggle::before {
+  content: '';
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: var(--v2-marigold);
+}
+
+/* ── Photo container — natural colour, no grade ────────────────────── */
+/* (The marigold/indigo duotone treatment was retired — photos read as
+   themselves; only the Subbulakshmi artworks carry those colours.) */
+
+.mr2-duo {
+  position: relative;
+  display: block; /* spans collapse aspect-ratio otherwise */
+  overflow: hidden;
+}
+
+.mr2-duo img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* ── Loader — the shutter field ────────────────────────────────────── */
+
+/* Returning visitors (html class set pre-paint) never see the loader. */
+html.mr-intro-seen .mr2-loader {
+  display: none;
+}
+
+/* Fixed palette regardless of theme: the entry is always the cream
+   field turning black (the Siena pass). */
+.mr2-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 300;
+  height: 100dvh;
+  overflow: hidden;
+  background: var(--v2-cream);
+}
+
+.mr2-loader__bars {
+  position: absolute;
+  inset: 0;
+  display: flex;
+}
+
+/* Thin dark slits that widen continuously until the field is black. */
+.mr2-loader__bar {
+  flex: 1;
+  background: var(--v2-void);
+  transform: scaleX(0.055);
+  will-change: transform;
+}
+
+.mr2-loader__identity {
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  display: grid;
+  place-content: center;
+  justify-items: center;
+  row-gap: 1.3rem;
+  pointer-events: none;
+}
+
+/* Difference: invisible on the cream field, surfaces inside the black
+   stripes as they cross the letters, fully cream once the field turns. */
+.mr2-loader__word {
+  mix-blend-mode: difference;
+  color: var(--v2-cream);
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 7vw, 6.6rem);
+  font-weight: 400;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.mr2-loader__sub {
+  opacity: 0;
+  color: rgba(245, 239, 228, 0.75);
+  font-family: var(--font-label);
+  font-size: clamp(12px, 1.05vw, 15px);
+  letter-spacing: 0.34em;
+  text-indent: 0.34em;
+  text-transform: uppercase;
+}
+
+.mr2-loader__status {
+  position: absolute;
+  right: 0;
+  bottom: clamp(2rem, 7vh, 4.2rem);
+  left: 0;
+  z-index: 3;
+  display: grid;
+  place-items: center;
+}
+
+/* Rectangular gallery-tag ENTER — no circles in V2 */
+.mr2-loader__enter {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.05rem 2.6rem;
+  border: 1px solid var(--v2-cream);
+  background: transparent;
+  color: var(--v2-cream);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.32em;
+  text-indent: 0.16em;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-loader__enter:hover {
+  background: var(--v2-cream);
+  color: var(--v2-night);
+}
+
+/* ── Hero — the card row (per AP's sketch) ─────────────────────────── */
+
+.mr2-hero {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mr2-hero__row {
+  position: absolute;
+  inset: 12vh 0 0; /* sits below the name */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 0 clamp(12px, 2vw, 40px);
+}
+
+/* The gallery: equal heights, slim strips; the open card is wide and
+   hover hands the width to whichever card the pointer crosses. */
+.mr2-pcard {
+  position: relative;
+  flex-shrink: 0;
+  width: clamp(52px, 6.5vw, 104px);
+  height: clamp(280px, 46vh, 500px);
+  overflow: hidden;
+  box-shadow: 0 24px 70px rgba(0, 0, 0, 0.35);
+  transition: width 0.55s var(--ease-manda);
+  will-change: width, transform;
+}
+
+.mr2-pcard.is-open {
+  width: clamp(240px, 26vw, 420px);
+}
+
+.mr2-pcard img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: top center;
+}
+
+/* card stock behind the transparent cutouts */
+.mr2-pcard--cream { background: var(--v2-cream); }
+.mr2-pcard--marigold { background: var(--v2-marigold); }
+.mr2-pcard--indigo { background: var(--v2-indigo); }
+
+.mr2-hero__name {
+  position: absolute;
+  top: clamp(5rem, 13vh, 9rem);
+  right: 0;
+  left: 0;
+  z-index: 6;
+  mix-blend-mode: difference;
+  color: var(--v2-cream);
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 7.6vw, 7.4rem);
+  font-weight: 400;
+  letter-spacing: 0.08em;
+  line-height: 0.9;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+/* inner span = entrance target; outer h1 = scroll-scrub target */
+.mr2-hero__name-inner {
+  display: inline-block;
+}
+
+.mr2-hero__roles,
+.mr2-hero__cue {
+  position: absolute;
+  bottom: clamp(1.6rem, 4vh, 3rem);
+  z-index: 7;
+  color: var(--v2-fg-dim);
+  font-family: var(--font-label);
+  font-size: clamp(12px, 1vw, 14px);
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.mr2-hero__roles { left: clamp(20px, 5vw, 72px); }
+.mr2-hero__cue { right: clamp(20px, 5vw, 72px); }
+
+/* ── About (homepage §2) — parallax portrait + line + CTA ──────────── */
+
+/* Pinned sections paint their own background so neighbouring pinned
+   content can never show through during transitions. */
+.mr2-about,
+.mr2-works {
+  position: relative;
+  z-index: 1;
+  background: var(--v2-bg);
+}
+
+/* Asymmetric editorial split: portrait ~42%, text offset opposite.
+   Generous breathing room between the hero exit and Projects. */
+.mr2-about {
+  display: grid;
+  grid-template-columns: 0.42fr 0.58fr;
+  gap: clamp(2.5rem, 7vw, 8rem);
+  align-items: start;
+  max-width: 1320px;
+  margin: 0 auto;
+  padding: clamp(8rem, 18vh, 13rem) clamp(20px, 5vw, 72px);
+}
+
+/* Rounded mask — never a hard square. Image rests at 1.15 inside for
+   parallax travel; reveal and movement handled by GSAP. */
+.mr2-about__media {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  overflow: hidden;
+  border-radius: clamp(36px, 4.5vw, 72px);
+}
+
+.mr2-about__media img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  filter: grayscale(1) contrast(1.05); /* the one B&W portrait rule */
+  will-change: transform;
+}
+
+/* Vertical offset — editorial, not grid-locked. */
+.mr2-about__text {
+  display: grid;
+  justify-items: start;
+  row-gap: clamp(1.8rem, 4vh, 3rem);
+  padding-top: clamp(3rem, 10vh, 7rem);
+}
+
+.mr2-about__line {
+  max-width: 20ch;
+  color: var(--v2-fg);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 3.4vw, 3.5rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+
+/* Pill CTA: 1px ink border → rosehip fill with cream text on hover. */
+.mr2-about__cta {
+  padding: 0.95rem 2.3rem;
+  border: 1px solid var(--v2-fg);
+  border-radius: 999px;
+  color: var(--v2-fg);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-about__cta:hover {
+  background-color: var(--v2-rosehip); /* rosehip */
+  border-color: var(--v2-rosehip);
+  color: var(--v2-cream);
+}
+
+/* ── Works — the Rising Sun ────────────────────────────────────────── */
+
+.mr2-works__stage {
+  position: relative;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.mr2-works__sun {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  width: 152vmin;
+  height: 152vmin;
+  border-radius: 50%;
+  background: var(--v2-marigold);
+  transform: translate(-50%, 92%);
+  will-change: transform;
+}
+
+.mr2-works__group {
+  position: absolute;
+  top: 6%;
+  left: 50%;
+  z-index: 2;
+  width: min(36vw, 400px);
+  aspect-ratio: 4 / 5;
+  transform: translateX(-50%);
+  will-change: transform;
+}
+
+.mr2-works__group a {
+  position: absolute;
+  inset: 0;
+  display: block;
+}
+
+.mr2-card {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+}
+
+.mr2-card--front {
+  transform: rotate(-5deg);
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.45);
+}
+
+.mr2-card--mid {
+  transform: rotate(5deg) translate(5%, -2%);
+  box-shadow: 0 22px 60px rgba(0, 0, 0, 0.35);
+}
+
+.mr2-card--ghost {
+  background: var(--v2-indigo);
+  transform: rotate(10deg) translate(9%, -5%);
+}
+
+/* Dark theme: meta in difference — cream on the stage, flips dark over
+   the sun. Light theme: difference fails against cream, so it switches
+   to solid ink (readable on both cream and marigold). */
+.mr2-works__meta {
+  position: absolute;
+  right: 0;
+  bottom: 7vh;
+  left: 0;
+  z-index: 3;
+  display: grid;
+  justify-items: center;
+  row-gap: 0.8rem;
+  mix-blend-mode: difference;
+  color: var(--v2-cream);
+  pointer-events: none;
+}
+
+body.mr2-light .mr2-works__meta {
+  mix-blend-mode: normal;
+  color: var(--v2-fg);
+}
+
+.mr2-works__counter {
+  font-family: var(--font-label);
+  font-size: clamp(12px, 1.05vw, 15px);
+  letter-spacing: 0.3em;
+}
+
+.mr2-works__titles {
+  position: relative;
+  display: grid;
+  width: 100%;
+  justify-items: center;
+}
+
+.mr2-works__title {
+  grid-area: 1 / 1;
+  display: grid;
+  justify-items: center;
+  row-gap: 0.6rem;
+  opacity: 0;
+  text-align: center;
+}
+
+.mr2-works__title strong {
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 6.4vw, 5.6rem);
+  font-weight: 400;
+  line-height: 0.95;
+}
+
+.mr2-works__title small {
+  font-family: var(--font-ui);
+  font-size: clamp(12px, 1.05vw, 15px);
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  opacity: 0.8;
+}
+
+/* persistent door to the full Projects index */
+.mr2-works__all {
+  position: absolute;
+  right: clamp(20px, 5vw, 72px);
+  bottom: clamp(1.8rem, 5vh, 3.4rem);
+  z-index: 4;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.7rem;
+  padding: 0.85rem 1.8rem;
+  border: 1px solid var(--v2-fg-dim);
+  color: var(--v2-fg);
+  background: var(--v2-bg);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-works__all:hover {
+  background: var(--v2-fg);
+  color: var(--v2-bg);
+}
+
+/* ── Contact — one quiet beat ──────────────────────────────────────── */
+
+.mr2-contact {
+  display: grid;
+  justify-items: center;
+  row-gap: 2.8rem;
+  padding: 18vh clamp(20px, 6vw, 80px);
+  text-align: center;
+}
+
+.mr2-contact__line {
+  max-width: 22ch;
+  color: var(--v2-fg);
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 4.4vw, 4.2rem);
+  font-weight: 400;
+  line-height: 1.25;
+}
+
+.mr2-pill {
+  justify-self: start;
+  padding: 0.95rem 2.2rem;
+  border: 1px solid var(--v2-fg);
+  color: var(--v2-fg);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.22em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-pill:hover {
+  background-color: var(--v2-fg);
+  color: var(--v2-bg);
+}
+
+/* ── Shop — edition stubs ──────────────────────────────────────────── */
+
+.mr2-shop {
+  position: relative;
+  overflow: hidden;
+  padding: 16vh clamp(20px, 6vw, 80px);
+}
+
+.mr2-shop__head {
+  position: relative;
+  margin-bottom: 9vh;
+  text-align: center;
+}
+
+.mr2-shop__head p {
+  color: var(--accent-eyebrow);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.mr2-shop__head h2 {
+  max-width: 24ch;
+  margin: 1.1rem auto 0;
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.8vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.15;
+}
+
+.mr2-shop__grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+/* Quiet product card — image, serif title, edition line. */
+.mr2-product {
+  display: block;
+  color: var(--v2-fg);
+  text-decoration: none;
+}
+
+.mr2-product__frame {
+  aspect-ratio: 4 / 5;
+  border-radius: 6px;
+}
+
+.mr2-product__frame img {
+  transition: transform 1.2s var(--ease-manda);
+}
+
+.mr2-product:hover .mr2-product__frame img {
+  transform: scale(1.05);
+}
+
+.mr2-product__title {
+  display: block;
+  margin-top: 1.2rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.15rem, 1.7vw, 1.5rem);
+  line-height: 1.2;
+}
+
+.mr2-product__price {
+  display: flex;
+  justify-content: space-between;
+  margin-top: 0.55rem;
+  color: var(--v2-fg-dim);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+.mr2-shop__cta {
+  display: flex;
+  justify-content: center;
+  margin-top: 9vh;
+}
+
+/* ── Press — opposing marquees ─────────────────────────────────────── */
+
+.mr2-press {
+  overflow: hidden;
+  padding: 13vh 0;
+  border-top: 1px solid var(--v2-fg-faint);
+  border-bottom: 1px solid var(--v2-fg-faint);
+  display: grid;
+  row-gap: 2.4rem;
+}
+
+/* Voices — testimonial quotes ahead of the marquee walls */
+.mr2-press__quotes {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: clamp(2rem, 4vw, 4rem);
+  padding: 0 clamp(20px, 6vw, 80px) 7vh;
+}
+
+.mr2-press__quote {
+  display: grid;
+  align-content: start;
+  row-gap: 1rem;
+}
+
+.mr2-press__quote blockquote {
+  color: var(--v2-fg);
+  font-family: var(--font-display);
+  font-size: clamp(1.2rem, 1.9vw, 1.7rem);
+  line-height: 1.4;
+}
+
+.mr2-press__quote cite {
+  color: var(--v2-fg-dim);
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-style: normal;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+}
+
+.mr2-press__row {
+  display: flex;
+  white-space: nowrap;
+}
+
+.mr2-press__track {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: baseline;
+  gap: 3.4rem;
+  padding-right: 3.4rem;
+  animation: mr2-marquee 36s linear infinite;
+}
+
+.mr2-press__row--reverse .mr2-press__track {
+  animation-direction: reverse;
+  animation-duration: 46s;
+}
+
+.mr2-press__item {
+  display: inline-flex;
+  align-items: baseline;
+  gap: 3.4rem;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.4vw, 4.8rem);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.mr2-press__item b {
+  font-weight: 400;
+  color: var(--v2-fg);
+}
+
+.mr2-press__item i {
+  font-style: normal;
+  color: transparent;
+  -webkit-text-stroke: 1px var(--v2-fg-dim);
+}
+
+.mr2-press__item em {
+  font-style: normal;
+  color: var(--v2-fg-dim);
+  font-size: 0.5em;
+  transform: translateY(-0.4em);
+}
+
+@keyframes mr2-marquee {
+  to { transform: translateX(-100%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .mr2-press__track { animation: none; }
+}
+
+/* ── Placeholder shells — unbuilt pages (About/Contact/Press) ──────── */
+
+.mr2-page-shell {
+  display: grid;
+  place-items: center;
+  min-height: 72vh;
+  padding: 24vh clamp(20px, 6vw, 80px) 12vh;
+  color: var(--v2-fg);
+  font-family: var(--font-ui);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+}
+
+/* ── Footer — the final frame ──────────────────────────────────────── */
+
+.mr2-footer {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  min-height: 92vh;
+  overflow: hidden;
+  padding: 12vh clamp(20px, 6vw, 80px) 0;
+}
+
+.mr2-footer__cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr auto;
+  gap: 4vw;
+  align-items: start;
+}
+
+.mr2-footer__col h4 {
+  margin-bottom: 1.4rem;
+  color: var(--v2-fg-dim);
+  font-family: var(--font-label);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.mr2-footer__col a {
+  display: block;
+  margin-bottom: 0.7rem;
+  width: fit-content;
+  color: var(--v2-fg);
+  font-family: var(--font-ui);
+  font-size: clamp(14px, 1.2vw, 17px);
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  text-decoration: none;
+  text-transform: uppercase;
+  border-bottom: 1px solid transparent;
+  transition: border-color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-footer__col a:hover {
+  border-color: var(--accent-link);
+}
+
+/* rectangular gallery tag — replaces the circular stamp */
+.mr2-footer__stamp {
+  display: inline-flex;
+  align-items: center;
+  gap: 1rem;
+  align-self: start;
+  padding: 1.1rem 2.4rem;
+  border: 1px solid var(--v2-fg);
+  background: var(--v2-marigold);
+  border-color: var(--v2-marigold);
+  color: var(--v2-ink-on-marigold);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transform: rotate(-2deg);
+  transition:
+    transform var(--dur-fast) var(--ease-manda),
+    background-color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-footer__stamp:hover {
+  transform: rotate(0deg) translateY(-4px);
+  background: var(--accent-rosehip);
+  border-color: var(--accent-rosehip);
+  color: var(--ink-cream); /* 8.9:1 on rosehip */
+}
+
+.mr2-footer__legal {
+  display: flex;
+  justify-content: space-between;
+  padding: 6vh 0 2vh;
+  color: var(--v2-fg-dim);
+  font-family: var(--font-ui);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.mr2-footer__giant {
+  align-self: center;
+  margin-bottom: -0.22em;
+  color: var(--v2-fg);
+  font-family: var(--font-display);
+  font-size: 23.5vw;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+  line-height: 0.8;
+  text-transform: uppercase;
+  white-space: nowrap;
+  will-change: transform;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────── */
+
+@media (max-width: 900px) {
+  .mr2-pcard {
+    width: clamp(28px, 8vw, 52px);
+    height: clamp(220px, 38vh, 320px);
+  }
+
+  .mr2-pcard.is-open {
+    width: clamp(180px, 52vw, 280px);
+  }
+
+  .mr2-pcard--4 { display: none; }
+
+  /* About stacks: image first, then text + CTA; offset removed */
+  .mr2-about {
+    grid-template-columns: 1fr;
+    gap: 2.4rem;
+  }
+
+  .mr2-about__text {
+    padding-top: 0;
+  }
+
+  .mr2-works__group { width: min(64vw, 340px); top: 9%; }
+
+  .mr2-press__quotes {
+    grid-template-columns: 1fr;
+  }
+
+  .mr2-shop__grid {
+    grid-template-columns: 1fr;
+    max-width: 420px;
+    margin: 0 auto;
+  }
+
+  .mr2-footer__cols {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  .mr2-footer__stamp { grid-column: span 2; }
+}
+
+/* ── Phase 1 — accent moments (June 2026) ──────────────────────────────
+   Accents appear as moments, never floods: numerals amber, eyebrows
+   moss, link hover states + focus rings rosehip, pill hover fills
+   rosehip. Scoped to body.mr2-mode so the frozen /?v=1 reference keeps
+   its original colors. All pairings AA-verified — see PROJECT.md §6. */
+
+body.mr2-mode .mr-eyebrow {
+  color: var(--accent-eyebrow);
+}
+
+body.mr2-mode .mr-windex__num,
+body.mr2-mode .mr-series__index {
+  color: var(--accent-index);
+}
+
+body.mr2-mode .mr-pill:hover {
+  background-color: var(--accent-rosehip);
+  border-color: var(--accent-rosehip);
+  color: var(--ink-cream); /* 8.9:1 on rosehip */
+}
+
+/* menu overlay sits on the fixed cream field — raw rosehip reads 8.5:1 */
+body.mr2-mode .menu-overlay__links a:hover {
+  color: var(--accent-rosehip);
+}
+
+body.mr2-mode .mr-windex__row:hover .mr-windex__name,
+body.mr2-mode .mr-pdp__hint a:hover,
+body.mr2-mode .mr-detail__sale:hover {
+  color: var(--accent-link);
+}
