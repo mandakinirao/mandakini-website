@@ -35,22 +35,11 @@ const CARD_LAYOUT = [
   { ring: 4, stock: 'cream' },
 ]
 
-const FALLBACK_SRCS = [
-  '/art/subbulakshmi/ms-cut-4.webp',
-  '/art/subbulakshmi/ms-cut-2.webp',
-  '/art/subbulakshmi/ms-sq-2.jpg',
-  '/art/subbulakshmi/ms-sq-1.jpg',
-  '/art/subbulakshmi/ms-sq-4.jpg',
-  '/art/subbulakshmi/ms-cut-3.webp',
-  '/art/subbulakshmi/ms-cut-1.webp',
-]
-
 const CENTER_INDEX = CARD_LAYOUT.findIndex((c) => c.ring === 1)
 
 const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
   function HeroRavana({ images, tagline = 'Painter · Educator · Storyteller' }, ref) {
-  const srcs = images && images.length === 7 ? images : FALLBACK_SRCS
-  const CARDS = CARD_LAYOUT.map((t, i) => ({ ...t, src: srcs[i] }))
+  const CARDS = CARD_LAYOUT.map((t, i) => ({ ...t, src: images?.[i] ?? '' }))
 
   const rootRef = useRef<HTMLElement>(null)
   const playedRef = useRef(false)

@@ -485,7 +485,7 @@ export async function getHomeData(): Promise<HomeData> {
         | { source?: string; title?: string; date?: string; externalLink?: string }[]
         | null
       >(queries.featuredPressItemsQuery),
-      client.fetch<SanityImageType[] | null>(queries.heroImagesQuery),
+      client.fetch<string[] | null>(queries.heroImagesQuery),
       client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
         queries.siteSettingsBasicQuery
       ),
@@ -520,9 +520,7 @@ export async function getHomeData(): Promise<HomeData> {
         : PLACEHOLDER_PRESS
 
     const heroImages =
-      rawHeroImages && rawHeroImages.length === 7
-        ? rawHeroImages.map((img) => urlForImage(img).width(1600).url())
-        : []
+      rawHeroImages && rawHeroImages.length === 7 ? rawHeroImages : []
 
     const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
     const aboutBio =

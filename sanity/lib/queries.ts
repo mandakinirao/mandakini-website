@@ -5,7 +5,7 @@ import { groq } from 'next-sanity'
 // Private Collection items never render images or listings anywhere —
 // every listing query excludes them at the source.
 export const heroImagesQuery = groq`
-  *[_type == "siteSettings"][0].heroImages
+  *[_type == "siteSettings"][0].heroImages[].asset->url
 `
 
 export const siteSettingsBasicQuery = groq`

@@ -13,16 +13,6 @@ import {
 
 const BAR_COUNT = 22
 
-const FALLBACK_HERO_ASSETS = [
-  '/art/subbulakshmi/ms-sq-1.jpg',
-  '/art/subbulakshmi/ms-sq-2.jpg',
-  '/art/subbulakshmi/ms-sq-4.jpg',
-  '/art/subbulakshmi/ms-cut-1.webp',
-  '/art/subbulakshmi/ms-cut-2.webp',
-  '/art/subbulakshmi/ms-cut-3.webp',
-  '/art/subbulakshmi/ms-cut-4.webp',
-]
-
 interface LoadingScreenStripesProps {
   /** Exit finished — unmount the loader, unlock scroll, play hero. */
   onComplete: () => void
@@ -43,7 +33,7 @@ export default function LoadingScreenStripes({
   heroAssets,
   tagline = 'Painter · Educator · Storyteller',
 }: LoadingScreenStripesProps) {
-  const HERO_ASSETS = heroAssets && heroAssets.length ? heroAssets : FALLBACK_HERO_ASSETS
+  const HERO_ASSETS = heroAssets ?? []
   const rootRef = useRef<HTMLDivElement>(null)
   const wordRef = useRef<HTMLHeadingElement>(null)
   const enterRef = useRef<HTMLButtonElement>(null)
