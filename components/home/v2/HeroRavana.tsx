@@ -171,7 +171,7 @@ const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
       <div className="mr2-hero__row" aria-hidden="true">
         {CARDS.map((card, i) => (
           <div
-            key={card.src}
+            key={i}
             className={`mr2-pcard mr2-pcard--${card.ring}${
               card.stock ? ` mr2-pcard--${card.stock}` : ''
             }${i === open ? ' is-open' : ''}`}
