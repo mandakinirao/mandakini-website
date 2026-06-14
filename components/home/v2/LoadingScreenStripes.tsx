@@ -13,8 +13,7 @@ import {
 
 const BAR_COUNT = 22
 
-// Preloaded so the hero card row is seated before the field opens.
-const HERO_ASSETS = [
+const FALLBACK_HERO_ASSETS = [
   '/art/subbulakshmi/ms-sq-1.jpg',
   '/art/subbulakshmi/ms-sq-2.jpg',
   '/art/subbulakshmi/ms-sq-4.jpg',
@@ -27,6 +26,8 @@ const HERO_ASSETS = [
 interface LoadingScreenStripesProps {
   /** Exit finished — unmount the loader, unlock scroll, play hero. */
   onComplete: () => void
+  /** Hero card URLs to preload (from Sanity). Falls back to built-in set when empty. */
+  heroAssets?: string[]
 }
 
 /**
@@ -38,7 +39,9 @@ interface LoadingScreenStripesProps {
  */
 export default function LoadingScreenStripes({
   onComplete,
+  heroAssets,
 }: LoadingScreenStripesProps) {
+  const HERO_ASSETS = heroAssets && heroAssets.length ? heroAssets : FALLBACK_HERO_ASSETS
   const rootRef = useRef<HTMLDivElement>(null)
   const wordRef = useRef<HTMLHeadingElement>(null)
   const enterRef = useRef<HTMLButtonElement>(null)

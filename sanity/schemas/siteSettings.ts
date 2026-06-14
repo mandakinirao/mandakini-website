@@ -10,6 +10,15 @@ export const siteSettingsSchema = defineType({
     defineField({ name: 'homepageSubtext', title: 'Homepage Subtext', type: 'string' }),
     defineField({ name: 'featuredProjects', title: 'Featured Projects (Homepage)', type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }] }),
     defineField({ name: 'featuredShopItems', title: 'Featured Shop Items (Homepage)', type: 'array', of: [{ type: 'reference', to: [{ type: 'shopItem' }] }] }),
+    defineField({
+      name: 'heroImages',
+      title: 'Hero Panels (7 images, centre outward)',
+      description:
+        'Upload exactly 7 images. The 4th position is the centre card; the others fan left–right. Leave empty to use the built-in Subbulakshmi placeholder set.',
+      type: 'array',
+      of: [{ type: 'image', options: { hotspot: true } }],
+      validation: (Rule) => Rule.max(7),
+    }),
     defineField({ name: 'signupCtaText', title: 'Signup CTA Text', type: 'string' }),
     defineField({
       name: 'socialLinks',

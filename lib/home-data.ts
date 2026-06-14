@@ -65,6 +65,8 @@ export interface HomeData {
   prints: HomePrint[]
   press: HomePress[]
   testimonials: HomeTestimonial[]
+  /** 7 image URLs in card order (left→right). Empty = use hardcoded fallback. */
+  heroImages: string[]
 }
 
 // TODO(AP): placeholder series — replace with Mandakini's real project
@@ -445,6 +447,7 @@ export async function getHomeData(): Promise<HomeData> {
       prints: PLACEHOLDER_PRINTS,
       press: PLACEHOLDER_PRESS,
       testimonials: PLACEHOLDER_TESTIMONIALS,
+      heroImages: [],
     }
   }
 
@@ -455,7 +458,7 @@ export async function getHomeData(): Promise<HomeData> {
       import('@/sanity/lib/queries'),
     ])
 
-    const [shopItems, pressItems] = await Promise.all([
+    const [shopItems, pressItems, rawHeroImages] = await Promise.all([
       client.fetch<
         | {
             title?: string
@@ -473,6 +476,7 @@ export async function getHomeData(): Promise<HomeData> {
         | { source?: string; title?: string; date?: string; externalLink?: string }[]
         | null
       >(queries.featuredPressItemsQuery),
+      client.fetch<SanityImageType[] | null>(queries.heroImagesQuery),
     ])
 
     const prints: HomePrint[] =
@@ -502,12 +506,18 @@ export async function getHomeData(): Promise<HomeData> {
           }))
         : PLACEHOLDER_PRESS
 
+    const heroImages =
+      rawHeroImages && rawHeroImages.length === 7
+        ? rawHeroImages.map((img) => urlForImage(img).width(1600).url())
+        : []
+
     // TODO(Sanity): no testimonial schema yet — placeholders until one lands.
     return {
       series,
       prints,
       press,
       testimonials: PLACEHOLDER_TESTIMONIALS,
+      heroImages,
     }
   } catch {
     return {
@@ -515,6 +525,7 @@ export async function getHomeData(): Promise<HomeData> {
       prints: PLACEHOLDER_PRINTS,
       press: PLACEHOLDER_PRESS,
       testimonials: PLACEHOLDER_TESTIMONIALS,
+      heroImages: [],
     }
   }
 }

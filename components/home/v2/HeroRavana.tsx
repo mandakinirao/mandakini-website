@@ -15,22 +15,42 @@ export interface HeroRavanaHandle {
   playEntrance: () => void
 }
 
+interface HeroRavanaProps {
+  /** 7 Sanity-hosted URLs in card order (left→right). Falls back to built-in set when empty. */
+  images?: string[]
+}
+
 // AP's sketch: one centered row, the largest card in the middle, pairs
 // stepping down in size outward, each tucked behind the previous.
 // ring 1 = center; cutouts ride on colored card stock.
-const CARDS = [
-  { src: '/art/subbulakshmi/ms-cut-4.webp', ring: 4, stock: 'cream' },
-  { src: '/art/subbulakshmi/ms-cut-2.webp', ring: 3, stock: 'indigo' },
-  { src: '/art/subbulakshmi/ms-sq-2.jpg', ring: 2, stock: '' },
-  { src: '/art/subbulakshmi/ms-sq-1.jpg', ring: 1, stock: '' },
-  { src: '/art/subbulakshmi/ms-sq-4.jpg', ring: 2, stock: '' },
-  { src: '/art/subbulakshmi/ms-cut-3.webp', ring: 3, stock: 'marigold' },
-  { src: '/art/subbulakshmi/ms-cut-1.webp', ring: 4, stock: 'cream' },
+// Layout (ring/stock) is positional config; src comes from Sanity or falls back.
+const CARD_LAYOUT = [
+  { ring: 4, stock: 'cream' },
+  { ring: 3, stock: 'indigo' },
+  { ring: 2, stock: '' },
+  { ring: 1, stock: '' },
+  { ring: 2, stock: '' },
+  { ring: 3, stock: 'marigold' },
+  { ring: 4, stock: 'cream' },
 ]
 
-const CENTER_INDEX = CARDS.findIndex((c) => c.ring === 1)
+const FALLBACK_SRCS = [
+  '/art/subbulakshmi/ms-cut-4.webp',
+  '/art/subbulakshmi/ms-cut-2.webp',
+  '/art/subbulakshmi/ms-sq-2.jpg',
+  '/art/subbulakshmi/ms-sq-1.jpg',
+  '/art/subbulakshmi/ms-sq-4.jpg',
+  '/art/subbulakshmi/ms-cut-3.webp',
+  '/art/subbulakshmi/ms-cut-1.webp',
+]
 
-const HeroRavana = forwardRef<HeroRavanaHandle>(function HeroRavana(_p, ref) {
+const CENTER_INDEX = CARD_LAYOUT.findIndex((c) => c.ring === 1)
+
+const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
+  function HeroRavana({ images }, ref) {
+  const srcs = images && images.length === 7 ? images : FALLBACK_SRCS
+  const CARDS = CARD_LAYOUT.map((t, i) => ({ ...t, src: srcs[i] }))
+
   const rootRef = useRef<HTMLElement>(null)
   const playedRef = useRef(false)
   // Gallery behaviour: one card is open at a time; hover moves it.
