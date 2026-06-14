@@ -65,8 +65,14 @@ export interface HomeData {
   prints: HomePrint[]
   press: HomePress[]
   testimonials: HomeTestimonial[]
-  /** 7 image URLs in card order (left→right). Empty = use hardcoded fallback. */
+  /** 7 image URLs in card order (left→right). Empty = use built-in fallback. */
   heroImages: string[]
+  /** "Painter · Educator · Storyteller" or whatever is set in siteSettings. */
+  tagline: string
+  /** One-line bio for the About section. */
+  aboutBio: string
+  /** Resolved URL for the About section portrait. Empty = use built-in fallback. */
+  aboutPortrait: string
 }
 
 // TODO(AP): placeholder series — replace with Mandakini's real project
@@ -448,6 +454,9 @@ export async function getHomeData(): Promise<HomeData> {
       press: PLACEHOLDER_PRESS,
       testimonials: PLACEHOLDER_TESTIMONIALS,
       heroImages: [],
+      tagline: 'Painter · Educator · Storyteller',
+      aboutBio: 'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.',
+      aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
     }
   }
 
@@ -458,7 +467,7 @@ export async function getHomeData(): Promise<HomeData> {
       import('@/sanity/lib/queries'),
     ])
 
-    const [shopItems, pressItems, rawHeroImages] = await Promise.all([
+    const [shopItems, pressItems, rawHeroImages, siteBasic, rawTestimonials] = await Promise.all([
       client.fetch<
         | {
             title?: string
@@ -477,6 +486,10 @@ export async function getHomeData(): Promise<HomeData> {
         | null
       >(queries.featuredPressItemsQuery),
       client.fetch<SanityImageType[] | null>(queries.heroImagesQuery),
+      client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
+        queries.siteSettingsBasicQuery
+      ),
+      client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
     ])
 
     const prints: HomePrint[] =
@@ -511,13 +524,28 @@ export async function getHomeData(): Promise<HomeData> {
         ? rawHeroImages.map((img) => urlForImage(img).width(1600).url())
         : []
 
-    // TODO(Sanity): no testimonial schema yet — placeholders until one lands.
+    const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
+    const aboutBio =
+      siteBasic?.aboutBio ??
+      'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
+    const aboutPortrait = siteBasic?.aboutPortrait
+      ? urlForImage(siteBasic.aboutPortrait).width(1600).url()
+      : '/art/loader/portrait-studio-seated-wide.jpg'
+
+    const testimonials =
+      rawTestimonials && rawTestimonials.length
+        ? rawTestimonials
+        : PLACEHOLDER_TESTIMONIALS
+
     return {
       series,
       prints,
       press,
-      testimonials: PLACEHOLDER_TESTIMONIALS,
+      testimonials,
       heroImages,
+      tagline,
+      aboutBio,
+      aboutPortrait,
     }
   } catch {
     return {
@@ -526,6 +554,9 @@ export async function getHomeData(): Promise<HomeData> {
       press: PLACEHOLDER_PRESS,
       testimonials: PLACEHOLDER_TESTIMONIALS,
       heroImages: [],
+      tagline: 'Painter · Educator · Storyteller',
+      aboutBio: 'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.',
+      aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
     }
   }
 }

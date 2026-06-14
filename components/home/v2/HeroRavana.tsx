@@ -18,6 +18,7 @@ export interface HeroRavanaHandle {
 interface HeroRavanaProps {
   /** 7 Sanity-hosted URLs in card order (left→right). Falls back to built-in set when empty. */
   images?: string[]
+  tagline?: string
 }
 
 // AP's sketch: one centered row, the largest card in the middle, pairs
@@ -47,7 +48,7 @@ const FALLBACK_SRCS = [
 const CENTER_INDEX = CARD_LAYOUT.findIndex((c) => c.ring === 1)
 
 const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
-  function HeroRavana({ images }, ref) {
+  function HeroRavana({ images, tagline = 'Painter · Educator · Storyteller' }, ref) {
   const srcs = images && images.length === 7 ? images : FALLBACK_SRCS
   const CARDS = CARD_LAYOUT.map((t, i) => ({ ...t, src: srcs[i] }))
 
@@ -200,7 +201,7 @@ const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
         ))}
       </div>
 
-      <p className="mr2-hero__roles">Painter · Educator · Storyteller</p>
+      <p className="mr2-hero__roles">{tagline}</p>
       <p className="mr2-hero__cue">Scroll</p>
     </section>
   )

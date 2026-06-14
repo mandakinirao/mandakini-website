@@ -13,6 +13,7 @@ const PINNED = [
   'shopItem',
   'order',
   'pressItem',
+  'testimonial',
 ]
 
 const structure = (S: StructureBuilder) =>
@@ -32,6 +33,7 @@ const structure = (S: StructureBuilder) =>
       S.documentTypeListItem('order').title('Orders'),
       S.divider(),
       S.documentTypeListItem('pressItem').title('Press'),
+      S.documentTypeListItem('testimonial').title('Testimonials'),
       ...S.documentTypeListItems().filter(
         (item) => !PINNED.includes(item.getId() ?? '')
       ),

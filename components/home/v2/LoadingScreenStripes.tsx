@@ -28,6 +28,7 @@ interface LoadingScreenStripesProps {
   onComplete: () => void
   /** Hero card URLs to preload (from Sanity). Falls back to built-in set when empty. */
   heroAssets?: string[]
+  tagline?: string
 }
 
 /**
@@ -40,6 +41,7 @@ interface LoadingScreenStripesProps {
 export default function LoadingScreenStripes({
   onComplete,
   heroAssets,
+  tagline = 'Painter · Educator · Storyteller',
 }: LoadingScreenStripesProps) {
   const HERO_ASSETS = heroAssets && heroAssets.length ? heroAssets : FALLBACK_HERO_ASSETS
   const rootRef = useRef<HTMLDivElement>(null)
@@ -168,7 +170,7 @@ export default function LoadingScreenStripes({
         <h1 ref={wordRef} className="mr2-loader__word">
           Mandakini Rao
         </h1>
-        <p className="mr2-loader__sub">Painter · Educator · Storyteller</p>
+        <p className="mr2-loader__sub">{tagline}</p>
       </div>
 
       <div className="mr2-loader__status">

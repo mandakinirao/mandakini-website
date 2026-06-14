@@ -8,6 +8,21 @@ export const heroImagesQuery = groq`
   *[_type == "siteSettings"][0].heroImages
 `
 
+export const siteSettingsBasicQuery = groq`
+  *[_type == "siteSettings"][0] {
+    tagline,
+    aboutBio,
+    aboutPortrait
+  }
+`
+
+export const testimonialsQuery = groq`
+  *[_type == "testimonial"] | order(displayOrder asc) {
+    quote,
+    author
+  }
+`
+
 export const featuredShopItemsQuery = groq`
   coalesce(
     *[_type == "siteSettings"][0].featuredShopItems[]->

@@ -12,14 +12,10 @@ import {
   revealLines,
 } from '@/lib/motion'
 
-// TODO(AP): CONFIRM IMAGE PATH — spec suggests
-// /public/images/about/mandakini-portrait.jpg; using the approved
-// studio portrait until the dedicated about crop arrives.
-const PORTRAIT = '/art/loader/portrait-studio-seated-wide.jpg'
-
-// PLACEHOLDER COPY — pending client approval.
-const LINE =
-  'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
+interface CanvasCardsProps {
+  portrait: string
+  bio: string
+}
 
 /**
  * Homepage §2 — About. (File name kept so the orchestrator is untouched.)
@@ -27,7 +23,7 @@ const LINE =
  * generously rounded mask, and one display line with a pill CTA to
  * /about. The previous rolling-word ticker is fully removed.
  */
-export default function CanvasCards() {
+export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
   const rootRef = useRef<HTMLElement>(null)
   const maskRef = useRef<HTMLDivElement>(null)
 
@@ -95,7 +91,7 @@ export default function CanvasCards() {
     <section ref={rootRef} className="mr2-about" aria-label="About Mandakini">
       <div ref={maskRef} className="mr2-about__media">
         <Image
-          src={PORTRAIT}
+          src={portrait}
           alt="Mandakini Rao in her studio"
           fill
           sizes="(max-width: 900px) 92vw, 44vw"
@@ -103,7 +99,7 @@ export default function CanvasCards() {
       </div>
 
       <div className="mr2-about__text">
-        <p className="mr2-about__line">{LINE}</p>
+        <p className="mr2-about__line">{bio}</p>
         <Link href="/about" className="mr2-about__cta" data-cursor="view">
           About Mandakini
         </Link>

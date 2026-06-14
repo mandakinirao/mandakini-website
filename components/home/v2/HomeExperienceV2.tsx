@@ -26,6 +26,9 @@ export default function HomeExperienceV2({
   press,
   testimonials,
   heroImages,
+  tagline,
+  aboutBio,
+  aboutPortrait,
 }: HomeData) {
   const heroRef = useRef<HeroRavanaHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
@@ -65,9 +68,9 @@ export default function HomeExperienceV2({
 
   return (
     <div className="mr2-home">
-      {showLoader && <LoadingScreenStripes onComplete={handleComplete} heroAssets={heroImages} />}
-      <HeroRavana ref={heroRef} images={heroImages} />
-      <CanvasCards />
+      {showLoader && <LoadingScreenStripes onComplete={handleComplete} heroAssets={heroImages} tagline={tagline} />}
+      <HeroRavana ref={heroRef} images={heroImages} tagline={tagline} />
+      <CanvasCards portrait={aboutPortrait} bio={aboutBio} />
       <StripeBand />
       <RisingSunWorks series={series} />
       <EditionShop prints={prints} />

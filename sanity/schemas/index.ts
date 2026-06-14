@@ -10,6 +10,7 @@ import { navigationSchema } from './navigation'
 import { classSchema } from './class'
 import { memberSchema } from './member'
 import { enquirySchema } from './enquiry'
+import { testimonialSchema } from './testimonial'
 
 export const schemaTypes = [
   projectSchema,
@@ -23,4 +24,5 @@ export const schemaTypes = [
   classSchema,
   memberSchema,
   enquirySchema,
+  testimonialSchema,
 ] as unknown as SchemaTypeDefinition[]

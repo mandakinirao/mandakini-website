@@ -8,6 +8,25 @@ export const siteSettingsSchema = defineType({
   fields: [
     defineField({ name: 'homepageHeadline', title: 'Homepage Headline', type: 'string' }),
     defineField({ name: 'homepageSubtext', title: 'Homepage Subtext', type: 'string' }),
+    defineField({
+      name: 'tagline',
+      title: 'Tagline',
+      type: 'string',
+      description: 'Shown beneath the name on the hero and loading screen. E.g. "Painter · Educator · Storyteller"',
+    }),
+    defineField({
+      name: 'aboutPortrait',
+      title: 'About Portrait',
+      type: 'image',
+      options: { hotspot: true },
+      description: 'The portrait shown in the About section on the homepage.',
+    }),
+    defineField({
+      name: 'aboutBio',
+      title: 'About Bio (one line)',
+      type: 'string',
+      description: 'Single sentence shown beside the portrait in the About section.',
+    }),
     defineField({ name: 'featuredProjects', title: 'Featured Projects (Homepage)', type: 'array', of: [{ type: 'reference', to: [{ type: 'project' }] }] }),
     defineField({ name: 'featuredShopItems', title: 'Featured Shop Items (Homepage)', type: 'array', of: [{ type: 'reference', to: [{ type: 'shopItem' }] }] }),
     defineField({
