@@ -40,6 +40,24 @@ export const siteSettingsSchema = defineType({
     }),
     defineField({ name: 'signupCtaText', title: 'Signup CTA Text', type: 'string' }),
     defineField({
+      name: 'worksPageHeadline',
+      title: 'Works Page Headline',
+      type: 'string',
+      description: 'Large heading on the /works listing page. E.g. "Bodies of work"',
+    }),
+    defineField({
+      name: 'worksEmptyHeadline',
+      title: 'Works Empty State Headline',
+      type: 'string',
+      description: 'Shown when no projects are published yet.',
+    }),
+    defineField({
+      name: 'worksEmptyBody',
+      title: 'Works Empty State Body',
+      type: 'string',
+      description: 'Supporting line shown below the empty state headline.',
+    }),
+    defineField({
       name: 'shopPageHeadline',
       title: 'Shop Page Headline',
       type: 'string',

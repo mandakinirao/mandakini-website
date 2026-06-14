@@ -1,4 +1,7 @@
 export interface SiteSettings {
+  worksPageHeadline: string
+  worksEmptyHeadline: string
+  worksEmptyBody: string
   shopPageHeadline: string
   shopPrintNote: string
   printDefaultPaper: string
@@ -12,6 +15,9 @@ export interface SiteSettings {
 }
 
 const DEFAULTS: SiteSettings = {
+  worksPageHeadline: 'Bodies of work',
+  worksEmptyHeadline: 'New work is on the easel',
+  worksEmptyBody: 'No projects are published yet — the studio is busy. Check back soon.',
   shopPageHeadline: 'Signed editions from the Hyderabad studio',
   shopPrintNote: 'Each print is signed and numbered in the Hyderabad studio.',
   printDefaultPaper: '308gsm cotton rag, archival',
@@ -43,6 +49,9 @@ export async function getSiteSettings(): Promise<SiteSettings> {
     if (!doc) return DEFAULTS
 
     return {
+      worksPageHeadline: doc.worksPageHeadline ?? DEFAULTS.worksPageHeadline,
+      worksEmptyHeadline: doc.worksEmptyHeadline ?? DEFAULTS.worksEmptyHeadline,
+      worksEmptyBody: doc.worksEmptyBody ?? DEFAULTS.worksEmptyBody,
       shopPageHeadline: doc.shopPageHeadline ?? DEFAULTS.shopPageHeadline,
       shopPrintNote: doc.shopPrintNote ?? DEFAULTS.shopPrintNote,
       printDefaultPaper: doc.printDefaultPaper ?? DEFAULTS.printDefaultPaper,

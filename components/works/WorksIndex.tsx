@@ -22,6 +22,9 @@ interface WorksIndexProps {
   series: HomeSeries[]
   /** curated Tier 1 (Site Settings → Featured Projects) */
   featured: HomeSeries[]
+  headline?: string
+  emptyHeadline?: string
+  emptyBody?: string
 }
 
 /**
@@ -30,7 +33,13 @@ interface WorksIndexProps {
  * compact, scannable list row with a floating cover preview on hover.
  * Scales to 30+ projects without the page becoming a marathon.
  */
-export default function WorksIndex({ series, featured }: WorksIndexProps) {
+export default function WorksIndex({
+  series,
+  featured,
+  headline = 'Bodies of work',
+  emptyHeadline = 'New work is on the easel',
+  emptyBody = 'No projects are published yet — the studio is busy. Check back soon.',
+}: WorksIndexProps) {
   const rootRef = useRef<HTMLElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const previewImgRef = useRef<HTMLImageElement>(null)
@@ -155,10 +164,10 @@ export default function WorksIndex({ series, featured }: WorksIndexProps) {
       <section className="mr-page" aria-label="Projects">
         <header className="mr-page__head">
           <p>Projects</p>
-          <h1>New work is on the easel</h1>
+          <h1>{emptyHeadline}</h1>
         </header>
         <div className="mr-page__note">
-          <p>No projects are published yet — the studio is busy. Check back soon.</p>
+          <p>{emptyBody}</p>
           <Link href="/" className="mr-pill" data-cursor="view">
             Back home
           </Link>
@@ -173,7 +182,7 @@ export default function WorksIndex({ series, featured }: WorksIndexProps) {
         <p>
           Projects <span className="mr-eyebrow__count">({series.length})</span>
         </p>
-        <h1>Bodies of work</h1>
+        <h1>{headline}</h1>
       </header>
 
       {/* Tier 1 — featured */}

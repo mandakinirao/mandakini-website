@@ -25,6 +25,9 @@ export const testimonialsQuery = groq`
 
 export const siteSettingsShopQuery = groq`
   *[_type == "siteSettings"][0] {
+    worksPageHeadline,
+    worksEmptyHeadline,
+    worksEmptyBody,
     shopPageHeadline,
     shopPrintNote,
     printDefaultPaper,
