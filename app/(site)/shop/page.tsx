@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import PrivateCollection from '@/components/shop/PrivateCollection'
 import ShopIndex from '@/components/shop/ShopIndex'
 import { getHomeData } from '@/lib/home-data'
+import { getSiteSettings } from '@/lib/site-settings'
 import { commerceEnabled } from '@/lib/commerce'
 
 export const metadata: Metadata = {
@@ -9,15 +10,25 @@ export const metadata: Metadata = {
   description: 'Signed, numbered print editions from Mandakini Rao\'s Hyderabad studio.',
 }
 
-// ISR: static page, refreshed every 60s and on the Sanity publish webhook.
 export const revalidate = 60
 
 export default async function ShopPage() {
-  const { prints } = await getHomeData()
+  const [{ prints }, settings] = await Promise.all([
+    getHomeData(),
+    getSiteSettings(),
+  ])
   return (
     <>
-      <ShopIndex prints={prints} commerceEnabled={commerceEnabled()} />
-      <PrivateCollection />
+      <ShopIndex
+        prints={prints}
+        commerceEnabled={commerceEnabled()}
+        headline={settings.shopPageHeadline}
+        printNote={settings.shopPrintNote}
+      />
+      <PrivateCollection
+        title={settings.privateCollectionTitle}
+        line={settings.privateCollectionLine}
+      />
     </>
   )
 }

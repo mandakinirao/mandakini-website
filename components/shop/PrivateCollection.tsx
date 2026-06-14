@@ -11,13 +11,21 @@ import {
   unlockScroll,
 } from '@/lib/motion'
 
+interface PrivateCollectionProps {
+  title?: string
+  line?: string
+}
+
 /**
  * The Private Collection — a doorway, never a gallery. No imagery,
  * no titles, no previews of private works exist anywhere on the site;
  * visitors enquire and Mandakini responds personally. The section is
  * a deliberate room-change: deep warm near-black against the page.
  */
-export default function PrivateCollection() {
+export default function PrivateCollection({
+  title = 'The Private Collection',
+  line = 'A selection of original works shared personally with collectors. Enquire to receive the collection.',
+}: PrivateCollectionProps) {
   const rootRef = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
 
@@ -66,12 +74,8 @@ export default function PrivateCollection() {
 
   return (
     <section ref={rootRef} className="mr-pc" aria-label="The Private Collection">
-      {/* PLACEHOLDER COPY — pending client approval */}
-      <h2 className="mr-pc__title">The Private Collection</h2>
-      <p className="mr-pc__line">
-        A selection of original works shared personally with collectors.
-        Enquire to receive the collection.
-      </p>
+      <h2 className="mr-pc__title">{title}</h2>
+      <p className="mr-pc__line">{line}</p>
       <button
         type="button"
         className="mr-pc__cta"

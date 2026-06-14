@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import ProductDetail from '@/components/shop/ProductDetail'
 import { getAllPrints, getPrintBySlug } from '@/lib/home-data'
+import { getSiteSettings } from '@/lib/site-settings'
 import { commerceEnabled } from '@/lib/commerce'
 
 interface Params {
@@ -16,13 +17,13 @@ export async function generateMetadata({ params }: Params): Promise<Metadata> {
   }
 }
 
-// ISR: static page, refreshed every 60s and on the Sanity publish webhook.
 export const revalidate = 60
 
 export default async function ProductPage({ params }: Params) {
-  const [print, all] = await Promise.all([
+  const [print, all, settings] = await Promise.all([
     getPrintBySlug(params.slug),
     getAllPrints(),
+    getSiteSettings(),
   ])
   if (!print) notFound()
 
@@ -32,6 +33,9 @@ export default async function ProductPage({ params }: Params) {
       print={print}
       others={others}
       commerceEnabled={commerceEnabled()}
+      paperSpec={settings.printDefaultPaper}
+      signatureSpec={settings.printDefaultSignature}
+      shippingSpec={settings.printDefaultShipping}
     />
   )
 }

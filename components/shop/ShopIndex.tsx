@@ -12,9 +12,16 @@ const PAGE_SIZE = 12
 interface ShopIndexProps {
   prints: HomePrint[]
   commerceEnabled: boolean
+  headline?: string
+  printNote?: string
 }
 
-export default function ShopIndex({ prints, commerceEnabled }: ShopIndexProps) {
+export default function ShopIndex({
+  prints,
+  commerceEnabled,
+  headline = 'Signed editions from the Hyderabad studio',
+  printNote = 'Each print is signed and numbered in the Hyderabad studio.',
+}: ShopIndexProps) {
   const rootRef = useRef<HTMLElement>(null)
   const [visible, setVisible] = useState(PAGE_SIZE)
 
@@ -60,7 +67,7 @@ export default function ShopIndex({ prints, commerceEnabled }: ShopIndexProps) {
     <section ref={rootRef} className="mr-page" aria-label="Shop">
       <header className="mr-page__head">
         <p>The Shop</p>
-        <h1>Signed editions from the Hyderabad studio</h1>
+        <h1>{headline}</h1>
       </header>
 
       <div className="mr-products">
@@ -131,7 +138,7 @@ export default function ShopIndex({ prints, commerceEnabled }: ShopIndexProps) {
       )}
 
       <div className="mr-page__note">
-        <p>Each print is signed and numbered in the Hyderabad studio.</p>
+        <p>{printNote}</p>
       </div>
     </section>
   )

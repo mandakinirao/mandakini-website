@@ -17,6 +17,9 @@ interface ProductDetailProps {
   print: HomePrint
   others: HomePrint[]
   commerceEnabled: boolean
+  paperSpec?: string
+  signatureSpec?: string
+  shippingSpec?: string
 }
 
 /**
@@ -24,7 +27,14 @@ interface ProductDetailProps {
  * the facts on the right. No cart yet — purchases run through an
  * enquiry, which suits small signed editions.
  */
-export default function ProductDetail({ print, others, commerceEnabled }: ProductDetailProps) {
+export default function ProductDetail({
+  print,
+  others,
+  commerceEnabled,
+  paperSpec = '308gsm cotton rag, archival',
+  signatureSpec = 'Signed & numbered by hand',
+  shippingSpec = 'Rolled, worldwide from Hyderabad',
+}: ProductDetailProps) {
   const rootRef = useRef<HTMLElement>(null)
 
   useEffect(() => {
@@ -70,18 +80,9 @@ export default function ProductDetail({ print, others, commerceEnabled }: Produc
           <p className="mr-pdp__desc">{print.desc}</p>
 
           <dl className="mr-pdp__meta">
-            <div>
-              <dt>Paper</dt>
-              <dd>308gsm cotton rag, archival</dd>
-            </div>
-            <div>
-              <dt>Signature</dt>
-              <dd>Signed &amp; numbered by hand</dd>
-            </div>
-            <div>
-              <dt>Shipping</dt>
-              <dd>Rolled, worldwide from Hyderabad</dd>
-            </div>
+            <div><dt>Paper</dt><dd>{paperSpec}</dd></div>
+            <div><dt>Signature</dt><dd>{signatureSpec}</dd></div>
+            <div><dt>Shipping</dt><dd>{shippingSpec}</dd></div>
           </dl>
 
           {commerceEnabled ? (

@@ -40,6 +40,58 @@ export const siteSettingsSchema = defineType({
     }),
     defineField({ name: 'signupCtaText', title: 'Signup CTA Text', type: 'string' }),
     defineField({
+      name: 'shopPageHeadline',
+      title: 'Shop Page Headline',
+      type: 'string',
+      description: 'Large heading on the /shop listing page.',
+    }),
+    defineField({
+      name: 'shopPrintNote',
+      title: 'Shop Print Note',
+      type: 'string',
+      description: 'Small note at the bottom of the shop listing. E.g. "Each print is signed and numbered in the Hyderabad studio."',
+    }),
+    defineField({
+      name: 'printDefaultPaper',
+      title: 'Default Paper Spec',
+      type: 'string',
+      description: 'Shown in the print spec table on every product page.',
+    }),
+    defineField({
+      name: 'printDefaultSignature',
+      title: 'Default Signature Spec',
+      type: 'string',
+    }),
+    defineField({
+      name: 'printDefaultShipping',
+      title: 'Default Shipping Spec',
+      type: 'string',
+    }),
+    defineField({
+      name: 'thankYouMessage',
+      title: 'Thank You Page Message',
+      type: 'text',
+      rows: 3,
+      description: 'Shown on /thank-you after a successful purchase.',
+    }),
+    defineField({
+      name: 'contactPageIntro',
+      title: 'Contact Page Intro',
+      type: 'text',
+      rows: 3,
+    }),
+    defineField({
+      name: 'privateCollectionTitle',
+      title: 'Private Collection Title',
+      type: 'string',
+    }),
+    defineField({
+      name: 'privateCollectionLine',
+      title: 'Private Collection Description',
+      type: 'text',
+      rows: 2,
+    }),
+    defineField({
       name: 'socialLinks',
       title: 'Social Links',
       type: 'object',

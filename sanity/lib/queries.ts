@@ -23,6 +23,34 @@ export const testimonialsQuery = groq`
   }
 `
 
+export const siteSettingsShopQuery = groq`
+  *[_type == "siteSettings"][0] {
+    shopPageHeadline,
+    shopPrintNote,
+    printDefaultPaper,
+    printDefaultSignature,
+    printDefaultShipping,
+    thankYouMessage,
+    contactPageIntro,
+    contactEmail,
+    privateCollectionTitle,
+    privateCollectionLine
+  }
+`
+
+export const allPressQuery = groq`
+  *[_type == "pressItem"] | order(coalesce(displayOrder, 999) asc, date desc) {
+    _id,
+    type,
+    title,
+    source,
+    date,
+    excerpt,
+    externalLink,
+    "logo": logo.asset->url
+  }
+`
+
 export const aboutQuery = groq`
   *[_type == "about"][0] {
     bio,
