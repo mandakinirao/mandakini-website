@@ -20,12 +20,17 @@ const THEME_KEY = 'mr2-theme'
  * dark/light theme toggle, the shutter-loader handoff, and the
  * section run. V1 is untouched as the default.
  */
+const SANITY_HERO_QUERY = encodeURIComponent(
+  '*[_type == "siteSettings"][0].heroImages[].asset->url'
+)
+const SANITY_HERO_URL = `https://i4t9kzxg.api.sanity.io/v2021-10-21/data/query/production?query=${SANITY_HERO_QUERY}`
+
 export default function HomeExperienceV2({
   series,
   prints,
   press,
   testimonials,
-  heroImages,
+  heroImages: heroImagesProp,
   tagline,
   aboutBio,
   aboutPortrait,
@@ -33,6 +38,18 @@ export default function HomeExperienceV2({
   const heroRef = useRef<HeroRavanaHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
   const [light, setLight] = useState(false)
+  const [heroImages, setHeroImages] = useState<string[]>(heroImagesProp ?? [])
+
+  useEffect(() => {
+    if (heroImages.length === 7) return
+    fetch(SANITY_HERO_URL)
+      .then((r) => r.json())
+      .then((d) => {
+        const urls: string[] = d?.result ?? []
+        if (urls.length === 7) setHeroImages(urls)
+      })
+      .catch(() => {})
+  }, [heroImages.length])
 
   useEffect(() => {
     document.body.classList.add('mr2-mode')
