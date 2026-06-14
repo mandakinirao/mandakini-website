@@ -179,13 +179,16 @@ const HeroRavana = forwardRef<HeroRavanaHandle, HeroRavanaProps>(
             data-side={i < CENTER_INDEX ? 'l' : 'r'}
             onPointerEnter={() => setOpen(i)}
           >
-            <Image
-              src={card.src}
-              alt=""
-              fill
-              priority={card.ring <= 2}
-              sizes="(max-width: 900px) 60vw, 30vw"
-            />
+            {card.src && (
+              <Image
+                src={card.src}
+                alt=""
+                fill
+                unoptimized
+                priority={card.ring <= 2}
+                sizes="(max-width: 900px) 60vw, 30vw"
+              />
+            )}
           </div>
         ))}
       </div>
