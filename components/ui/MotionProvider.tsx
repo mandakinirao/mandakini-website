@@ -27,13 +27,16 @@ import CursorFollower from '@/components/ui/CursorFollower'
 export default function MotionProvider() {
   const lenisRef = useRef<ReturnType<typeof initLenis>>(null)
   const pathname = usePathname()
+  const isStudio = pathname.startsWith('/studio')
 
   useEffect(() => {
+    if (isStudio) return
     lenisRef.current = initLenis()
     return () => destroyLenis()
-  }, [])
+  }, [isStudio])
 
   useEffect(() => {
+    if (isStudio) return
     lenisRef.current?.scrollTo(0, { immediate: true, force: true })
     window.scrollTo(0, 0)
     const cleanupSkew = initVelocitySkew()
@@ -46,7 +49,8 @@ export default function MotionProvider() {
       cancelAnimationFrame(raf2)
       cleanupSkew()
     }
-  }, [pathname])
+  }, [pathname, isStudio])
 
+  if (isStudio) return null
   return <CursorFollower />
 }
