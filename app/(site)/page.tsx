@@ -2,7 +2,7 @@ import HomeExperience from '@/components/home/HomeExperience'
 import HomeExperienceV2 from '@/components/home/v2/HomeExperienceV2'
 import { getHomeData } from '@/lib/home-data'
 
-export const revalidate = 60
+export const dynamic = 'force-dynamic'
 
 /**
  * V2 ("the poster") is the site. The earlier V1 direction is kept at
