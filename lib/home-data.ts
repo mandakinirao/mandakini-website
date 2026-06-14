@@ -460,101 +460,104 @@ export async function getHomeData(): Promise<HomeData> {
     }
   }
 
-  try {
-    const [{ client }, { urlForImage }, queries] = await Promise.all([
-      import('@/sanity/lib/client'),
-      import('@/sanity/lib/image'),
-      import('@/sanity/lib/queries'),
-    ])
+  const [{ client }, { urlForImage }, queries] = await Promise.all([
+    import('@/sanity/lib/client'),
+    import('@/sanity/lib/image'),
+    import('@/sanity/lib/queries'),
+  ])
 
-    const [shopItems, pressItems, rawHeroImages, siteBasic, rawTestimonials] = await Promise.all([
-      client.fetch<
-        | {
-            title?: string
-            slug?: string
-            basePrice?: number
-            images?: SanityImageType[]
-            availabilityStatus?: string
-            editionSize?: number
-            sold?: number
-            stock?: number
-          }[]
-        | null
-      >(queries.featuredShopItemsQuery),
-      client.fetch<
-        | { source?: string; title?: string; date?: string; externalLink?: string }[]
-        | null
-      >(queries.featuredPressItemsQuery),
-      client.fetch<string[] | null>(queries.heroImagesQuery),
-      client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
-        queries.siteSettingsBasicQuery
-      ),
-      client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
-    ])
+  const ok = <T>(r: PromiseSettledResult<T>): T | null =>
+    r.status === 'fulfilled' ? r.value : null
 
-    const prints: HomePrint[] =
-      shopItems && shopItems.length
-        ? shopItems.slice(0, 3).map((s, i) => ({
+  const [shopRes, pressRes, heroRes, basicRes, testiRes] = await Promise.allSettled([
+    client.fetch<
+      | {
+          title?: string
+          slug?: string
+          basePrice?: number
+          images?: SanityImageType[]
+          availabilityStatus?: string
+          editionSize?: number
+          sold?: number
+          stock?: number
+        }[]
+      | null
+    >(queries.featuredShopItemsQuery),
+    client.fetch<
+      | { source?: string; title?: string; date?: string; externalLink?: string }[]
+      | null
+    >(queries.featuredPressItemsQuery),
+    client.fetch<string[] | null>(queries.heroImagesQuery),
+    client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
+      queries.siteSettingsBasicQuery
+    ),
+    client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
+  ])
+
+  const shopItems = ok(shopRes)
+  const pressItems = ok(pressRes)
+  const rawHeroImages = ok(heroRes)
+  const siteBasic = ok(basicRes)
+  const rawTestimonials = ok(testiRes)
+
+  const prints: HomePrint[] =
+    shopItems && shopItems.length
+      ? shopItems.slice(0, 3).map((s, i) => {
+          let image = PLACEHOLDER_PRINTS[i % PLACEHOLDER_PRINTS.length].image
+          try {
+            if (s.images?.[0]) image = urlForImage(s.images[0]).width(1200).url()
+          } catch {}
+          return {
             title: s.title ?? 'Untitled print',
             slug: s.slug ?? `print-${i + 1}`,
             price: s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
-            image: s.images?.[0]
-              ? urlForImage(s.images[0]).width(1200).url()
-              : PLACEHOLDER_PRINTS[i % PLACEHOLDER_PRINTS.length].image,
+            image,
             href: s.slug ? `/shop/${s.slug}` : '/shop',
             desc: PLACEHOLDER_PRINTS[i % PLACEHOLDER_PRINTS.length].desc,
             available: printAvailable(s),
             amount: s.basePrice ?? 0,
             stock: s.stock ?? 0,
-          }))
-        : PLACEHOLDER_PRINTS
+          }
+        })
+      : PLACEHOLDER_PRINTS
 
-    const press: HomePress[] =
-      pressItems && pressItems.length
-        ? pressItems.map((p) => ({
-            source: p.source ?? '',
-            title: p.title ?? '',
-            year: p.date ? p.date.slice(0, 4) : '',
-            url: p.externalLink,
-          }))
-        : PLACEHOLDER_PRESS
+  const press: HomePress[] =
+    pressItems && pressItems.length
+      ? pressItems.map((p) => ({
+          source: p.source ?? '',
+          title: p.title ?? '',
+          year: p.date ? p.date.slice(0, 4) : '',
+          url: p.externalLink,
+        }))
+      : PLACEHOLDER_PRESS
 
-    const heroImages =
-      rawHeroImages && rawHeroImages.length === 7 ? rawHeroImages : []
+  const heroImages =
+    rawHeroImages && rawHeroImages.length === 7 ? rawHeroImages : []
 
-    const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
-    const aboutBio =
-      siteBasic?.aboutBio ??
-      'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
-    const aboutPortrait = siteBasic?.aboutPortrait
-      ? urlForImage(siteBasic.aboutPortrait).width(1600).url()
-      : '/art/loader/portrait-studio-seated-wide.jpg'
-
-    const testimonials =
-      rawTestimonials && rawTestimonials.length
-        ? rawTestimonials
-        : PLACEHOLDER_TESTIMONIALS
-
-    return {
-      series,
-      prints,
-      press,
-      testimonials,
-      heroImages,
-      tagline,
-      aboutBio,
-      aboutPortrait,
+  const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
+  const aboutBio =
+    siteBasic?.aboutBio ??
+    'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
+  let aboutPortrait = '/art/loader/portrait-studio-seated-wide.jpg'
+  try {
+    if (siteBasic?.aboutPortrait) {
+      aboutPortrait = urlForImage(siteBasic.aboutPortrait).width(1600).url()
     }
-  } catch {
-    return {
-      series,
-      prints: PLACEHOLDER_PRINTS,
-      press: PLACEHOLDER_PRESS,
-      testimonials: PLACEHOLDER_TESTIMONIALS,
-      heroImages: [],
-      tagline: 'Painter · Educator · Storyteller',
-      aboutBio: 'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.',
-      aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
-    }
+  } catch {}
+
+  const testimonials =
+    rawTestimonials && rawTestimonials.length
+      ? rawTestimonials
+      : PLACEHOLDER_TESTIMONIALS
+
+  return {
+    series,
+    prints,
+    press,
+    testimonials,
+    heroImages,
+    tagline,
+    aboutBio,
+    aboutPortrait,
   }
 }
