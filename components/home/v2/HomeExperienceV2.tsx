@@ -39,7 +39,9 @@ export default function HomeExperienceV2({
   const [showLoader, setShowLoader] = useState(true)
   const [light, setLight] = useState(false)
   const [heroImages, setHeroImages] = useState<string[]>(heroImagesProp ?? [])
+  const pendingEntrance = useRef(false)
 
+  // Fetch images client-side so server-side failures never blank the hero.
   useEffect(() => {
     if (heroImages.length === 7) return
     fetch(SANITY_HERO_URL)
@@ -51,6 +53,14 @@ export default function HomeExperienceV2({
       .catch(() => {})
   }, [heroImages.length])
 
+  // When images arrive, fire any entrance that was waiting for them.
+  useEffect(() => {
+    if (heroImages.length === 7 && pendingEntrance.current) {
+      pendingEntrance.current = false
+      heroRef.current?.playEntrance()
+    }
+  }, [heroImages])
+
   useEffect(() => {
     document.body.classList.add('mr2-mode')
     const stored = localStorage.getItem(THEME_KEY) === 'light'
@@ -59,14 +69,18 @@ export default function HomeExperienceV2({
     return () => document.body.classList.remove('mr2-mode', 'mr2-light')
   }, [])
 
-  // The intro plays once per browser session; revisits and refreshes
-  // land straight on the hero (a new tab replays it).
+  // The intro plays once per browser session; revisits skip the loader.
   useEffect(() => {
     if (sessionStorage.getItem('mr2-intro-seen')) {
       setShowLoader(false)
       unlockScroll()
-      heroRef.current?.playEntrance()
+      if (heroImages.length === 7) {
+        heroRef.current?.playEntrance()
+      } else {
+        pendingEntrance.current = true
+      }
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
 
   const toggleTheme = () => {
@@ -79,7 +93,11 @@ export default function HomeExperienceV2({
   const handleComplete = () => {
     setShowLoader(false)
     unlockScroll()
-    heroRef.current?.playEntrance()
+    if (heroImages.length === 7) {
+      heroRef.current?.playEntrance()
+    } else {
+      pendingEntrance.current = true
+    }
     ScrollTrigger.refresh()
   }
 
