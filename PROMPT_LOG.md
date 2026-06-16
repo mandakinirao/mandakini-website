@@ -2,6 +2,35 @@
 
 ---
 
+## 2026-06-16 (WebGL hero)
+
+**Prompt:**
+Read PROJECT.md and PROGRESS.md first.
+
+GOAL: Replace the current homepage hero visual with a WebGL liquid-reveal effect built around a single centered portrait of Mandakini. This is an INTEGRATION into the live Next.js app, not a standalone prototype.
+
+THE EFFECT:
+- Single colored portrait (hero-portrait-color.jpg) at rest — always visible base state.
+- Cursor over hero: soft-edged radial reveal of alternate portrait (hero-portrait-alt.jpg) with fluid displacement warp.
+- Displacement intensifies with velocity, settles when still; cursor leaves → returns to base.
+
+TEXTURES: hero-portrait-color.jpg, hero-portrait-alt.jpg, hero-displacement.jpg (placeholder paths user will swap).
+
+DESIGN CONSTRAINTS: NO grain, noise, or glitch — most important rule. Painterly, liquid, fluid only.
+
+INTEGRATION REQUIREMENTS:
+- Mount WebGL canvas client-side only (dynamic import ssr:false)
+- Tie render loop into GSAP ticker — no competing rAF
+- Existing cursor stays unchanged
+- Fallback: static Image on no-WebGL, reduced-motion, or while loading
+- Preserve loading screen + hero scroll-exit choreography
+- Lazy/defer texture loading
+- Expose tunable params with comments: reveal radius, edge feather, displacement amplitude, velocity influence, settle speed
+
+ON COMPLETION: Update PROGRESS.md and PROMPT_LOG.md.
+
+---
+
 ## 2026-06-16
 
 **Prompt:**

@@ -1,5 +1,11 @@
 # Progress Log
 
+## WebGL liquid-reveal hero (June 2026)
+- **Date:** 2026-06-16
+- **Task:** Replace the static hero portrait with a WebGL liquid-reveal effect. Cursor hovering over the hero fades in an alternate portrait through a soft radial mask with fluid displacement warp. Warp amplitude scales with cursor velocity and settles when still; cursor leaving the hero returns to the base colored portrait. Static `<Image>` always rendered beneath the canvas as fallback (no-WebGL, reduced-motion, SSR).
+- **Files changed:** `components/home/v2/HeroPortrait.tsx` (dynamic import of HeroLiquid, static fallback co-rendered), `components/home/v2/HeroLiquid.tsx` (new — WebGL1 canvas, GSAP ticker render loop, procedural displacement fallback, ResizeObserver), `app/v2.css` (`.mr2-hp__gl` opacity transition via `data-ready`), `public/art/hero/` (placeholder portrait images).
+- **Key decisions:** Procedural smooth sine-wave displacement canvas used when no `dispSrc` provided (no noise/grain). GSAP ticker piggy-backs on Lenis loop (no competing rAF). Canvas opacity: 0 → 1 triggered by `canvas.dataset.ready = 'true'` once textures decode. All tunable constants (radius, feather, amplitude, velocity influence, settle speed) are JS constants with comments at the top of HeroLiquid.tsx.
+
 ## Cursor replaced + CTAs unified (June 2026)
 - **Date:** 2026-06-16
 - **Task 1 — Cursor:** Replaced the expand-to-VIEW cursor entirely. New design: `--v2-fg` outer ring (34px, trails at 0.5s power3.out) + terracotta `#b8572a` inner dot (8px, tighter 0.14s). Portal-mounted to body via `CursorFollower.tsx`; hidden on touch / non-(pointer:fine); fades on mouseleave/blur; subtle ring scale on hover of `a`/`button`. Removed `Cursor.tsx` (was unused — it was mounted in layout.tsx independently, now gone). Stripped all `data-cursor` / `data-cursor-label` attributes from every non-v1 component.
