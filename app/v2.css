@@ -313,6 +313,80 @@ html.mr-intro-seen .mr2-loader {
 .mr2-hero__roles { left: clamp(20px, 5vw, 72px); }
 .mr2-hero__cue { right: clamp(20px, 5vw, 72px); }
 
+/* ── Hero Portrait — full-bleed photographer-style ──────────────────── */
+
+.mr2-hp {
+  position: relative;
+  height: 100vh;
+  width: 100%;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.mr2-hp__img-wrap {
+  position: absolute;
+  inset: 0;
+}
+
+.mr2-hp__img {
+  object-fit: cover;
+  object-position: center 15%;
+}
+
+.mr2-hp__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.08) 0%,
+    rgba(0, 0, 0, 0.0) 35%,
+    rgba(0, 0, 0, 0.55) 80%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+  pointer-events: none;
+}
+
+.mr2-hp__text {
+  position: relative;
+  z-index: 2;
+  padding: 0 clamp(24px, 6vw, 96px) clamp(3rem, 6vh, 5rem);
+}
+
+.mr2-hp__name {
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 8.5vw, 8rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  margin: 0 0 0.75rem;
+}
+
+.mr2-hp__sub {
+  font-family: var(--font-label);
+  font-size: clamp(11px, 1vw, 13px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  opacity: 0.65;
+  margin: 0;
+}
+
+.mr2-hp__cue {
+  position: absolute;
+  bottom: clamp(1.6rem, 4vh, 3rem);
+  right: clamp(20px, 5vw, 72px);
+  z-index: 2;
+  font-family: var(--font-label);
+  font-size: clamp(11px, 1vw, 13px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  opacity: 0.5;
+}
+
 /* ── About (homepage §2) — parallax portrait + line + CTA ──────────── */
 
 /* Pinned sections paint their own background so neighbouring pinned
