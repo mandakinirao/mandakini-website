@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import type { HomeSeries } from '@/lib/home-data'
 import {
@@ -194,7 +195,7 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
 
         {series.map((item) => (
           <div key={item.index} className="mr2-works__group">
-            <Link href={item.href} data-cursor="view" aria-label={item.name}>
+            <Link href={item.href} aria-label={item.name}>
               <span className="mr2-card mr2-card--ghost" aria-hidden="true" />
               {item.images[1] && (
                 <span className="mr2-card mr2-card--mid mr2-duo" aria-hidden="true">
@@ -232,9 +233,9 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
           </div>
         </div>
 
-        <Link href="/works" className="mr2-works__all" data-cursor="view">
+        <PillCta href="/works" className="mr2-works__all">
           All projects <span aria-hidden="true">→</span>
-        </Link>
+        </PillCta>
       </div>
     </section>
   )

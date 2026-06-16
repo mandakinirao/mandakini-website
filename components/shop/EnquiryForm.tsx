@@ -116,7 +116,6 @@ export default function EnquiryForm() {
         type="submit"
         className="mr-pc__submit"
         disabled={status === 'submitting'}
-        data-cursor="enter"
       >
         {status === 'submitting' ? 'Sending…' : 'Request the Collection'}
       </button>

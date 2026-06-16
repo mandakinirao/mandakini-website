@@ -80,7 +80,6 @@ export default function PrivateCollection({
         type="button"
         className="mr-pc__cta"
         onClick={() => setOpen(true)}
-        data-cursor="enter"
       >
         Enquire to View
       </button>
@@ -100,7 +99,6 @@ export default function PrivateCollection({
                 type="button"
                 className="mr-pc__close"
                 onClick={() => setOpen(false)}
-                data-cursor="view"
               >
                 Close
               </button>

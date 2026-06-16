@@ -3,6 +3,7 @@
 import { useState } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import { useCart } from '@/lib/cart'
+import PillCta from '@/components/ui/PillCta'
 
 interface BuyControlsProps {
   print: HomePrint
@@ -58,10 +59,7 @@ export default function BuyControls({
     <div className={`mr-buy mr-buy--${variant}`}>
       <p className="mr-buy__amount">₹{print.amount.toLocaleString('en-IN')}</p>
       <div className="mr-buy__ctas">
-        <button
-          type="button"
-          className="mr-pill"
-          data-cursor="view"
+        <PillCta
           onClick={() =>
             add({
               slug: print.slug,
@@ -73,16 +71,10 @@ export default function BuyControls({
           }
         >
           Add to Cart
-        </button>
-        <button
-          type="button"
-          className="mr-pill"
-          data-cursor="enter"
-          onClick={buyNow}
-          disabled={busy}
-        >
+        </PillCta>
+        <PillCta onClick={buyNow} disabled={busy}>
           {busy ? 'One moment…' : 'Buy Now'}
-        </button>
+        </PillCta>
       </div>
       {error && <p className="mr-buy__error">{error}</p>}
     </div>

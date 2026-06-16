@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef, useState } from 'react'
 import type { HomeSeries } from '@/lib/home-data'
 import {
@@ -67,7 +68,7 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
 
   return (
     <section ref={rootRef} className="mr-page" aria-label={series.name}>
-      <Link href="/works" className="mr-detail__back" data-cursor="view">
+      <Link href="/works" className="mr-detail__back">
         ← All projects
       </Link>
 
@@ -100,8 +101,7 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
                 <Link
                   href={piece.sale.href}
                   className="mr-detail__sale"
-                  data-cursor="view"
-                >
+                                 >
                   For sale · {piece.sale.label} <span aria-hidden="true">→</span>
                 </Link>
               ) : (
@@ -114,23 +114,18 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
 
       {!showAll && series.pieces.length > FOLD_AT && (
         <div className="mr-page__note">
-          <button
-            type="button"
-            className="mr-pill"
-            data-cursor="view"
-            onClick={() => setShowAll(true)}
-          >
+          <PillCta onClick={() => setShowAll(true)}>
             Show all {series.pieces.length} pieces
-          </button>
+          </PillCta>
         </div>
       )}
 
       <nav className="mr-detail__nav" aria-label="More projects">
-        <Link href={prev.href} data-cursor="view">
+        <Link href={prev.href}>
           <small>Previous</small>
           {prev.name}
         </Link>
-        <Link href={next.href} data-cursor="view" className="mr-detail__next">
+        <Link href={next.href} className="mr-detail__next">
           <small>Next</small>
           {next.name}
         </Link>

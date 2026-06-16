@@ -1,6 +1,6 @@
 'use client'
 
-import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import { EASE_OUT, mandaGsap, prefersReducedMotion, revealLines } from '@/lib/motion'
 
@@ -35,9 +35,9 @@ export default function ContactStage() {
       <p className="mr2-contact__line">
         Have a painting, a commission, or a question in mind?
       </p>
-      <Link href="/contact" className="mr2-footer__stamp" data-cursor="enter">
+      <PillCta href="/contact" className="mr2-footer__stamp">
         Say hello <span aria-hidden="true">→</span>
-      </Link>
+      </PillCta>
     </section>
   )
 }

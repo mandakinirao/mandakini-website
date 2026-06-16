@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef, useState } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import { EASE, mandaGsap, prefersReducedMotion, revealLines } from '@/lib/motion'
@@ -53,9 +54,7 @@ export default function ShopIndex({
         </header>
         <div className="mr-page__note">
           <p>Nothing is listed right now — check back soon, or ask about original works.</p>
-          <Link href="/" className="mr-pill" data-cursor="view">
-            Back home
-          </Link>
+          <PillCta href="/">Back home</PillCta>
         </div>
       </section>
     )
@@ -73,7 +72,7 @@ export default function ShopIndex({
       <div className="mr-products">
         {shown.map((print, i) =>
           commerceEnabled ? (
-            <article key={print.slug} className="mr-product" data-cursor="view">
+            <article key={print.slug} className="mr-product">
               <Link href={print.href} className="mr-product__media" tabIndex={-1} aria-hidden>
                 <span className="mr-product__frame mr-mask">
                   <Image
@@ -101,8 +100,7 @@ export default function ShopIndex({
               key={print.slug}
               href={print.href}
               className="mr-product"
-              data-cursor="view"
-            >
+                         >
               <span className="mr-product__frame mr-mask">
                 <Image
                   src={print.image}
@@ -126,14 +124,9 @@ export default function ShopIndex({
 
       {prints.length > visible && (
         <div className="mr-page__note">
-          <button
-            type="button"
-            className="mr-pill"
-            data-cursor="view"
-            onClick={() => setVisible((v) => v + PAGE_SIZE)}
-          >
+          <PillCta onClick={() => setVisible((v) => v + PAGE_SIZE)}>
             Load more ({prints.length - visible} remaining)
-          </button>
+          </PillCta>
         </div>
       )}
 

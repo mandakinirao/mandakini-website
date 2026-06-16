@@ -1,6 +1,7 @@
 'use client'
 
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { mandaGsap, prefersReducedMotion } from '@/lib/motion'
@@ -72,9 +73,9 @@ export default function FooterV2() {
             </a>
           ))}
         </div>
-        <Link href="/contact" className="mr2-footer__stamp" data-cursor="enter">
+        <PillCta href="/contact" className="mr2-footer__stamp">
           Say hello <span aria-hidden="true">→</span>
-        </Link>
+        </PillCta>
       </div>
 
       <div className="mr2-footer__legal">

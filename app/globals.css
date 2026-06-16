@@ -1247,7 +1247,7 @@ body:not(.mr2-mode) .mrx-cursor {
   text-align: right;
 }
 
-.mr-pdp__info .mr-pill {
+.mr-pdp__info .mr2-cta {
   justify-self: start;
 }
 
@@ -1838,7 +1838,7 @@ body.home-intro-active .site-nav {
   flex-wrap: wrap;
 }
 
-.mr-buy--compact .mr-buy__ctas .mr-pill {
+.mr-buy--compact .mr-buy__ctas .mr2-cta {
   padding: 0.7rem 1.4rem;
 }
 
@@ -2084,12 +2084,12 @@ body.home-intro-active .site-nav {
   color: var(--accent-error);
 }
 
-.mr-cart__checkout.mr-pill {
+.mr-cart__checkout {
   border-color: var(--ink-cream);
   color: var(--ink-cream);
 }
 
-.mr-cart__checkout.mr-pill:hover {
+.mr-cart__checkout:hover:not(:disabled) {
   background-color: var(--ink-cream);
   color: var(--v2-night);
 }

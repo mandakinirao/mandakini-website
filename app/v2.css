@@ -62,6 +62,42 @@ body.mr2-mode .mr-cursor {
   display: none;
 }
 
+/* ── Custom cursor — ring + dot ────────────────────────────────────
+   Outer ring trails (0.5s power3.out); inner dot is tighter (0.14s).
+   Portal-mounted to body; absent on touch / non-(pointer:fine).
+   Ring uses --v2-fg so it reads on both the dark and light stages;
+   dot is fixed terracotta. */
+
+@media (pointer: fine) {
+  body.mr2-mode,
+  body.mr2-mode * {
+    cursor: none !important;
+  }
+}
+
+.mr2-cursor__ring,
+.mr2-cursor__dot {
+  position: fixed;
+  top: 0;
+  left: 0;
+  pointer-events: none;
+  z-index: 9999;
+  will-change: transform;
+  border-radius: 50%;
+}
+
+.mr2-cursor__ring {
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid var(--v2-fg);
+}
+
+.mr2-cursor__dot {
+  width: 8px;
+  height: 8px;
+  background: #b8572a; /* terracotta — fixed, visible on both stages */
+}
+
 /* ── Theme toggle ──────────────────────────────────────────────────── */
 
 .mr2-theme-toggle {
@@ -200,13 +236,13 @@ html.mr-intro-seen .mr2-loader {
   place-items: center;
 }
 
-/* Rectangular gallery-tag ENTER — no circles in V2 */
 .mr2-loader__enter {
   display: inline-flex;
   align-items: center;
   gap: 1rem;
   padding: 1.05rem 2.6rem;
   border: 1px solid var(--v2-cream);
+  border-radius: 999px;
   background: transparent;
   color: var(--v2-cream);
   cursor: pointer;
@@ -217,11 +253,13 @@ html.mr-intro-seen .mr2-loader {
   text-transform: uppercase;
   transition:
     background-color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda),
     color var(--dur-fast) var(--ease-manda);
 }
 
 .mr2-loader__enter:hover {
   background: var(--v2-cream);
+  border-color: var(--v2-cream);
   color: var(--v2-night);
 }
 
@@ -444,28 +482,7 @@ html.mr-intro-seen .mr2-loader {
   line-height: 1.2;
 }
 
-/* Pill CTA: 1px ink border → rosehip fill with cream text on hover. */
-.mr2-about__cta {
-  padding: 0.95rem 2.3rem;
-  border: 1px solid var(--v2-fg);
-  border-radius: 999px;
-  color: var(--v2-fg);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  letter-spacing: 0.22em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color var(--dur-fast) var(--ease-manda),
-    border-color var(--dur-fast) var(--ease-manda),
-    color var(--dur-fast) var(--ease-manda);
-}
-
-.mr2-about__cta:hover {
-  background-color: var(--v2-rosehip); /* rosehip */
-  border-color: var(--v2-rosehip);
-  color: var(--v2-cream);
-}
+/* .mr2-about__cta replaced by .mr2-cta (PillCta component) */
 
 /* ── Works — the Rising Sun ────────────────────────────────────────── */
 
@@ -584,32 +601,12 @@ body.mr2-light .mr2-works__meta {
   opacity: 0.8;
 }
 
-/* persistent door to the full Projects index */
+/* persistent door to the full Projects index — positioning only; visual from .mr2-cta */
 .mr2-works__all {
   position: absolute;
   right: clamp(20px, 5vw, 72px);
   bottom: clamp(1.8rem, 5vh, 3.4rem);
   z-index: 4;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.7rem;
-  padding: 0.85rem 1.8rem;
-  border: 1px solid var(--v2-fg-dim);
-  color: var(--v2-fg);
-  background: var(--v2-bg);
-  font-family: var(--font-ui);
-  font-size: 12px;
-  letter-spacing: 0.24em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transition:
-    background-color var(--dur-fast) var(--ease-manda),
-    color var(--dur-fast) var(--ease-manda);
-}
-
-.mr2-works__all:hover {
-  background: var(--v2-fg);
-  color: var(--v2-bg);
 }
 
 /* ── Contact — one quiet beat ──────────────────────────────────────── */
@@ -635,6 +632,7 @@ body.mr2-light .mr2-works__meta {
   justify-self: start;
   padding: 0.95rem 2.2rem;
   border: 1px solid var(--v2-fg);
+  border-radius: 999px;
   color: var(--v2-fg);
   font-family: var(--font-ui);
   font-size: 12px;
@@ -643,12 +641,14 @@ body.mr2-light .mr2-works__meta {
   text-transform: uppercase;
   transition:
     background-color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda),
     color var(--dur-fast) var(--ease-manda);
 }
 
 .mr2-pill:hover {
-  background-color: var(--v2-fg);
-  color: var(--v2-bg);
+  background-color: var(--v2-rosehip);
+  border-color: var(--v2-rosehip);
+  color: var(--v2-cream);
 }
 
 /* ── Shop — edition stubs ──────────────────────────────────────────── */
@@ -892,35 +892,9 @@ body.mr2-light .mr2-works__meta {
   border-color: var(--accent-link);
 }
 
-/* rectangular gallery tag — replaces the circular stamp */
+/* contact/footer CTA — layout positioning only; visual from .mr2-cta */
 .mr2-footer__stamp {
-  display: inline-flex;
-  align-items: center;
-  gap: 1rem;
   align-self: start;
-  padding: 1.1rem 2.4rem;
-  border: 1px solid var(--v2-fg);
-  background: var(--v2-marigold);
-  border-color: var(--v2-marigold);
-  color: var(--v2-ink-on-marigold);
-  font-family: var(--font-label);
-  font-size: 13px;
-  letter-spacing: 0.24em;
-  text-decoration: none;
-  text-transform: uppercase;
-  transform: rotate(-2deg);
-  transition:
-    transform var(--dur-fast) var(--ease-manda),
-    background-color var(--dur-fast) var(--ease-manda),
-    border-color var(--dur-fast) var(--ease-manda),
-    color var(--dur-fast) var(--ease-manda);
-}
-
-.mr2-footer__stamp:hover {
-  transform: rotate(0deg) translateY(-4px);
-  background: var(--accent-rosehip);
-  border-color: var(--accent-rosehip);
-  color: var(--ink-cream); /* 8.9:1 on rosehip */
 }
 
 .mr2-footer__legal {
@@ -1021,6 +995,44 @@ body.mr2-mode .mr-windex__row:hover .mr-windex__name,
 body.mr2-mode .mr-pdp__hint a:hover,
 body.mr2-mode .mr-detail__sale:hover {
   color: var(--accent-link);
+}
+
+/* ── Shared pill CTA (June 2026) ────────────────────────────────────
+   One canonical class used by PillCta throughout the site.
+   Border / text: --v2-fg (cream on dark stage, near-black on light).
+   Hover: rosehip fill + cream text (8.9:1 on both stages). */
+
+.mr2-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6em;
+  padding: 0.95rem 2.2rem;
+  border: 1px solid var(--v2-fg);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--v2-fg);
+  cursor: pointer;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  font-weight: 400;
+  letter-spacing: 0.24em;
+  text-decoration: none;
+  text-transform: uppercase;
+  transition:
+    background-color var(--dur-fast) var(--ease-manda),
+    border-color var(--dur-fast) var(--ease-manda),
+    color var(--dur-fast) var(--ease-manda);
+}
+
+.mr2-cta:hover:not(:disabled) {
+  background-color: var(--v2-rosehip);
+  border-color: var(--v2-rosehip);
+  color: var(--v2-cream);
+}
+
+.mr2-cta:disabled {
+  opacity: 0.45;
+  cursor: not-allowed;
 }
 
 /* ── About page ────────────────────────────────────────────────────── */

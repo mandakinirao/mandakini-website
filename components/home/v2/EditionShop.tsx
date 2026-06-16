@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import { EASE, mandaGsap, prefersReducedMotion } from '@/lib/motion'
@@ -52,7 +53,6 @@ export default function EditionShop({ prints: allPrints }: EditionShopProps) {
             key={print.title}
             href={print.href}
             className="mr2-product"
-            data-cursor="view"
           >
             <span className="mr2-product__frame mr2-duo">
               <Image
@@ -72,9 +72,7 @@ export default function EditionShop({ prints: allPrints }: EditionShopProps) {
       </div>
 
       <div className="mr2-shop__cta">
-        <Link href="/shop" className="mr2-pill" data-cursor="view">
-          Visit the shop
-        </Link>
+        <PillCta href="/shop">Visit the shop</PillCta>
       </div>
     </section>
   )

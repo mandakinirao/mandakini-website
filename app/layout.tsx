@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import Cursor from "@/components/ui/Cursor";
 import MotionProvider from "@/components/ui/MotionProvider";
 import "./globals.css";
 import "./v2.css";
@@ -26,8 +25,6 @@ export default function RootLayout({
           }}
         />
         <MotionProvider />
-        {/* single mount; the component portals itself to document.body */}
-        <Cursor />
         {children}
       </body>
     </html>

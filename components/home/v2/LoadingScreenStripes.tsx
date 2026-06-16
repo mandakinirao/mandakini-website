@@ -168,7 +168,6 @@ export default function LoadingScreenStripes({
           ref={enterRef}
           type="button"
           className="mr2-loader__enter"
-          data-cursor="enter"
           onClick={handleEnter}
         >
           Enter <span aria-hidden="true">→</span>

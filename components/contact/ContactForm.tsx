@@ -1,6 +1,7 @@
 'use client'
 
 import { useRef, useState } from 'react'
+import PillCta from '@/components/ui/PillCta'
 
 type Status = 'idle' | 'submitting' | 'success'
 
@@ -71,9 +72,9 @@ export default function ContactForm() {
 
       {errors.server && <p className="mr-pc__error" role="alert">{errors.server}</p>}
 
-      <button type="submit" className="mr-pill" disabled={status === 'submitting'} data-cursor="enter">
+      <PillCta type="submit" disabled={status === 'submitting'}>
         {status === 'submitting' ? 'Sending…' : 'Send message'}
-      </button>
+      </PillCta>
     </form>
   )
 }

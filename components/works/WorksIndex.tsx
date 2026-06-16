@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef, useState } from 'react'
 import type { HomeSeries } from '@/lib/home-data'
 import {
@@ -168,9 +169,7 @@ export default function WorksIndex({
         </header>
         <div className="mr-page__note">
           <p>{emptyBody}</p>
-          <Link href="/" className="mr-pill" data-cursor="view">
-            Back home
-          </Link>
+          <PillCta href="/">Back home</PillCta>
         </div>
       </section>
     )
@@ -191,8 +190,7 @@ export default function WorksIndex({
           <Link
             key={item.slug}
             href={item.href}
-            data-cursor="view"
-            className={`mr-series${n % 2 ? ' mr-series--alt' : ''}`}
+                       className={`mr-series${n % 2 ? ' mr-series--alt' : ''}`}
           >
             <div className="mr-series__head">
               <span className="mr-series__index">{item.index}</span>
@@ -253,8 +251,7 @@ export default function WorksIndex({
               key={item.slug}
               href={item.href}
               className="mr-windex__row"
-              data-cursor="view"
-              data-cover={item.images[0]}
+                           data-cover={item.images[0]}
             >
               <span className="mr-windex__num">{item.index}</span>
               <span className="mr-windex__name">{item.name}</span>

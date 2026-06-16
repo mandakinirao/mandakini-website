@@ -1,6 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
+import PillCta from '@/components/ui/PillCta'
 import { useCart } from '@/lib/cart'
 import {
   EASE,
@@ -78,7 +79,6 @@ export default function CartDrawer() {
           type="button"
           className="mr-cart__chip"
           onClick={() => setOpen(true)}
-          data-cursor="open"
           aria-label={`Open cart, ${count} item${count === 1 ? '' : 's'}`}
         >
           Cart · {count}
@@ -105,8 +105,7 @@ export default function CartDrawer() {
                 type="button"
                 className="mr-cart__close"
                 onClick={() => setOpen(false)}
-                data-cursor="view"
-              >
+                             >
                 Close
               </button>
             </div>
@@ -163,15 +162,13 @@ export default function CartDrawer() {
                     <span>₹{subtotal.toLocaleString('en-IN')}</span>
                   </p>
                   {error && <p className="mr-cart__error">{error}</p>}
-                  <button
-                    type="button"
-                    className="mr-pill mr-cart__checkout"
+                  <PillCta
+                    className="mr-cart__checkout"
                     onClick={checkout}
                     disabled={busy}
-                    data-cursor="enter"
                   >
                     {busy ? 'One moment…' : 'Checkout'}
-                  </button>
+                  </PillCta>
                   <button
                     type="button"
                     className="mr-cart__clear"

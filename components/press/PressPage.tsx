@@ -73,7 +73,6 @@ export default function PressPage({ items }: { items: PressItem[] }) {
                   target="_blank"
                   rel="noopener noreferrer"
                   className="mr2-press-list__link"
-                  data-cursor="view"
                 >
                   {inner}
                 </Link>

@@ -2,6 +2,7 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import {
@@ -58,7 +59,7 @@ export default function ProductDetail({
 
   return (
     <section ref={rootRef} className="mr-page mr-pdp" aria-label={print.title}>
-      <Link href="/shop" className="mr-detail__back" data-cursor="view">
+      <Link href="/shop" className="mr-detail__back">
         ← The shop
       </Link>
 
@@ -89,9 +90,7 @@ export default function ProductDetail({
             <BuyControls print={print} variant="full" />
           ) : print.available ? (
             <>
-              <Link href="/contact" className="mr-pill" data-cursor="enter">
-                Enquire to purchase
-              </Link>
+              <PillCta href="/contact">Enquire to purchase</PillCta>
               <p className="mr-pdp__hint">
                 Replies within a few days — include the print name and your city.
               </p>
@@ -113,7 +112,7 @@ export default function ProductDetail({
           <p className="mr-eyebrow">Other editions</p>
           <div className="mr-products">
             {others.map((other, i) => (
-              <Link key={other.slug} href={other.href} className="mr-product" data-cursor="view">
+              <Link key={other.slug} href={other.href} className="mr-product">
                 <span className="mr-product__frame mr-mask">
                   <Image
                     src={other.image}

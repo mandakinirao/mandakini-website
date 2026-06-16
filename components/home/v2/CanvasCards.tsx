@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import Link from 'next/link'
+import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import {
   DUR,
@@ -100,9 +100,9 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
 
       <div className="mr2-about__text">
         <p className="mr2-about__line">{bio}</p>
-        <Link href="/about" className="mr2-about__cta" data-cursor="view">
+        <PillCta href="/about" className="mr2-about__cta">
           About Mandakini
-        </Link>
+        </PillCta>
       </div>
     </section>
   )
