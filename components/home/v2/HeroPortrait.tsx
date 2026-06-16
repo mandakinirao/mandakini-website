@@ -31,31 +31,23 @@ const HeroPortrait = forwardRef<HeroPortraitHandle, HeroPortraitProps>(
         const root = rootRef.current
         if (!root) return
 
-        if (prefersReducedMotion()) {
-          mandaGsap.set(root, { autoAlpha: 1 })
-          return
-        }
-
-        const img = root.querySelector('.mr2-hp__img')
         const name = root.querySelector('.mr2-hp__name')
         const sub = root.querySelector('.mr2-hp__sub')
         const cue = root.querySelector('.mr2-hp__cue')
 
-        mandaGsap.set(root, { autoAlpha: 1 })
-        mandaGsap.set(img, { scale: 1.06, autoAlpha: 0 })
-        mandaGsap.set([name, sub, cue], { autoAlpha: 0, y: 30 })
+        if (prefersReducedMotion()) return
 
+        mandaGsap.set([name, sub, cue], { autoAlpha: 0, y: 30 })
         mandaGsap
           .timeline()
-          .to(img, { autoAlpha: 1, scale: 1, duration: DUR.grand * 1.4, ease: EASE })
-          .to(name, { autoAlpha: 1, y: 0, duration: DUR.base, ease: EASE }, '-=0.9')
+          .to(name, { autoAlpha: 1, y: 0, duration: DUR.base, ease: EASE })
           .to(sub, { autoAlpha: 1, y: 0, duration: DUR.base, ease: EASE }, '-=0.55')
           .to(cue, { autoAlpha: 1, y: 0, duration: DUR.base, ease: EASE }, '-=0.4')
       },
     }))
 
     return (
-      <section ref={rootRef} className="mr2-hp" style={{ opacity: 0 }}>
+      <section ref={rootRef} className="mr2-hp">
         <div className="mr2-hp__img-wrap">
           <Image
             src={src}
