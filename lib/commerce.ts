@@ -5,8 +5,10 @@
  * renders exactly the pre-commerce behaviour: zero commerce UI.
  */
 export function commerceEnabled(): boolean {
-  return (
-    process.env.NEXT_PUBLIC_COMMERCE_ENABLED === 'true' &&
-    Boolean(process.env.STRIPE_SECRET_KEY)
-  )
+  return process.env.NEXT_PUBLIC_COMMERCE_ENABLED === 'true'
+}
+
+/** True only when Stripe is also configured — used by checkout route. */
+export function stripeEnabled(): boolean {
+  return commerceEnabled() && Boolean(process.env.STRIPE_SECRET_KEY)
 }

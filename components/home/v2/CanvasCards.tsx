@@ -88,6 +88,7 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
   }, [])
 
   return (
+    <div className="mr2-about-outer">
     <section ref={rootRef} className="mr2-about" aria-label="About Mandakini">
       <div ref={maskRef} className="mr2-about__media">
         <Image
@@ -105,5 +106,6 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
         </PillCta>
       </div>
     </section>
+    </div>
   )
 }

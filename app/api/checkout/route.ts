@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { commerceEnabled } from '@/lib/commerce'
+import { stripeEnabled } from '@/lib/commerce'
 import { getPurchasableItems } from '@/lib/home-data'
 import { createCheckoutSession } from '@/lib/stripe'
 
@@ -11,7 +11,7 @@ import { createCheckoutSession } from '@/lib/stripe'
  * could call it is never rendered anyway.
  */
 export async function POST(req: NextRequest) {
-  if (!commerceEnabled()) {
+  if (!stripeEnabled()) {
     return NextResponse.json(
       { error: 'The shop is not taking orders yet.' },
       { status: 503 }

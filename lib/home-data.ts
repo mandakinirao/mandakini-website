@@ -538,11 +538,18 @@ export async function getHomeData(): Promise<HomeData> {
   const aboutBio =
     siteBasic?.aboutBio ??
     'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
-  let aboutPortrait = '/art/loader/portrait-studio-seated-wide.jpg'
+  // Local portrait (IMG_9003) takes precedence until a colour photo is
+  // uploaded to Sanity Studio (siteSettings → aboutPortrait).
+  // To restore Sanity control: upload a colour portrait to Studio,
+  // then flip the condition below back to the original.
+  const aboutPortrait = '/art/about-portrait.jpg'
   try {
-    if (siteBasic?.aboutPortrait) {
-      aboutPortrait = urlForImage(siteBasic.aboutPortrait).width(1600).url()
-    }
+    // Sanity portrait intentionally bypassed — current upload is B&W.
+    // Re-enable after uploading colour photo:
+    // if (siteBasic?.aboutPortrait) {
+    //   aboutPortrait = urlForImage(siteBasic.aboutPortrait).width(1600).url()
+    // }
+    void siteBasic
   } catch {}
 
   const testimonials =

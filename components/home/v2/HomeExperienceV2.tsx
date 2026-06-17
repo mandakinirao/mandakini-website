@@ -12,8 +12,6 @@ import StripeBand from '@/components/home/v2/StripeBand'
 import type { HomeData } from '@/lib/home-data'
 import { ScrollTrigger, unlockScroll } from '@/lib/motion'
 
-const THEME_KEY = 'mr2-theme'
-
 export default function HomeExperienceV2({
   series,
   prints,
@@ -25,15 +23,6 @@ export default function HomeExperienceV2({
 }: HomeData) {
   const heroRef = useRef<HeroSceneHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
-  const [light, setLight] = useState(false)
-
-  useEffect(() => {
-    document.body.classList.add('mr2-mode')
-    const stored = localStorage.getItem(THEME_KEY) === 'light'
-    setLight(stored)
-    document.body.classList.toggle('mr2-light', stored)
-    return () => document.body.classList.remove('mr2-mode', 'mr2-light')
-  }, [])
 
   useEffect(() => {
     if (sessionStorage.getItem('mr2-intro-seen')) {
@@ -43,13 +32,6 @@ export default function HomeExperienceV2({
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [])
-
-  const toggleTheme = () => {
-    const next = !light
-    setLight(next)
-    document.body.classList.toggle('mr2-light', next)
-    localStorage.setItem(THEME_KEY, next ? 'light' : 'dark')
-  }
 
   const handleComplete = () => {
     setShowLoader(false)
@@ -70,15 +52,6 @@ export default function HomeExperienceV2({
       <EditionShop prints={prints} />
       <ContactStage />
       <MarqueePress items={press} testimonials={testimonials} />
-
-      <button
-        type="button"
-        className="mr2-theme-toggle"
-        onClick={toggleTheme}
-        aria-pressed={light}
-      >
-        {light ? 'Dark' : 'Light'}
-      </button>
     </div>
   )
 }
