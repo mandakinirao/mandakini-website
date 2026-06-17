@@ -555,6 +555,131 @@ html.mr-intro-seen .mr2-loader {
   }
 }
 
+/* ── Hero Scene — scale-down + two-layer parallax ───────────────────── */
+
+/*
+ * Architecture:
+ *   .mr2-hscene          — full-screen pinned section; page bg shows through.
+ *   .mr2-hscene__frame   — the element that scales down on scroll; clipped.
+ *   .mr2-hscene__layer   — oversized (106 vw × 116 vh) for parallax travel.
+ *   .mr2-hscene__person  — multiply blend: white bg → transparent over studio.
+ */
+
+.mr2-hscene {
+  position: relative;
+  height: 100vh;
+  /* Page background is intentionally visible once the frame scales down */
+  background: #0d0a07;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Scaling outer frame — starts flush to viewport, shrinks on scroll.
+   overflow: hidden clips layers during travel and enables border-radius. */
+.mr2-hscene__frame {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  border-radius: 0;
+  will-change: transform, border-radius;
+  transform-origin: center center;
+  isolation: isolate; /* contain mix-blend-mode to within the frame */
+}
+
+/* Shared parallax layer — slightly oversized so translate/scale never
+   exposes an edge inside the frame. 3% each side horizontally, 8% top/bottom. */
+.mr2-hscene__layer {
+  position: absolute;
+  top: -8%;
+  left: -3%;
+  width: 106%;
+  height: 116%;
+  will-change: transform;
+}
+
+.mr2-hscene__img {
+  object-fit: cover;
+  object-position: center 22%;
+}
+
+/* Person layer: multiply makes white areas transparent so Mandakini
+   composites cleanly over the studio plate. Works best on B&W/studio imagery.
+   If the PNG has genuine alpha transparency, remove this rule entirely. */
+.mr2-hscene__person {
+  mix-blend-mode: multiply;
+}
+
+/* Bottom-weighted vignette — editorial mood, helps text read */
+.mr2-hscene__vignette {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(0, 0, 0, 0.10)  0%,
+    rgba(0, 0, 0, 0.00) 30%,
+    rgba(0, 0, 0, 0.42) 62%,
+    rgba(0, 0, 0, 0.78) 100%
+  );
+}
+
+/* Editorial text — bottom-left, entrance-animated by playEntrance() */
+.mr2-hscene__text {
+  position: absolute;
+  bottom: clamp(3rem, 7vh, 5rem);
+  left: clamp(24px, 6vw, 80px);
+  z-index: 6;
+  pointer-events: none;
+}
+
+.mr2-hscene__name {
+  font-family: var(--font-display);
+  font-size: clamp(2.8rem, 8vw, 7.5rem);
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  line-height: 0.9;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  margin: 0 0 0.7rem;
+}
+
+.mr2-hscene__sub {
+  font-family: var(--font-label);
+  font-size: clamp(11px, 1vw, 13px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  opacity: 0.65;
+  margin: 0;
+}
+
+/* Scroll cue — bottom-right */
+.mr2-hscene__cue {
+  position: absolute;
+  bottom: clamp(1.4rem, 3.5vh, 2.8rem);
+  right: clamp(20px, 5vw, 72px);
+  z-index: 6;
+  font-family: var(--font-label);
+  font-size: clamp(10px, 0.9vw, 12px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  color: var(--v2-cream);
+  opacity: 0.45;
+  pointer-events: none;
+}
+
+@media (max-width: 768px) {
+  .mr2-hscene__img {
+    object-position: center 15%;
+  }
+  .mr2-hscene__layer {
+    top: -6%;
+    height: 112%;
+  }
+}
+
 /* ── About (homepage §2) — parallax portrait + line + CTA ──────────── */
 
 /* Pinned sections paint their own background so neighbouring pinned

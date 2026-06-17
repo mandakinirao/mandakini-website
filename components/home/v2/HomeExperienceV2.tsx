@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import CanvasCards from '@/components/home/v2/CanvasCards'
 import ContactStage from '@/components/home/v2/ContactStage'
 import EditionShop from '@/components/home/v2/EditionShop'
-import ParallaxHero, { type ParallaxHeroHandle } from '@/components/home/v2/ParallaxHero'
+import HeroScene, { type HeroSceneHandle } from '@/components/home/v2/HeroScene'
 import LoadingScreenStripes from '@/components/home/v2/LoadingScreenStripes'
 import MarqueePress from '@/components/home/v2/MarqueePress'
 import RisingSunWorks from '@/components/home/v2/RisingSunWorks'
@@ -23,7 +23,7 @@ export default function HomeExperienceV2({
   aboutBio,
   aboutPortrait,
 }: HomeData) {
-  const heroRef = useRef<ParallaxHeroHandle>(null)
+  const heroRef = useRef<HeroSceneHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
   const [light, setLight] = useState(false)
 
@@ -63,7 +63,7 @@ export default function HomeExperienceV2({
       {showLoader && (
         <LoadingScreenStripes onComplete={handleComplete} tagline={tagline} />
       )}
-      <ParallaxHero ref={heroRef} tagline={tagline} />
+      <HeroScene ref={heroRef} tagline={tagline} />
       <CanvasCards portrait={aboutPortrait} bio={aboutBio} />
       <StripeBand />
       <RisingSunWorks series={series} />
