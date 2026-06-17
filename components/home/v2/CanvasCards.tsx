@@ -23,7 +23,7 @@ interface CanvasCardsProps {
  * generously rounded mask, and one display line with a pill CTA to
  * /about. The previous rolling-word ticker is fully removed.
  */
-export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
+export default function CanvasCards({ portrait: _portrait, bio }: CanvasCardsProps) {
   const rootRef = useRef<HTMLElement>(null)
   const maskRef = useRef<HTMLDivElement>(null)
 
