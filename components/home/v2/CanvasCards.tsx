@@ -23,7 +23,7 @@ interface CanvasCardsProps {
  * generously rounded mask, and one display line with a pill CTA to
  * /about. The previous rolling-word ticker is fully removed.
  */
-export default function CanvasCards({ portrait: _portrait, bio }: CanvasCardsProps) {
+export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
   const rootRef = useRef<HTMLElement>(null)
   const maskRef = useRef<HTMLDivElement>(null)
 
@@ -91,7 +91,7 @@ export default function CanvasCards({ portrait: _portrait, bio }: CanvasCardsPro
     <section ref={rootRef} className="mr2-about" aria-label="About Mandakini">
       <div ref={maskRef} className="mr2-about__media">
         <Image
-          src="/art/about-portrait.jpg"
+          src={portrait || '/art/about-portrait.jpg'}
           alt="Mandakini Rao"
           fill
           sizes="(max-width: 900px) 92vw, 44vw"
