@@ -91,8 +91,8 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
     <section ref={rootRef} className="mr2-about" aria-label="About Mandakini">
       <div ref={maskRef} className="mr2-about__media">
         <Image
-          src={portrait}
-          alt="Mandakini Rao in her studio"
+          src="/art/about-portrait.jpg"
+          alt="Mandakini Rao"
           fill
           sizes="(max-width: 900px) 92vw, 44vw"
         />

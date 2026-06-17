@@ -1,5 +1,12 @@
 # Progress Log
 
+## Hero parallax fix + About section overhaul (June 2026)
+- **Date:** 2026-06-17
+- **Issue 1 — Hero parallax stripped to essentials:** Removed frame scale-down, pin, entrance opacity animation. Only remaining scroll effect: background plate (`bg-only.png`) moves upward at 32% of scroll speed via GSAP ScrollTrigger (scrub, no pin). Person layer and all text scroll at normal page speed with no transform. BG_PARALLAX_RATE constant at top of `HeroScene.tsx` for easy tuning.
+- **Issue 2 — Checkerboard eliminated:** Set `background: #2C1A0E` on `.mr2-hscene` section + `isolation: isolate`. Any transparent PNG artifact now shows the solid deep cacao instead of the browser transparent grid.
+- **Issue 3 — About section image + background:** Hardcoded `/art/about-portrait.jpg` (converted from `IMG_3968.HEIC`) in `CanvasCards.tsx`; removed `filter: grayscale(1)` for full colour. Background changed from `var(--v2-bg)` to `radial-gradient(ellipse at 38% 55%, #2C1A0E 0%, #1E120A 70%)` — warm painterly dark distinct from the rest of the site. About section text forced to cream `#F5EFE4` independent of theme toggle.
+- **Files changed:** `HeroScene.tsx` (rewrite), `CanvasCards.tsx` (image src), `app/v2.css` (hero CSS, about CSS), `public/art/about-portrait.jpg` (new).
+
 ## WebGL liquid-reveal hero (June 2026)
 - **Date:** 2026-06-16
 - **Task:** Replace the static hero portrait with a WebGL liquid-reveal effect. Cursor hovering over the hero fades in an alternate portrait through a soft radial mask with fluid displacement warp. Warp amplitude scales with cursor velocity and settles when still; cursor leaving the hero returns to the base colored portrait. Static `<Image>` always rendered beneath the canvas as fallback (no-WebGL, reduced-motion, SSR).

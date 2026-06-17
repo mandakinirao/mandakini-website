@@ -555,47 +555,47 @@ html.mr-intro-seen .mr2-loader {
   }
 }
 
-/* ── Hero Scene — scale-down + two-layer parallax ───────────────────── */
+/* ── Hero Scene — background parallax only ───────────────────────────── */
 
 /*
- * Architecture:
- *   .mr2-hscene          — full-screen pinned section; page bg shows through.
- *   .mr2-hscene__frame   — the element that scales down on scroll; clipped.
- *   .mr2-hscene__layer   — oversized (106 vw × 116 vh) for parallax travel.
- *   .mr2-hscene__person  — multiply blend: white bg → transparent over studio.
+ * .mr2-hscene          — 100 vh section, solid bg eliminates checkerboard.
+ * .mr2-hscene__bg      — oversized (155 vh) background layer, GSAP parallax.
+ * .mr2-hscene__person  — viewport-sized, static, multiply blend composite.
+ * Text and vignette scroll at normal page speed with no transform.
  */
 
 .mr2-hscene {
   position: relative;
   height: 100vh;
-  /* Page background is intentionally visible once the frame scales down */
-  background: #0d0a07;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  overflow: hidden;
+  /* Solid colour behind every layer — eliminates any transparent/checkerboard
+     artifact from PNG compositing or partial image coverage. */
+  background: #2C1A0E;
+  /* Contain mix-blend-mode within the section, not the whole page. */
+  isolation: isolate;
 }
 
-/* Scaling outer frame — starts flush to viewport, shrinks on scroll.
-   overflow: hidden clips layers during travel and enables border-radius. */
-.mr2-hscene__frame {
+/* Background parallax layer.
+   Oversized vertically: top starts -20 vh above section so the image
+   already covers the viewport; height 155 vh leaves 35 vh of travel room
+   at the bottom for the 32 vh GSAP movement (100 - 20 + 155 - 32 = 103 vh). */
+.mr2-hscene__bg {
+  position: absolute;
+  top: -20%;
+  left: 0;
+  width: 100%;
+  height: 155%;
+  will-change: transform;
+}
+
+/* Person — inset-0, static (no GSAP applied here).
+   multiply blend: white studio background becomes transparent,
+   Mandakini's darks composite cleanly over the moving bg plate.
+   Remove this rule if the PNG is re-exported with a proper alpha channel. */
+.mr2-hscene__person {
   position: absolute;
   inset: 0;
-  overflow: hidden;
-  border-radius: 0;
-  will-change: transform, border-radius;
-  transform-origin: center center;
-  isolation: isolate; /* contain mix-blend-mode to within the frame */
-}
-
-/* Shared parallax layer — slightly oversized so translate/scale never
-   exposes an edge inside the frame. 3% each side horizontally, 8% top/bottom. */
-.mr2-hscene__layer {
-  position: absolute;
-  top: -8%;
-  left: -3%;
-  width: 106%;
-  height: 116%;
-  will-change: transform;
+  mix-blend-mode: multiply;
 }
 
 .mr2-hscene__img {
@@ -603,14 +603,7 @@ html.mr-intro-seen .mr2-loader {
   object-position: center 22%;
 }
 
-/* Person layer: multiply makes white areas transparent so Mandakini
-   composites cleanly over the studio plate. Works best on B&W/studio imagery.
-   If the PNG has genuine alpha transparency, remove this rule entirely. */
-.mr2-hscene__person {
-  mix-blend-mode: multiply;
-}
-
-/* Bottom-weighted vignette — editorial mood, helps text read */
+/* Bottom-weighted vignette — editorial mood, text legibility */
 .mr2-hscene__vignette {
   position: absolute;
   inset: 0;
@@ -618,14 +611,15 @@ html.mr-intro-seen .mr2-loader {
   pointer-events: none;
   background: linear-gradient(
     to bottom,
-    rgba(0, 0, 0, 0.10)  0%,
+    rgba(0, 0, 0, 0.08)  0%,
     rgba(0, 0, 0, 0.00) 30%,
-    rgba(0, 0, 0, 0.42) 62%,
-    rgba(0, 0, 0, 0.78) 100%
+    rgba(0, 0, 0, 0.40) 62%,
+    rgba(0, 0, 0, 0.76) 100%
   );
 }
 
-/* Editorial text — bottom-left, entrance-animated by playEntrance() */
+/* Editorial text — bottom-left, entrance-animated by playEntrance().
+   No scroll transform is applied to this element. */
 .mr2-hscene__text {
   position: absolute;
   bottom: clamp(3rem, 7vh, 5rem);
@@ -671,24 +665,31 @@ html.mr-intro-seen .mr2-loader {
 }
 
 @media (max-width: 768px) {
-  .mr2-hscene__img {
-    object-position: center 15%;
-  }
-  .mr2-hscene__layer {
-    top: -6%;
-    height: 112%;
-  }
+  .mr2-hscene__img    { object-position: center 15%; }
+  .mr2-hscene__bg     { top: -12%; height: 140%; }
 }
 
 /* ── About (homepage §2) — parallax portrait + line + CTA ──────────── */
 
-/* Pinned sections paint their own background so neighbouring pinned
-   content can never show through during transitions. */
-.mr2-about,
+/* Works section — standard site background */
 .mr2-works {
   position: relative;
   z-index: 1;
   background: var(--v2-bg);
+}
+
+/* About section — warm, dark, painterly tone distinct from the rest.
+   Radial gradient eases from deep cacao at the focal point to a shade
+   darker at the edges — painterly depth without grain or texture overlay.
+   Transition from the preceding section feels like a deepening of tone. */
+.mr2-about {
+  position: relative;
+  z-index: 1;
+  background: radial-gradient(
+    ellipse at 38% 55%,
+    #2C1A0E 0%,
+    #1E120A 70%
+  );
 }
 
 /* Asymmetric editorial split: portrait ~42%, text offset opposite.
@@ -716,8 +717,8 @@ html.mr-intro-seen .mr2-loader {
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(1) contrast(1.05); /* the one B&W portrait rule */
   will-change: transform;
+  /* No filter — full colour portrait */
 }
 
 /* Vertical offset — editorial, not grid-locked. */
@@ -730,7 +731,7 @@ html.mr-intro-seen .mr2-loader {
 
 .mr2-about__line {
   max-width: 20ch;
-  color: var(--v2-fg);
+  color: #F5EFE4; /* always cream on the fixed dark about background */
   font-family: var(--font-display);
   font-size: clamp(2rem, 3.4vw, 3.5rem);
   font-weight: 400;

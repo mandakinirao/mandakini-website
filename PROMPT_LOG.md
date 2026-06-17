@@ -2,6 +2,13 @@
 
 ---
 
+## 2026-06-17 (Hero fix + About overhaul)
+
+**Prompt summary:**
+Three issues: (1) Strip all hero scroll effects except background parallax at 30-40% of scroll speed — text and person must scroll at normal speed with no transform. (2) Remove checkerboard artifact — solid #2C1A0E background on hero container. (3) About section: replace B&W portrait with IMG_3968 in full colour; apply warm dark painterly background (#1E120A → #2C1A0E radial gradient) instead of default cream; text in cream #F5EFE4.
+
+---
+
 ## 2026-06-16 (WebGL hero)
 
 **Prompt:**
