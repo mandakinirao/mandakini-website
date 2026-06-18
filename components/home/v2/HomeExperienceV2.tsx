@@ -34,6 +34,10 @@ export default function HomeExperienceV2({
   }, [])
 
   const handleComplete = () => {
+    // Add 'mr-intro-seen' here — AFTER animations finish — so the CSS
+    // `html.mr-intro-seen .mr2-loader { display:none }` doesn't fire
+    // mid-flight and instantly kill the GSAP transition.
+    document.documentElement.classList.add('mr-intro-seen')
     setShowLoader(false)
     unlockScroll()
     heroRef.current?.playEntrance()

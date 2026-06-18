@@ -98,6 +98,21 @@ export function unlockScroll() {
   if (lenis) lenis.start()
 }
 
+/**
+ * Menu-specific lock: stops Lenis but sets overflow on <body> not <html>.
+ * <body> overflow:hidden prevents page scroll while leaving position:fixed
+ * overlays free to scroll their own internal content.
+ */
+export function menuLock() {
+  if (lenis) lenis.stop()
+  document.body.style.overflow = 'hidden'
+}
+
+export function menuUnlock() {
+  document.body.style.overflow = ''
+  if (lenis) lenis.start()
+}
+
 /* ── Reveal primitives — the only two reveal moves (spec §3.3) ─────── */
 
 interface RevealOptions {

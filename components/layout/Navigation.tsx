@@ -3,7 +3,7 @@
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
-import { ScrollTrigger, lockScroll, unlockScroll } from '@/lib/motion'
+import { ScrollTrigger, menuLock, menuUnlock } from '@/lib/motion'
 
 const menuLinks = [
   { label: 'Home', href: '/' },
@@ -32,15 +32,10 @@ export default function Navigation() {
     localStorage.setItem(THEME_KEY, next ? 'light' : 'dark')
   }
 
-  // The menu can never survive a navigation (covers back/forward too —
-  // link clicks also close it directly for same-route navigations).
   useEffect(() => {
     setMenuOpen(false)
   }, [pathname])
 
-  // Cream over the hero, ink once past it. Re-evaluated per route: the
-  // trigger element belongs to the page, so a mount-once trigger would
-  // go stale (or point at a removed node) after client-side navigation.
   useEffect(() => {
     if (!document.querySelector('.mr-hero')) {
       setScrolled(true)
@@ -62,20 +57,41 @@ export default function Navigation() {
     }
   }, [pathname])
 
-  // Lenis-safe lock: body overflow alone doesn't stop the smooth-scroll
-  // instance — lockScroll stops Lenis and the document together.
+  // Use menuLock (body overflow, not html) so the fixed overlay can scroll internally.
   useEffect(() => {
     if (!menuOpen) return
-    lockScroll()
-    return () => unlockScroll()
+    menuLock()
+    return () => menuUnlock()
   }, [menuOpen])
 
   return (
     <>
       <nav className={`site-nav ${scrolled ? 'scrolled' : ''}`} aria-label="Primary navigation">
         <Link href="/" className="site-logo" onClick={() => setMenuOpen(false)}>
-          <span>Mandakini</span>
-          <span>Rao</span>
+          {/* Text fallback — shown on non-v2 pages (e.g. /?v=1) */}
+          <span className="site-logo__text">
+            <span>Mandakini</span>
+            <span>Rao</span>
+          </span>
+
+          {/* Image logo — theme-aware, shown on v2 pages only via CSS */}
+          <span className="site-logo__mark" data-nav-logo>
+            <img
+              src="/art/logo/logo-cream.png"
+              className="site-logo__img site-logo__img--cream"
+              alt="Mandakini Rao"
+              width={80}
+              height={44}
+            />
+            <img
+              src="/art/logo/logo-cacao.png"
+              className="site-logo__img site-logo__img--cacao"
+              alt=""
+              aria-hidden="true"
+              width={80}
+              height={44}
+            />
+          </span>
         </Link>
 
         <button
@@ -91,7 +107,10 @@ export default function Navigation() {
         </button>
       </nav>
 
-      <div className={`menu-overlay canvas-texture ${menuOpen ? 'menu-overlay--open' : ''}`} aria-hidden={!menuOpen}>
+      <div
+        className={`menu-overlay canvas-texture ${menuOpen ? 'menu-overlay--open' : ''}`}
+        aria-hidden={!menuOpen}
+      >
         <div className="menu-overlay__inner">
           <p>Studio Directory</p>
           <div className="menu-overlay__links">
