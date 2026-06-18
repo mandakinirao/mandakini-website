@@ -24,6 +24,13 @@ export const shopItemSchema = defineType({
       description:
         'Private Collection items never render images or listings anywhere on the site — they are shared personally after an enquiry.',
     }),
+    defineField({
+      name: 'desc',
+      title: 'Description',
+      type: 'text',
+      rows: 3,
+      description: 'Short description shown on the product page and shop grid.',
+    }),
     defineField({ name: 'basePrice', title: 'Base Price (INR)', type: 'number' }),
     defineField({
       name: 'stock',

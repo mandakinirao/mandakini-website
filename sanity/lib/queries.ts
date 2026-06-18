@@ -77,6 +77,7 @@ export const featuredShopItemsQuery = groq`
       _id,
       title,
       "slug": slug.current,
+      desc,
       basePrice,
       images,
       availabilityStatus,
@@ -88,10 +89,11 @@ export const featuredShopItemsQuery = groq`
     },
     *[_type == "shopItem" && availabilityStatus == "available"
         && coalesce(purchaseType, "buy") != "privateCollection"]
-      | order(_createdAt desc) [0...3] {
+      | order(coalesce(displayOrder, 999) asc, _createdAt asc) [0...3] {
         _id,
         title,
         "slug": slug.current,
+        desc,
         basePrice,
         images,
         availabilityStatus,

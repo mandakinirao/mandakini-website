@@ -474,6 +474,7 @@ export async function getHomeData(): Promise<HomeData> {
       | {
           title?: string
           slug?: string
+          desc?: string
           basePrice?: number
           images?: SanityImageType[]
           availabilityStatus?: string
@@ -503,17 +504,19 @@ export async function getHomeData(): Promise<HomeData> {
   const prints: HomePrint[] =
     shopItems && shopItems.length
       ? shopItems.slice(0, 3).map((s, i) => {
-          let image = PLACEHOLDER_PRINTS[i % PLACEHOLDER_PRINTS.length].image
+          let image = '/art/subbulakshmi/ms-sq-3.jpg'
           try {
             if (s.images?.[0]) image = urlForImage(s.images[0]).width(1200).url()
           } catch {}
           return {
             title: s.title ?? 'Untitled print',
             slug: s.slug ?? `print-${i + 1}`,
-            price: s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
+            price: s.editionSize
+              ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
+              : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
             image,
             href: s.slug ? `/shop/${s.slug}` : '/shop',
-            desc: PLACEHOLDER_PRINTS[i % PLACEHOLDER_PRINTS.length].desc,
+            desc: s.desc ?? '',
             available: printAvailable(s),
             amount: s.basePrice ?? 0,
             stock: s.stock ?? 0,
