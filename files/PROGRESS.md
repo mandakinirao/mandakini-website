@@ -6,9 +6,9 @@
 ---
 
 ## Current Status
-**Build phase:** Block 8 complete; Block 12 complete
-**Last updated by:** Phase 2 commerce wiring
-**Last session date:** June 13, 2026
+**Build phase:** Block 8 complete; Block 12 complete; /about rebuild complete
+**Last updated by:** About page rebuild (3 sections)
+**Last session date:** June 19, 2026
 
 ---
 
@@ -233,13 +233,14 @@ Nothing yet.
 ---
 
 ## Files Created or Modified in Last Session
-- app/globals.css (commerce CSS block added)
-- app/(site)/shop/page.tsx (commerceEnabled prop added)
-- components/shop/ShopIndex.tsx (BuyControls wired, commerce-on card structure)
-- app/(site)/shop/[slug]/page.tsx (commerceEnabled prop added)
-- components/shop/ProductDetail.tsx (BuyControls wired, commerceEnabled gate)
-- files/PROGRESS.md
-- files/PROMPT_LOG.md
+- sanity/schemas/aboutPage.ts (3 new field groups: HERO, BODY, ABOUT-BLOCK; legacy fields kept)
+- sanity/lib/queries.ts (aboutPageQuery extended with all new fields)
+- components/AboutSection.tsx (AboutData type extended; EdgeWord type added)
+- components/about/AboutHero.tsx (new — flanking arch columns + centred display word + brushstroke)
+- components/about/AboutEdgeWords.tsx (new — fractured body text + parallax edge words + footer labels)
+- styles/about.css (rewritten — nav fix kept; new Section 1 + Section 2 CSS; old AboutSection rules removed)
+- components/home/v2/CanvasCards.tsx (ctaHref + ctaLabel optional props added; homepage default unchanged)
+- app/(site)/about/page.tsx (rewritten — AboutHero → AboutEdgeWords → CanvasCards; CTA → /contact)
 
 ---
 

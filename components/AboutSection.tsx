@@ -13,13 +13,38 @@ type TextRow = {
   col3?: string
 }
 
+export type EdgeWord = {
+  _key: string
+  text: string
+  side: 'left' | 'right'
+  scale?: 'S' | 'M' | 'L'
+  depth?: number
+}
+
 export type AboutData = {
+  // Core
   name?: string
   discipline?: string
+  // HERO (Section 1)
+  heroLeadIn?: string
+  heroDisplayWord?: string
+  heroSubhead?: string
+  heroLeftImage?: SanityImage & { alt?: string; caption?: string }
+  heroRightImage?: SanityImage & { alt?: string; caption?: string }
+  // BODY (Section 2)
+  bodyParagraph?: string[]
+  edgeWords?: EdgeWord[]
+  seriesTitles?: string[]
+  colophon?: string[]
+  // ABOUT-BLOCK (Section 3)
+  aboutBlockBio?: string
+  aboutBlockPortrait?: SanityImage & { alt?: string }
+  // Legacy fields (kept for backwards compat)
   descriptionLines?: TextRow[]
   portrait?: SanityImage & { alt?: string }
   quote?: string
   quoteAttribution?: string
+  homeSnippet?: string
 }
 
 function StackedName({ name }: { name: string }) {

@@ -46,6 +46,10 @@ Task: Audit and clean the codebase. No new features. No visual changes except th
 ## Session June 12, 2026 — Navigation reliability & footer reveal fixes
 Task: Fix page-to-page navigation and the footer MANDAKINI reveal on non-home pages. Bug fixes only. Read PROJECT.md and PROGRESS.md first. Touch only: navigation/menu component, route transition logic, footer component, and Lenis/ScrollTrigger initialization. Navigation: page-to-page navigation is unreliable. Audit and fix so that: every nav/menu link uses Next.js <Link> (no full reloads); the menu closes cleanly on navigate; scroll position resets to top on new routes; and Lenis + ScrollTrigger are properly destroyed and re-initialized (or refreshed via ScrollTrigger.refresh()) on every route change. Stale ScrollTrigger instances from a previous page must not survive navigation; this is the most likely root cause, verify and fix it structurally, not per-page. Footer reveal: the large MANDAKINI name in the footer animates correctly on the homepage but fails on other pages. Diagnose why (almost certainly the trigger is created before content has laid out, or is bound to homepage-only markup, or is killed by the navigation issue above). Fix so the footer is one shared component whose reveal works identically on every route, including after client-side navigation. Test: home → works → shop → about → contact, scrolling to the footer on each, in one session without refreshes. Confirm with a checklist in PROGRESS.md: nav works from every page to every page, footer reveal fires on all routes, no duplicate Lenis instances, no console errors. No grain, no boxy elements, no blues, master ease only. Update PROGRESS.md and PROMPT_LOG.md.
 
+## Session June 19, 2026 — About page rebuild (3 sections)
+
+Rebuilt /about from scratch as three stacked sections. (1) **aboutPage schema** extended with three new optional field groups: HERO (heroLeadIn, heroDisplayWord, heroSubhead, heroLeftImage, heroRightImage); BODY (bodyParagraph, edgeWords[], seriesTitles, colophon); ABOUT-BLOCK (aboutBlockBio, aboutBlockPortrait). Legacy fields kept for backward compatibility. `aboutPageQuery` in queries.ts extended to project every new field. `AboutData` type in `AboutSection.tsx` updated with all new optional fields + a new exported `EdgeWord` type. (2) **Section 1 — `AboutHero`**: cream section with 3-column grid (left arch | centre text | right arch). Each painting clipped to a soft rounded arch via SVG clipPath `id="mandakini-arch-hero"`. Entrance-only GSAP animation: arches fade+rise, display word slides up from `overflow:hidden` parent (same technique as the existing name reveal in AboutSection), terracotta brushstroke draws on via `stroke-dashoffset` tween (no DrawSVGPlugin dependency). `body.about-page` class set here (nav fix). (3) **Section 2 — `AboutEdgeWords`**: cream section, `overflow-x: clip`, `min-height: 200vh`. bodyParagraph fragments in a fractured 3-column grid (mirrors `.about-text-row` pattern). edgeWords absolutely positioned, scroll-driven x drift (`ease: none`, scrub 0.6), settled while still partially off-frame; depth encodes opacity (faint=back, solid=front) and scroll-start stagger (each word i starts at `top+=${i*90}`). seriesTitles bottom-left, colophon bottom-right; both label-font. (4) **Section 3 — `CanvasCards`** reused unchanged except for two optional backward-compatible props (`ctaHref`, `ctaLabel`); on /about these are `"/contact"` and `"Say hello"`. Homepage call site passes no props so defaults (/about, "About Mandakini") apply — homepage panel is visually and behaviorally identical. Decisions made: symmetric arch columns; brushstroke via dashoffset; all-cream Section 2; contact CTA on /about. `tsc --noEmit` clean, `npm run build` passes (16/16 static pages, /about = 7.4 kB).
+
 ## Session June 13, 2026 — Commerce Phase 2 build
 
 Phase 2 prompt specified: all new UI must consume Phase 1 tokens; product schema to add price/stripePriceId/stock/purchaseType; order schema; product UI (flag ON) showing Mailendra price + Add to Cart + Buy Now pills + Sold state; cart as React context + slide-in drawer (cream/deep cacao tokens, never boxy); checkout route creating Stripe sessions with server-side price validation; idempotent webhook creating Sanity orders, decrementing stock, and sending order confirmation email; thank-you page; all Stripe paths guarded against missing env. Hard constraints: no grain, no square/boxy elements, no blues, master ease only, do not touch hero/loader/about/cursor/Private Collection.
@@ -55,3 +59,37 @@ On exploration, the vast majority of Phase 2 was already implemented from prior 
 What was missing: (1) all CSS for commerce classes (`.mr-buy*`, `.mr-cart__*`, `.mr-thanks*`) — classes were referenced in components but had zero rules; (2) ShopIndex did not receive the `commerceEnabled` prop or render BuyControls; (3) ProductDetail always showed "Enquire to purchase" regardless of the flag; (4) ShopPage and ProductPage did not call `commerceEnabled()`.
 
 Implemented: added commerce CSS block to globals.css (Phase 1 tokens only; cart panel uses `--v2-night` deep cacao + `--ink-cream` per the cream/deep cacao token requirement; Mailendra via `--font-label` on `.mr-buy__amount`; cart chip z-index raised to 310 to clear the loader at 300); wired `commerceEnabled` prop through ShopPage → ShopIndex (article card structure with separate image link + BuyControls when on, original Link card when off); wired `commerceEnabled` prop through ProductPage → ProductDetail (BuyControls replaces "Enquire" CTA when on). TypeScript clean, build passes, all routes 200.
+
+---
+
+## PROMPT VERBATIM — June 19, 2026 — About page rebuild (3 sections)
+
+Read files/PROJECT.md and files/PROGRESS.md first, before any other file. This
+prompt rebuilds the entire /about page into three stacked sections in one pass:
+(1) a flanking-arch hero, (2) an edge-word scroll section, (3) a reuse of the
+existing amber About panel. Work in the order below — schema, then Sections 1 & 2,
+then Section 3 — and do not start the components until the schema compiles.
+
+GLOBAL CONSTRAINTS (enforce throughout, do not deviate):
+- No grain/noise anywhere. No blue anywhere. No boxy or square elements — arches,
+  pills, circles, or bare text links only.
+- Palette strictly via the existing CSS tokens (confirmed single-source in the
+  June 12 cleanup); never hardcode hex. Cream #F5EFE4, deep cacao #2C1A0E,
+  terracotta #B8572A, rosehip #792318, amber #C89839.
+- Animation values come ONLY from lib/motion.ts (EASE='mandakini', DUR, STAGGER).
+  GSAP + ScrollTrigger + Lenis only. No Framer Motion.
+- GROQ lives only in sanity/lib/queries.ts (PROJECT.md §14). Never inline GROQ.
+- Do not touch: homepage components, the loader, the cursor, Private Collection.
+  The ONLY permitted change outside /about is one backwards-compatible prop added
+  to CanvasCards (Section 3 below).
+- Respect prefersReducedMotion() everywhere: no scrub drift; show settled states.
+
+STEP A — SCHEMA & DATA: Extend aboutPage schema with HERO, BODY, ABOUT-BLOCK
+field groups. Extend aboutPageQuery. Update AboutData type.
+
+STEP B — SECTIONS 1 & 2: AboutHero (flanking arch columns, centred display word,
+brushstroke via stroke-dashoffset), AboutEdgeWords (fractured body text, parallax
+edge words with depth/opacity/stagger, footer labels). overflow-x: clip required.
+
+STEP C — SECTION 3: Reuse CanvasCards with backwards-compatible ctaHref/ctaLabel
+props. On /about pass ctaHref="/contact" ctaLabel="Say hello".

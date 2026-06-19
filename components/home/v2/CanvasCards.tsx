@@ -15,6 +15,8 @@ import {
 interface CanvasCardsProps {
   portrait: string
   bio: string
+  ctaHref?: string
+  ctaLabel?: string
 }
 
 /**
@@ -23,7 +25,7 @@ interface CanvasCardsProps {
  * generously rounded mask, and one display line with a pill CTA to
  * /about. The previous rolling-word ticker is fully removed.
  */
-export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
+export default function CanvasCards({ portrait, bio, ctaHref, ctaLabel }: CanvasCardsProps) {
   const rootRef = useRef<HTMLElement>(null)
   const maskRef = useRef<HTMLDivElement>(null)
 
@@ -101,8 +103,8 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
 
       <div className="mr2-about__text">
         {bio && <p className="mr2-about__line">{bio}</p>}
-        <PillCta href="/about" className="mr2-about__cta">
-          About Mandakini
+        <PillCta href={ctaHref ?? '/about'} className="mr2-about__cta">
+          {ctaLabel ?? 'About Mandakini'}
         </PillCta>
       </div>
     </section>
