@@ -134,3 +134,114 @@ errors; nav links and menu still work.
 
 On completion update files/PROGRESS.md ("Header logo enlarged ~1.5×") and append
 this prompt verbatim to files/PROMPT_LOG.md.
+
+---
+
+## PROMPT VERBATIM — June 19, 2026 — About split: homepage teaser + amber panel to /about
+
+Read files/PROJECT.md and files/PROGRESS.md first. This splits the current
+homepage amber About panel into two things: a SMALL text teaser that stays on the
+homepage, and the FULL amber panel which moves to become the /about page. Goal:
+reduce homepage heaviness/whitespace while keeping one human "about" beat on the
+homepage, and give the amber block room on its own page.
+
+GLOBAL CONSTRAINTS: no grain; no blue; no boxy/square elements EXCEPT the existing
+amber panel (client-approved exception, reuse as-is); palette via existing CSS
+tokens only — no hardcoded hex; animations only from lib/motion.ts (EASE=
+'mandakini', DUR, STAGGER); GSAP+ScrollTrigger+Lenis only; GROQ only in
+sanity/lib/queries.ts (PROJECT.md §14); respect prefersReducedMotion(). Do not
+touch loader, cursor, Private Collection.
+
+Current state for reference:
+- components/home/v2/CanvasCards.tsx is the amber panel (rounded-mask parallax
+  portrait + single display bio line + PillCta href="/about" "About Mandakini").
+  Props: bio (string), portrait (string).
+- It is mounted in components/home/v2/HomeExperienceV2.tsx as
+  <CanvasCards portrait={aboutPortrait} bio={aboutBio} />, order: HeroScene →
+  CanvasCards → StripeBand → RisingSunWorks → ...
+- /about (app/(site)/about/page.tsx) currently renders AboutSection from the
+  aboutPage singleton.
+
+──────────────────────────────────────────────
+STEP A — Sanity fields
+──────────────────────────────────────────────
+In sanity/schemas/aboutPage.ts add (all optional; do not touch existing
+homeSnippet):
+  - aboutTeaserLine (string) — the short line shown in the homepage teaser
+  - aboutBlockBio (text, rows 5) — the longer bio for the amber panel on /about
+  - aboutBlockPortrait (image, hotspot:true, + alt string)
+# DECIDE: teaser line and panel bio are separate so the homepage shows a short
+# hook and /about shows the full bio. If you'd rather reuse one string, point both
+# at aboutBlockBio.
+Extend the existing aboutPageQuery in sanity/lib/queries.ts to project all three
+(portrait as `{ ..., alt }`). Update the AboutData type to include them as
+optional so tsc stays green.
+
+──────────────────────────────────────────────
+STEP B — Homepage: replace amber panel with a small teaser
+──────────────────────────────────────────────
+Create components/home/v2/AboutTeaser.tsx — a LIGHT section (no amber field, no
+portrait, no rounded box):
+  - One display-font line (Staff Regular display token) = aboutTeaserLine.
+  - A PillCta href="/about" label "About Mandakini".
+  - The pill uses TERRACOTTA (#B8572A via its token) as its one warm accent —
+    this is the deliberate bit of color Mandakini asked for. Everything else in
+    the teaser is cream/cacao tokens. Do NOT also add an amber underline; one
+    accent only.
+  - Reveal: reuse the existing revealLines helper for the line (scrollTrigger,
+    start ~'top 75%') and a small DUR.fast/EASE fade-up for the pill — mirror the
+    motion CanvasCards already uses; invent nothing new.
+  - Comfortable but compact vertical padding using the existing section rhythm;
+    this section should feel like a quiet beat, not a tall block.
+In HomeExperienceV2.tsx: replace <CanvasCards .../> with <AboutTeaser
+line={aboutTeaserLine} /> in the same position (after HeroScene, before
+StripeBand). Pass aboutTeaserLine through from props/HomeData (see Step D).
+Remove the CanvasCards import from HomeExperienceV2 (it will now be used only by
+/about). Ensure no layout gap, leftover spacer, or broken ScrollTrigger where the
+panel was.
+
+──────────────────────────────────────────────
+STEP C — /about becomes the full amber panel
+──────────────────────────────────────────────
+Rewrite app/(site)/about/page.tsx to render ONLY <CanvasCards>, fed from the
+aboutPage singleton; remove the <AboutSection> render and import (keep the page's
+metadata export).
+  - bio = aboutBlockBio; portrait = aboutBlockPortrait resolved to a URL via
+    urlForImage (sanity/lib/image) in the server component, fallback
+    '/art/about-portrait.jpg' if empty.
+  - CanvasCards' PillCta is a self-link on /about. Add OPTIONAL backwards-
+    compatible props ctaHref/ctaLabel to CanvasCards (defaults '/about' /
+    'About Mandakini' so homepage usage — now the teaser — and any other caller
+    are unaffected). On /about pass ctaHref="/contact" ctaLabel="Say hello".
+    This is the ONLY change permitted to CanvasCards.
+  - Center the panel with the same section padding rhythm CanvasCards uses on the
+    homepage so it isn't a lonely block in whitespace; invent no new scale.
+
+──────────────────────────────────────────────
+STEP D — data plumbing
+──────────────────────────────────────────────
+In lib/home-data.ts, make aboutTeaserLine available to HomeExperienceV2: source
+it from the aboutPage singleton (aboutTeaserLine; fall back to homeSnippet, then
+empty string). You may keep the existing aboutBio/aboutPortrait in HomeData for
+now even though the homepage no longer renders the amber panel — do NOT rip out
+that plumbing in this prompt (out of scope; a later cleanup can). Just ensure
+aboutTeaserLine flows to the new teaser.
+# Do NOT delete AboutSection, the orphaned hero/descriptionLines/quote fields on
+# aboutPage, or homeSnippet in this prompt — this is the "see if the simpler
+# version looks right" step. A single later cleanup prompt removes dead code once
+# you confirm the design.
+
+──────────────────────────────────────────────
+VERIFY:
+- `npx tsc --noEmit` clean; production build passes.
+- Homepage: hero → small About teaser (display line + terracotta pill) → stripe →
+  works. No amber panel on the homepage, no gap/console error. Teaser pill is
+  terracotta; rest cream/cacao.
+- /about: renders only the amber panel, centered, no excess whitespace; CTA →
+  /contact "Say hello"; parallax + reveal fire on CLIENT-SIDE navigation to
+  /about (don't regress the June 12 nav/ScrollTrigger.refresh fix).
+- Cursor, loader, and other homepage sections unchanged.
+
+On completion update files/PROGRESS.md ("About split: homepage teaser + amber
+panel moved to /about; terracotta teaser pill") and append this prompt verbatim
+to files/PROMPT_LOG.md.

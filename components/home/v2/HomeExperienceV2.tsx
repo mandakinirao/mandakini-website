@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import CanvasCards from '@/components/home/v2/CanvasCards'
+import AboutTeaser from '@/components/home/v2/AboutTeaser'
 import ContactStage from '@/components/home/v2/ContactStage'
 import EditionShop from '@/components/home/v2/EditionShop'
 import HeroScene, { type HeroSceneHandle } from '@/components/home/v2/HeroScene'
@@ -12,15 +12,8 @@ import StripeBand from '@/components/home/v2/StripeBand'
 import type { HomeData } from '@/lib/home-data'
 import { ScrollTrigger, unlockScroll } from '@/lib/motion'
 
-export default function HomeExperienceV2({
-  series,
-  prints,
-  press,
-  testimonials,
-  tagline,
-  aboutBio,
-  aboutPortrait,
-}: HomeData) {
+export default function HomeExperienceV2(props: HomeData) {
+  const { series, prints, press, testimonials, tagline, aboutTeaserLine } = props
   const heroRef = useRef<HeroSceneHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
 
@@ -50,7 +43,7 @@ export default function HomeExperienceV2({
         <LoadingScreenStripes onComplete={handleComplete} tagline={tagline} />
       )}
       <HeroScene ref={heroRef} tagline={tagline} />
-      <CanvasCards portrait={aboutPortrait} bio={aboutBio} />
+      <AboutTeaser line={aboutTeaserLine} />
       <StripeBand />
       <RisingSunWorks series={series} />
       <EditionShop prints={prints} />

@@ -1297,6 +1297,42 @@ body.mr2-mode .mr-detail__sale:hover {
   cursor: not-allowed;
 }
 
+/* ── Homepage About Teaser ─────────────────────────────────────────── */
+/* Quiet beat between the hero and stripe; cream/cacao, no amber field */
+
+.mr2-teaser {
+  background: var(--v2-bg);
+  padding: clamp(4rem, 7vh, 6rem) clamp(20px, 6vw, 80px);
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(1.5rem, 3vh, 2.5rem);
+}
+
+.mr2-teaser__line {
+  font-family: var(--font-display);
+  font-size: clamp(1.8rem, 3.2vw, 3.4rem);
+  font-weight: 400;
+  line-height: 1.2;
+  color: var(--v2-fg);
+  max-width: 24ch;
+}
+
+/* Terracotta pill — the single warm accent in this section */
+.mr2-teaser .mr2-cta {
+  border-color: var(--accent-terracotta);
+  color: var(--accent-terracotta);
+}
+.mr2-teaser .mr2-cta:hover:not(:disabled) {
+  background-color: var(--accent-terracotta);
+  border-color: var(--accent-terracotta);
+  color: var(--v2-cream);
+}
+
+@media (max-width: 640px) {
+  .mr2-teaser__line { font-size: clamp(1.6rem, 5.5vw, 2.2rem); }
+}
+
 /* ── About page ────────────────────────────────────────────────────── */
 
 .mr2-about-page {

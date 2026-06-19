@@ -73,6 +73,8 @@ export interface HomeData {
   aboutBio: string
   /** Resolved URL for the About section portrait. Empty = use built-in fallback. */
   aboutPortrait: string
+  /** Short display-font line for the compact homepage teaser. */
+  aboutTeaserLine: string
 }
 
 // TODO(AP): placeholder series — replace with Mandakini's real project
@@ -514,6 +516,7 @@ export async function getHomeData(): Promise<HomeData> {
       tagline: 'Painter · Educator · Storyteller',
       aboutBio: '',
       aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
+      aboutTeaserLine: '',
     }
   }
 
@@ -526,7 +529,7 @@ export async function getHomeData(): Promise<HomeData> {
   const ok = <T>(r: PromiseSettledResult<T>): T | null =>
     r.status === 'fulfilled' ? r.value : null
 
-  const [shopRes, pressRes, heroRes, basicRes, testiRes, snippetRes] = await Promise.allSettled([
+  const [shopRes, pressRes, heroRes, basicRes, testiRes, snippetRes, teaserRes] = await Promise.allSettled([
     client.fetch<
       | {
           title?: string
@@ -551,6 +554,7 @@ export async function getHomeData(): Promise<HomeData> {
     ),
     client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
     client.fetch<string | null>('*[_type == "aboutPage"][0].homeSnippet'),
+    client.fetch<string | null>('*[_type == "aboutPage"][0].aboutTeaserLine'),
   ])
 
   const shopItems = ok(shopRes)
@@ -559,6 +563,7 @@ export async function getHomeData(): Promise<HomeData> {
   const siteBasic = ok(basicRes)
   const rawTestimonials = ok(testiRes)
   const homeSnippet = ok(snippetRes)
+  const teaserLine = ok(teaserRes)
 
   const prints: HomePrint[] =
     shopItems && shopItems.length
@@ -626,5 +631,6 @@ export async function getHomeData(): Promise<HomeData> {
     tagline,
     aboutBio,
     aboutPortrait,
+    aboutTeaserLine: teaserLine ?? homeSnippet ?? '',
   }
 }

@@ -39,6 +39,8 @@ export type AboutData = {
   // ABOUT-BLOCK (Section 3)
   aboutBlockBio?: string
   aboutBlockPortrait?: SanityImage & { alt?: string }
+  // Homepage teaser
+  aboutTeaserLine?: string
   // Legacy fields (kept for backwards compat)
   descriptionLines?: TextRow[]
   portrait?: SanityImage & { alt?: string }

@@ -7,12 +7,20 @@
 
 ## Current Status
 **Build phase:** Block 8 complete; Block 12 complete; /about rebuild complete
-**Last updated by:** Header logo enlarged ~1.5×
+**Last updated by:** About split — homepage teaser + amber panel on /about
 **Last session date:** June 19, 2026
 
 ---
 
 ## What Is Complete
+**About split: homepage teaser + amber panel moved to /about; terracotta teaser pill — June 19, 2026:**
+- `aboutTeaserLine` (string) added to `aboutPage` schema, `aboutPageQuery`, and `AboutData` type. Falls back to `homeSnippet` → empty string when not set. Content seeded in Sanity: "Art has been a part of my life for as long as I can remember."
+- New `components/home/v2/AboutTeaser.tsx`: dark `--v2-bg` section, one display-font line (`revealLines`, scrollTrigger top 75%), terracotta `PillCta` → /about (border/text terracotta at rest, fills terracotta on hover via `.mr2-teaser .mr2-cta` scope in `v2.css`). Returns null when `line` is empty so the section hides gracefully.
+- `HomeExperienceV2.tsx`: removed `<CanvasCards>` import and render; added `<AboutTeaser line={aboutTeaserLine} />` in the same slot (after HeroScene, before StripeBand). `aboutBio`/`aboutPortrait` remain in `HomeData` but are not destructured (per prompt: "do not rip out plumbing").
+- `lib/home-data.ts`: added `aboutTeaserLine: string` to `HomeData` interface; added `teaserRes` parallel fetch (`*[_type == "aboutPage"][0].aboutTeaserLine`); resolved value falls back to `homeSnippet ?? ''`.
+- `/about page`: already had `CanvasCards` as the third section (from the prior rebuild — AbotHero → AboutEdgeWords → CanvasCards with ctaHref="/contact"). No change needed; the amber panel is correctly positioned on /about.
+- Build: `tsc --noEmit` clean; `npm run build` passes (all routes 200).
+
 **Header logo enlarged ~1.5× — June 19, 2026:** Bumped both `<img>` intrinsic dimensions in `Navigation.tsx` from 80×44 to 120×66 (same 20:11 ratio). Updated `.site-logo__img` CSS from `clamp(44px, 6vh, 64px)` to `clamp(44px, 9vh, 96px)`. Added `@media (max-width: 480px)` cap at `44px` so the logo stays small on 380px screens and never crowds the hamburger. No other nav or animation changes.
 
 Block 1 foundation setup is complete. The Next.js 14 App Router project has been initialised, dependencies installed, Sanity Studio configured at /studio, route shells created, confirmed design tokens added to globals.css, Tailwind and Next config added, environment template created, and 9 placeholder portrait images generated. Design tokens corrected to confirmed client palette June 2026.

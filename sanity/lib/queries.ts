@@ -173,22 +173,7 @@ export const allSeriesQuery = groq`
 // before content is entered in the Studio.
 export const aboutPageQuery = groq`
   *[_type == "aboutPage"][0] {
-    name,
-    discipline,
-    homeSnippet,
-    descriptionLines[] { _key, col1, col2, col3 },
-    portrait { ..., alt },
-    quote,
-    quoteAttribution,
-    heroLeadIn,
-    heroDisplayWord,
-    heroSubhead,
-    heroLeftImage  { ..., alt, caption },
-    heroRightImage { ..., alt, caption },
-    bodyParagraph,
-    edgeWords[] { _key, text, side, scale, depth },
-    seriesTitles,
-    colophon,
+    aboutTeaserLine,
     aboutBlockBio,
     aboutBlockPortrait { ..., alt }
   }
