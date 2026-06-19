@@ -1,7 +1,6 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import AboutTeaser from '@/components/home/v2/AboutTeaser'
 import ContactStage from '@/components/home/v2/ContactStage'
 import EditionShop from '@/components/home/v2/EditionShop'
 import HeroScene, { type HeroSceneHandle } from '@/components/home/v2/HeroScene'
@@ -13,7 +12,7 @@ import type { HomeData } from '@/lib/home-data'
 import { ScrollTrigger, unlockScroll } from '@/lib/motion'
 
 export default function HomeExperienceV2(props: HomeData) {
-  const { series, prints, press, testimonials, tagline, aboutTeaserLine } = props
+  const { series, prints, press, testimonials, tagline } = props
   const heroRef = useRef<HeroSceneHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
 
@@ -43,7 +42,6 @@ export default function HomeExperienceV2(props: HomeData) {
         <LoadingScreenStripes onComplete={handleComplete} tagline={tagline} />
       )}
       <HeroScene ref={heroRef} tagline={tagline} />
-      <AboutTeaser line={aboutTeaserLine} />
       <StripeBand />
       <RisingSunWorks series={series} />
       <EditionShop prints={prints} />
