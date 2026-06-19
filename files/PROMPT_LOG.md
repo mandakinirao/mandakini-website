@@ -93,3 +93,44 @@ edge words with depth/opacity/stagger, footer labels). overflow-x: clip required
 
 STEP C — SECTION 3: Reuse CanvasCards with backwards-compatible ctaHref/ctaLabel
 props. On /about pass ctaHref="/contact" ctaLabel="Say hello".
+
+---
+
+## PROMPT VERBATIM — June 19, 2026 — Header logo enlarged ~1.5×
+
+Read files/PROJECT.md and files/PROGRESS.md first. Single targeted change: make
+the header logo ~1.5× bigger. No other visual or behavioral changes.
+
+Touch only:
+- components/layout/Navigation.tsx
+- the stylesheet holding .site-logo / .site-logo__img rules (globals.css or
+  v2.css — grep for `.site-logo__img` and edit where the displayed size is set)
+
+The logo is the shared site-wide nav mark (Next/Image at /art/logo/logo-cream.png
+and logo-cacao.png), currently intrinsic 80×44, theme-aware cream/cacao swap.
+
+Do:
+1. In Navigation.tsx bump BOTH <Image> intrinsic dimensions from width={80}
+   height={44} to width={120} height={66} (same 20:11 ratio, 1.5×) on both the
+   --cream and --cacao images, so Next/Image serves a sharp asset.
+2. In CSS, find where .site-logo__img (or .site-logo__mark) sets its rendered
+   size and scale it ~1.5×. If it currently has no explicit size and relies on the
+   intrinsic px, add an explicit height (e.g. height: 66px; width: auto) so the
+   render is controlled and consistent. Use the existing spacing tokens/rhythm;
+   don't introduce magic numbers elsewhere.
+3. Responsive cap: ensure the larger logo does NOT crowd the hamburger/menu or
+   overflow the header on small screens. Add/keep a mobile clamp so it scales down
+   gracefully (e.g. a clamp() on height, or a max at the existing mobile
+   breakpoint). The nav must not wrap or collide at 380px.
+
+Constraints: no grain, no blue, no boxy elements, palette tokens only, master
+ease/timing only (this change shouldn't add animation). Don't alter the
+cream/cacao theme-swap logic, the scrolled state, or menu behavior.
+
+Verify: logo is visibly ~1.5× larger on desktop across all routes (it's one
+shared component, so check home + one inner page); crisp (not upscaled-blurry);
+header layout intact at 1440 / 768 / 380px with no collision or wrap; no console
+errors; nav links and menu still work.
+
+On completion update files/PROGRESS.md ("Header logo enlarged ~1.5×") and append
+this prompt verbatim to files/PROMPT_LOG.md.

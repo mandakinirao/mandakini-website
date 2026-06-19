@@ -7,12 +7,14 @@
 
 ## Current Status
 **Build phase:** Block 8 complete; Block 12 complete; /about rebuild complete
-**Last updated by:** About page rebuild (3 sections)
+**Last updated by:** Header logo enlarged ~1.5×
 **Last session date:** June 19, 2026
 
 ---
 
 ## What Is Complete
+**Header logo enlarged ~1.5× — June 19, 2026:** Bumped both `<img>` intrinsic dimensions in `Navigation.tsx` from 80×44 to 120×66 (same 20:11 ratio). Updated `.site-logo__img` CSS from `clamp(44px, 6vh, 64px)` to `clamp(44px, 9vh, 96px)`. Added `@media (max-width: 480px)` cap at `44px` so the logo stays small on 380px screens and never crowds the hamburger. No other nav or animation changes.
+
 Block 1 foundation setup is complete. The Next.js 14 App Router project has been initialised, dependencies installed, Sanity Studio configured at /studio, route shells created, confirmed design tokens added to globals.css, Tailwind and Next config added, environment template created, and 9 placeholder portrait images generated. Design tokens corrected to confirmed client palette June 2026.
 
 Block 2 Sanity schema build is complete. All 10 document schemas have been created and registered: Project, Artwork, Shop Item, Order, Press Item, About, Site Settings, Navigation, Class, and Member.
