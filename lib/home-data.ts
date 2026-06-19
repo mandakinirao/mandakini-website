@@ -442,6 +442,61 @@ export async function getPrintBySlug(slug: string): Promise<HomePrint | null> {
   return prints.find((p) => p.slug === slug) ?? null
 }
 
+/**
+ * Full shop listing for /shop — no limit, all non-private, non-hidden items.
+ * The homepage EditionShop uses getHomeData() which intentionally caps at 3.
+ */
+export async function getAllShopItems(): Promise<HomePrint[]> {
+  if (!hasSanityEnv()) return PLACEHOLDER_PRINTS
+
+  try {
+    const [{ client }, { urlForImage }, { allShopItemsQuery }] = await Promise.all([
+      import('@/sanity/lib/client'),
+      import('@/sanity/lib/image'),
+      import('@/sanity/lib/queries'),
+    ])
+    const docs = await client.fetch<
+      | {
+          _id: string
+          title?: string
+          slug?: string
+          desc?: string
+          basePrice?: number
+          images?: SanityImageType[]
+          availabilityStatus?: string
+          editionSize?: number
+          sold?: number
+          stock?: number
+        }[]
+      | null
+    >(allShopItemsQuery)
+
+    if (!docs || !docs.length) return PLACEHOLDER_PRINTS
+
+    return docs.map((s, i) => {
+      let image = '/art/subbulakshmi/ms-sq-3.jpg'
+      try {
+        if (s.images?.[0]) image = urlForImage(s.images[0]).width(1200).url()
+      } catch {}
+      return {
+        title: s.title ?? 'Untitled print',
+        slug: s.slug ?? `print-${i + 1}`,
+        price: s.editionSize
+          ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
+          : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
+        image,
+        href: s.slug ? `/shop/${s.slug}` : '/shop',
+        desc: s.desc ?? '',
+        available: printAvailable(s),
+        amount: s.basePrice ?? 0,
+        stock: s.stock ?? 0,
+      }
+    })
+  } catch {
+    return PLACEHOLDER_PRINTS
+  }
+}
+
 export async function getHomeData(): Promise<HomeData> {
   // The homepage gets the curated featured set (capped at 4 in the
   // component); /works fetches the full list via getAllSeries itself.
@@ -455,7 +510,7 @@ export async function getHomeData(): Promise<HomeData> {
       testimonials: PLACEHOLDER_TESTIMONIALS,
       heroImages: [],
       tagline: 'Painter · Educator · Storyteller',
-      aboutBio: 'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.',
+      aboutBio: '',
       aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
     }
   }
@@ -469,7 +524,7 @@ export async function getHomeData(): Promise<HomeData> {
   const ok = <T>(r: PromiseSettledResult<T>): T | null =>
     r.status === 'fulfilled' ? r.value : null
 
-  const [shopRes, pressRes, heroRes, basicRes, testiRes] = await Promise.allSettled([
+  const [shopRes, pressRes, heroRes, basicRes, testiRes, snippetRes] = await Promise.allSettled([
     client.fetch<
       | {
           title?: string
@@ -493,6 +548,7 @@ export async function getHomeData(): Promise<HomeData> {
       queries.siteSettingsBasicQuery
     ),
     client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
+    client.fetch<string | null>('*[_type == "aboutPage"][0].homeSnippet'),
   ])
 
   const shopItems = ok(shopRes)
@@ -500,6 +556,7 @@ export async function getHomeData(): Promise<HomeData> {
   const rawHeroImages = ok(heroRes)
   const siteBasic = ok(basicRes)
   const rawTestimonials = ok(testiRes)
+  const homeSnippet = ok(snippetRes)
 
   const prints: HomePrint[] =
     shopItems && shopItems.length
@@ -538,9 +595,7 @@ export async function getHomeData(): Promise<HomeData> {
     rawHeroImages && rawHeroImages.length === 7 ? rawHeroImages : []
 
   const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
-  const aboutBio =
-    siteBasic?.aboutBio ??
-    'Painter, photographer and educator, working between canvas, lens and the ragas of Carnatic music.'
+  const aboutBio = homeSnippet ?? ''
   // Local portrait (IMG_9003) takes precedence until a colour photo is
   // uploaded to Sanity Studio (siteSettings → aboutPortrait).
   // To restore Sanity control: upload a colour portrait to Studio,

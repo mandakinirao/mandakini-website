@@ -100,7 +100,7 @@ export default function CanvasCards({ portrait, bio }: CanvasCardsProps) {
       </div>
 
       <div className="mr2-about__text">
-        <p className="mr2-about__line">{bio}</p>
+        {bio && <p className="mr2-about__line">{bio}</p>}
         <PillCta href="/about" className="mr2-about__cta">
           About Mandakini
         </PillCta>

@@ -106,6 +106,27 @@ export const featuredShopItemsQuery = groq`
   )
 `
 
+// Full shop listing — no slice, used by /shop page.
+// The homepage teaser (EditionShop) uses featuredShopItemsQuery which has [0...3].
+export const allShopItemsQuery = groq`
+  *[_type == "shopItem" && availabilityStatus != "hidden"
+      && coalesce(purchaseType, "buy") != "privateCollection"]
+    | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
+      _id,
+      title,
+      "slug": slug.current,
+      desc,
+      basePrice,
+      images,
+      availabilityStatus,
+      editionSize,
+      sold,
+      stock,
+      "purchaseType": coalesce(purchaseType, "buy"),
+      stripePriceId
+    }
+`
+
 // Checkout price validation — amounts always come from Sanity, never
 // from the client. Buyable items only.
 export const shopItemsBySlugsQuery = groq`
@@ -159,6 +180,26 @@ export const allSeriesQuery = groq`
           "purchaseType": coalesce(purchaseType, "buy")
         }
       }
+  }
+`
+
+// About Page singleton — drives /about and (via homeSnippet) the homepage
+// About section. All fields are optional so the page renders gracefully
+// before content is entered in the Studio.
+export const aboutPageQuery = groq`
+  *[_type == "aboutPage"][0] {
+    name,
+    discipline,
+    homeSnippet,
+    descriptionLines[] {
+      _key,
+      col1,
+      col2,
+      col3
+    },
+    portrait { ..., alt },
+    quote,
+    quoteAttribution
   }
 `
 

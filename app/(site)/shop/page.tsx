@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import PrivateCollection from '@/components/shop/PrivateCollection'
 import ShopIndex from '@/components/shop/ShopIndex'
-import { getHomeData } from '@/lib/home-data'
+import { getAllShopItems } from '@/lib/home-data'
 import { getSiteSettings } from '@/lib/site-settings'
 import { commerceEnabled } from '@/lib/commerce'
 
@@ -13,8 +13,8 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function ShopPage() {
-  const [{ prints }, settings] = await Promise.all([
-    getHomeData(),
+  const [prints, settings] = await Promise.all([
+    getAllShopItems(),
     getSiteSettings(),
   ])
   return (

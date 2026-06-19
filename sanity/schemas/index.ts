@@ -5,6 +5,7 @@ import { shopItemSchema } from './shopItem'
 import { orderSchema } from './order'
 import { pressItemSchema } from './pressItem'
 import { aboutSchema } from './about'
+import { aboutPageSchema } from './aboutPage'
 import { siteSettingsSchema } from './siteSettings'
 import { navigationSchema } from './navigation'
 import { classSchema } from './class'
@@ -19,6 +20,7 @@ export const schemaTypes = [
   orderSchema,
   pressItemSchema,
   aboutSchema,
+  aboutPageSchema,
   siteSettingsSchema,
   navigationSchema,
   classSchema,

@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
-import AboutPage from '@/components/about/AboutPage'
-import { getAboutData } from '@/lib/about-data'
+import { client } from '@/sanity/lib/client'
+import { aboutPageQuery } from '@/sanity/lib/queries'
+import AboutSection, { type AboutData } from '@/components/AboutSection'
+import '@/styles/about.css'
 
 export const metadata: Metadata = {
   title: 'About — Mandakini Rao',
@@ -10,6 +12,18 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function AboutRoute() {
-  const data = await getAboutData()
-  return <AboutPage {...data} />
+  let data: AboutData | null = null
+  try {
+    data = await client.fetch<AboutData | null>(aboutPageQuery)
+  } catch {}
+
+  if (!data) {
+    return (
+      <section className="mr2-page-shell">
+        <p>About — coming soon</p>
+      </section>
+    )
+  }
+
+  return <AboutSection data={data} />
 }
