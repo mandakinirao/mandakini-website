@@ -1,5 +1,14 @@
 # Progress Log
 
+## /about route + homepage snippet wired to aboutPage; duplicate About type removed (June 2026)
+- **Date:** 2026-06-19
+- **Issue — Duplicate About schema caused /about to show "coming soon":** The Studio had two document types: the old `about` type (bio, artistStatement, profilePhotos, cv, exhibitionHistory) and the new `aboutPage` singleton (name, discipline, homeSnippet, descriptionLines, portrait, quote, quoteAttribution). The live `/about` page was fetching from the old `about` type; since no document of that type existed, it returned empty and showed the placeholder.
+- **Fix — /about page:** Rewired `app/(site)/about/page.tsx` to fetch via `aboutPageQuery` and render `<AboutSection>`. Dynamic import pattern used to avoid build-time Sanity client errors.
+- **Fix — Homepage snippet:** `getHomeData()` in `lib/home-data.ts` now fetches `*[_type == "aboutPage"][0].homeSnippet` in parallel. `CanvasCards.tsx` hides the bio paragraph when the field is empty.
+- **Removed — Old "about" type:** Deleted `sanity/schemas/about.ts`, removed `aboutSchema` from `sanity/schemas/index.ts`, removed `aboutQuery` from `sanity/lib/queries.ts`, deleted `lib/about-data.ts` and `components/about/AboutPage.tsx`. Studio now shows only one About entry ("About Page").
+- **Note:** The old "about" document still exists in the Sanity dataset (invisible in Studio after schema removal). Awaiting manual deletion via dataset tools.
+- **Files changed:** `app/(site)/about/page.tsx` (rewrite), `components/AboutSection.tsx` (new), `styles/about.css` (new), `sanity/schemas/aboutPage.ts` (new), `sanity/schemas/index.ts` (aboutSchema removed), `sanity/lib/queries.ts` (aboutQuery removed, aboutPageQuery added), `lib/home-data.ts` (homeSnippet fetch added), `components/home/v2/CanvasCards.tsx` (hide-when-empty guard). Deleted: `sanity/schemas/about.ts`, `lib/about-data.ts`, `components/about/AboutPage.tsx`.
+
 ## Hero parallax fix + About section overhaul (June 2026)
 - **Date:** 2026-06-17
 - **Issue 1 — Hero parallax stripped to essentials:** Removed frame scale-down, pin, entrance opacity animation. Only remaining scroll effect: background plate (`bg-only.png`) moves upward at 32% of scroll speed via GSAP ScrollTrigger (scrub, no pin). Person layer and all text scroll at normal page speed with no transform. BG_PARALLAX_RATE constant at top of `HeroScene.tsx` for easy tuning.

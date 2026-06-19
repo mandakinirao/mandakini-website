@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-06-19 (Duplicate About type removed; /about and homepage snippet wired to aboutPage)
+
+**Prompt summary:**
+Resolve a duplicate-schema problem: Studio had both the old `about` type (bio/CV/exhibitions) and new `aboutPage` singleton (name/homeSnippet/portrait/quote). The live /about showed "coming soon" because the page fetched from the non-existent old `about` document. Tasks: wire /about to `aboutPageQuery` + `<AboutSection>`; wire homepage bio to `aboutPage.homeSnippet`; remove the old `about` type entirely (schema file, index entry, query, data layer, component). Old "about" Studio document still exists in the dataset — flagged for manual deletion.
+
+**Root cause:** Two separate About document types existed simultaneously. The page (`app/(site)/about/page.tsx`) was still pointing to `getAboutData()` → `aboutQuery` → `*[_type == "about"][0]`, while the published content lived in an `aboutPage` document. No `about` document existed, so the fetch returned null and the placeholder rendered.
+
+**What was removed:**
+- `sanity/schemas/about.ts` (deleted)
+- `lib/about-data.ts` (deleted)
+- `components/about/AboutPage.tsx` (deleted)
+- `aboutSchema` import + registry entry from `sanity/schemas/index.ts`
+- `aboutQuery` export from `sanity/lib/queries.ts`
+
+**Note:** The orphaned `about` document remains in the Sanity dataset. It is invisible in Studio after schema removal but can be deleted via the Sanity dataset CLI (`sanity documents delete`) or the Content Lake API when ready.
+
+---
+
 ## 2026-06-17 (Hero fix + About overhaul)
 
 **Prompt summary:**

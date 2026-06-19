@@ -54,21 +54,6 @@ export const allPressQuery = groq`
   }
 `
 
-export const aboutQuery = groq`
-  *[_type == "about"][0] {
-    bio,
-    artistStatement,
-    profilePhotos,
-    studioPhotos,
-    cv,
-    exhibitionHistory[] {
-      year,
-      exhibitionName,
-      venue,
-      location
-    }
-  }
-`
 
 export const featuredShopItemsQuery = groq`
   coalesce(
