@@ -2,6 +2,17 @@
 
 ---
 
+## 2026-06-19 (b) — /about placeholder removed; fetch unwrapped
+
+**Prompt summary:**
+`/about` still showed "About — coming soon" even with `aboutPageQuery` and `AboutSection` in place. Root cause: an empty `try/catch {}` around the Sanity fetch silently left `data = null`, triggering the placeholder. Fix: remove the catch block and placeholder, add `{ next: { revalidate: 60 } }` to the fetch so ISR is properly wired. If data is null (document absent), render `<AboutSection data={{}} />` — no placeholder text.
+
+**Root cause:** Silent `try/catch {}` masked any fetch error and fell through to "coming soon". The actual fetch (`client.fetch(aboutPageQuery)`) was correct; the wrapper was the problem.
+
+**What changed:** `app/(site)/about/page.tsx` — empty catch removed, placeholder removed, `{ next: { revalidate: 60 } }` added to `client.fetch()`.
+
+---
+
 ## 2026-06-19 (Duplicate About type removed; /about and homepage snippet wired to aboutPage)
 
 **Prompt summary:**

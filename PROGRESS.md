@@ -1,5 +1,11 @@
 # Progress Log
 
+## /about route wired to AboutSection — placeholder removed (June 2026)
+- **Date:** 2026-06-19
+- **Issue:** `/about` still showed "About — coming soon" even after the schema fix. Root cause: `app/(site)/about/page.tsx` wrapped the Sanity fetch in an empty `try/catch {}`, silently setting `data = null` on any error (missing env var at build, network fault, etc.), then rendered the placeholder.
+- **Fix:** Removed the empty catch block and "coming soon" placeholder entirely. The Sanity fetch now propagates errors rather than hiding them. Added `{ next: { revalidate: 60 } }` as a third argument to `client.fetch()` so the ISR cache is correctly wired to the fetch. If `data` is genuinely null (document deleted), `<AboutSection data={{}} />` renders an empty-but-valid page with no misleading placeholder text.
+- **Files changed:** `app/(site)/about/page.tsx` (removed try/catch, removed placeholder, added next revalidate option).
+
 ## /about route + homepage snippet wired to aboutPage; duplicate About type removed (June 2026)
 - **Date:** 2026-06-19
 - **Issue — Duplicate About schema caused /about to show "coming soon":** The Studio had two document types: the old `about` type (bio, artistStatement, profilePhotos, cv, exhibitionHistory) and the new `aboutPage` singleton (name, discipline, homeSnippet, descriptionLines, portrait, quote, quoteAttribution). The live `/about` page was fetching from the old `about` type; since no document of that type existed, it returned empty and showed the placeholder.
