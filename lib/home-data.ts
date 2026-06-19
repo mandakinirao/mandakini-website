@@ -220,7 +220,9 @@ const PLACEHOLDER_PRESS: HomePress[] = [
 ]
 
 function hasSanityEnv(): boolean {
-  return Boolean(process.env.NEXT_PUBLIC_SANITY_PROJECT_ID)
+  // client.ts and image.ts now have hardcoded projectId/dataset fallbacks,
+  // so the Sanity client always initialises correctly even without env vars.
+  return true
 }
 
 interface SanitySaleLite {
