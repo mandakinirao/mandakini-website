@@ -163,7 +163,7 @@ export default function AboutSection({ data }: { data: AboutData }) {
       {/* Pull quote */}
       {data.quote && (
         <section className="about-quote-section">
-          <span className="about-quote-mark" aria-hidden="true">"</span>
+          <span className="about-quote-mark" aria-hidden="true">&ldquo;</span>
           <blockquote>
             <p className="about-quote-text">{data.quote}</p>
             {data.quoteAttribution && (
