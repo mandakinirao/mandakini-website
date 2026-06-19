@@ -1,5 +1,11 @@
 # Progress Log
 
+## /about blank page fixed — Sanity client hardcoded fallbacks (June 2026)
+- **Date:** 2026-06-19
+- **Root cause:** `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` were not configured in Vercel's build environment. `createClient` received `undefined` as projectId, threw during static generation, and the env-var guard in the about page returned `<AboutSection data={{}} />` — blank content. Confirmed via Sanity CLI: the `aboutPage` document exists, is published, and has all fields filled.
+- **Fix:** Added `|| 'i4t9kzxg'` and `|| 'production'` fallbacks to `sanity/lib/client.ts`. These values are already public (hardcoded in `sanity.config.ts`). The client now initialises correctly regardless of whether Vercel env vars are set. Removed the env-var guard from `app/(site)/about/page.tsx` — the fetch always runs and returns the published document.
+- **Files changed:** `sanity/lib/client.ts` (fallback projectId + dataset), `app/(site)/about/page.tsx` (env-var guard removed).
+
 ## /about route wired to AboutSection — placeholder removed (June 2026)
 - **Date:** 2026-06-19
 - **Issue:** `/about` still showed "About — coming soon" even after the schema fix. Root cause: `app/(site)/about/page.tsx` wrapped the Sanity fetch in an empty `try/catch {}`, silently setting `data = null` on any error (missing env var at build, network fault, etc.), then rendered the placeholder.

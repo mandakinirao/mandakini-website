@@ -2,6 +2,21 @@
 
 ---
 
+## 2026-06-19 (c) — /about blank page: Sanity client fallbacks
+
+**Prompt summary:**
+/about renders AboutSection but all fields are blank. The aboutPage document IS published in Sanity (confirmed via CLI). Diagnose and fix the fetch.
+
+**Root cause:** `NEXT_PUBLIC_SANITY_PROJECT_ID` / `NEXT_PUBLIC_SANITY_DATASET` are not configured in Vercel's build environment. `createClient({ projectId: undefined })` throws during `next build`'s static-page generation phase. The env-var guard added in the previous fix (`!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID`) then returns `<AboutSection data={{}} />` as the static shell — blank page. ISR cannot rescue this because the env var is still absent at runtime on the same host.
+
+**Evidence:** Vercel build log showed `Error: Configuration must contain 'projectId'` during `Generating static pages (8/16)`. Sanity CLI confirmed `aboutPage` document present, published, all fields filled (name: "Mandakini Rao", portrait, quote, homeSnippet).
+
+**Fix:** Added hardcoded fallbacks `|| 'i4t9kzxg'` and `|| 'production'` to `sanity/lib/client.ts`. These are already public values in `sanity.config.ts`. Client now initialises correctly with or without env vars. Removed env-var guard from `app/(site)/about/page.tsx`; fetch always runs.
+
+**Note:** Other data-fetching functions (`getHomeData`, `getAllShopItems`, etc.) still guard on `hasSanityEnv()` and return placeholder data when env vars are absent. Those placeholders can be eliminated by adding the same env vars to Vercel's project settings.
+
+---
+
 ## 2026-06-19 (b) — /about placeholder removed; fetch unwrapped
 
 **Prompt summary:**
