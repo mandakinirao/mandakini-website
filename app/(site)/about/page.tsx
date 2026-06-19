@@ -10,6 +10,12 @@ export const metadata: Metadata = {
 export const revalidate = 60
 
 export default async function AboutRoute() {
+  // Guard matches the pattern in lib/home-data.ts — avoids instantiating
+  // the Sanity client when env vars are absent (e.g. during static generation).
+  if (!process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
+    return <AboutSection data={{}} />
+  }
+
   const [{ client }, { aboutPageQuery }] = await Promise.all([
     import('@/sanity/lib/client'),
     import('@/sanity/lib/queries'),
