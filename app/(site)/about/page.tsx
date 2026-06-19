@@ -1,6 +1,4 @@
 import type { Metadata } from 'next'
-import { client } from '@/sanity/lib/client'
-import { aboutPageQuery } from '@/sanity/lib/queries'
 import AboutSection, { type AboutData } from '@/components/AboutSection'
 import '@/styles/about.css'
 
@@ -14,6 +12,10 @@ export const revalidate = 60
 export default async function AboutRoute() {
   let data: AboutData | null = null
   try {
+    const [{ client }, { aboutPageQuery }] = await Promise.all([
+      import('@/sanity/lib/client'),
+      import('@/sanity/lib/queries'),
+    ])
     data = await client.fetch<AboutData | null>(aboutPageQuery)
   } catch {}
 
