@@ -1,5 +1,15 @@
 /* ─── About Page ─────────────────────────────────────────────────── */
 
+/* Force dark nav on the cream hero — overrides the default cream-on-dark color */
+body.about-page .site-nav {
+  color: var(--ink-cacao);
+}
+
+/* Switch logo image to cacao variant (dark mode shows cream logo by default) */
+body.mr2-mode.about-page .site-logo__img--cream { display: none; }
+body.mr2-mode.about-page .site-logo__img--cacao { display: block; }
+
+
 /* Hero */
 
 .about-hero-intro {

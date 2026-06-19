@@ -44,6 +44,12 @@ export default function AboutSection({ data }: { data: AboutData }) {
     : null
 
   useEffect(() => {
+    // Force dark nav on the cream-background about page.
+    document.body.classList.add('about-page')
+    return () => document.body.classList.remove('about-page')
+  }, [])
+
+  useEffect(() => {
     if (!root.current) return
     const ctx = mandaGsap.context(() => {
       // Name: words slide up from below, no scroll trigger (first section)
