@@ -32,7 +32,7 @@ type FooterProps = {
   youtubeChannelName?: string
 }
 
-export default function FooterV2({ instagramHandle, youtubeChannelName }: FooterProps = {}) {
+export default function FooterV2(_props: FooterProps = {}) {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 
