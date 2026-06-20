@@ -2,6 +2,349 @@
 
 ---
 
+## 2026-06-20 (c) — Schema zombie field cleanup
+
+**Prompt summary:**
+Search every candidate legacy field across `app/`, `components/`, `lib/`, `sanity/lib/` before removing anything. Remove only confirmed-unreferenced fields from schema files. No commits until reviewed on localhost.
+
+---
+
+### STEP 1 — Grep results, field by field
+
+#### `aboutPage` schema fields (9 legacy fields from the audit)
+
+The `aboutPage` schema file (`sanity/schemas/aboutPage.ts`) was checked first. **Result: the schema already has only 3 fields** (`aboutBlockPortrait`, `aboutBlockBio`, `aboutTeaserLine`). The 9 legacy fields were removed from the schema in a prior session. They exist as ghost data in the Sanity document but are not schema definitions. **No schema changes needed for `aboutPage`.**
+
+Grep results for the 9 field names (searching `app/ components/ lib/ sanity/lib/`):
+
+| Field | Found in schema? | Found outside schema? | Location outside schema | Safe to remove from schema? |
+|---|---|---|---|---|
+| `heroDisplayWord` | ✗ Not in schema | ✓ Yes | `components/AboutSection.tsx` line 30 (type declaration) | N/A — not in schema |
+| `heroLeadIn` | ✗ Not in schema | ✓ Yes | `components/AboutSection.tsx` line 29 (type declaration) | N/A — not in schema |
+| `heroSubhead` | ✗ Not in schema | ✓ Yes | `components/AboutSection.tsx` line 31 (type declaration) | N/A — not in schema |
+| `heroLeftImage` | ✗ Not in schema | ✓ Yes | `components/AboutSection.tsx` line 32 (type declaration) | N/A — not in schema |
+| `heroRightImage` | ✗ Not in schema | ✓ Yes | `components/AboutSection.tsx` line 33 (type declaration) | N/A — not in schema |
+| `bodyParagraph` | ✗ Not in schema | ✓ Yes | `AboutSection.tsx` line 35 (type), `about/AboutEdgeWords.tsx` lines 8, 21, 28, 40, 117, 120 (rendered) | N/A — not in schema |
+| `edgeWords` | ✗ Not in schema | ✓ Yes | `AboutSection.tsx` line 36 (type), `about/AboutEdgeWords.tsx` lines 9, 22, 29, 108, 112, 130 (rendered) | N/A — not in schema |
+| `name` | ✗ Not in schema | ✓ Yes | `AboutSection.tsx` line 26 (type), line 150 (rendered in JSX) | N/A — not in schema |
+| `discipline` | ✗ Not in schema | ✓ Yes | `AboutSection.tsx` lines 27, 92, 151–152 (rendered in JSX) | N/A — not in schema |
+
+**Key finding:** `components/AboutSection.tsx` and `components/about/AboutEdgeWords.tsx` reference all 9 fields. However, both files are **dead code** — `AboutSection.tsx` is not imported by any page or layout (only `AboutEdgeWords.tsx` imports `EdgeWord` type from it), and `AboutEdgeWords.tsx` is not imported by any page or layout. The query (`aboutPageQuery`) does not fetch any of these fields. The `/about` page route uses `CanvasCards`, not `AboutSection`. These components and the ghost data are a cleanup opportunity but are out of scope for this session (schema-only change requested).
+
+---
+
+#### `siteSettings` schema zombie fields — full grep
+
+All 25+ siteSettings schema fields were checked. Results for the 4 candidate zombies:
+
+| Field | Hits in `app/` | Hits in `components/` | Hits in `lib/` | Hits in `sanity/lib/` | Verdict |
+|---|---|---|---|---|---|
+| `homepageHeadline` | 0 | 0 | 0 | 0 | ✅ UNUSED — safe to remove |
+| `homepageSubtext` | 0 | 0 | 0 | 0 | ✅ UNUSED — safe to remove |
+| `signupCtaText` | 0 | 0 | 0 | 0 | ✅ UNUSED — safe to remove |
+| `socialLinks` | 0 | 0 | 0 | 0 | ✅ UNUSED — safe to remove (FooterV2 uses hardcoded links) |
+
+All other siteSettings fields confirmed USED:
+
+| Field | Where used |
+|---|---|
+| `tagline` | `sanity/lib/queries.ts` siteSettingsBasicQuery; `lib/home-data.ts`; `HeroScene`, `HeroRavana`, `LoadingScreenStripes`, `ParallaxHero`, `HeroPortrait` |
+| `aboutPortrait` | `sanity/lib/queries.ts` siteSettingsBasicQuery; `lib/home-data.ts` |
+| `aboutBio` | `sanity/lib/queries.ts` siteSettingsBasicQuery; `lib/home-data.ts` |
+| `featuredProjects` | `sanity/lib/queries.ts` featuredSeriesQuery; `lib/home-data.ts` |
+| `featuredShopItems` | `sanity/lib/queries.ts` featuredShopItemsQuery; `lib/home-data.ts` |
+| `heroImages` | `sanity/lib/queries.ts` heroImagesQuery; `lib/home-data.ts` |
+| `worksPageHeadline`, `worksEmptyHeadline`, `worksEmptyBody` | `lib/site-settings.ts`; `app/(site)/works/page.tsx` |
+| `shopPageHeadline`, `shopPrintNote` | `lib/site-settings.ts`; `app/(site)/shop/page.tsx` |
+| `printDefaultPaper`, `printDefaultSignature`, `printDefaultShipping` | `lib/site-settings.ts`; `app/(site)/shop/[slug]/page.tsx` |
+| `thankYouMessage` | `lib/site-settings.ts`; `app/(site)/thank-you/page.tsx` |
+| `contactPageIntro`, `contactEmail` | `lib/site-settings.ts`; `app/(site)/contact/page.tsx` |
+| `privateCollectionTitle`, `privateCollectionLine` | `lib/site-settings.ts`; `app/(site)/shop/page.tsx` |
+| `instagramHandle`, `youtubeChannelName` | `sanity/lib/queries.ts` footerSocialQuery (kept — valid CMS fields even if FooterV2 uses hardcoded labels) |
+| `seoTitle`, `seoDescription` | In schema (no current query, but reserved for future SEO use — retained) |
+
+---
+
+### STEP 2 — Changes made
+
+**`sanity/schemas/siteSettings.ts`** — removed 4 zombie field definitions:
+- `homepageHeadline` (`string`) — line 9–10 of original
+- `homepageSubtext` (`string`) — line 10 of original
+- `signupCtaText` (`string`) — line 41 of original
+- `socialLinks` (`object` with instagram/youtube/facebook URL subfields) — lines 125–133 of original
+
+No changes to `sanity/schemas/aboutPage.ts` — schema was already clean.
+
+---
+
+### STEP 3 — Build verification
+
+```
+✓ Compiled successfully
+✓ Type-check passed (no errors)
+✓ Static pages generated (16/16)
+```
+
+Pre-existing warnings (not introduced by this change):
+- `<img>` in `LoadingScreenStripes.tsx` — pre-existing
+- `<img>` in `Navigation.tsx` — pre-existing
+
+**No new errors or warnings introduced.**
+
+---
+
+## 2026-06-20 (b) — Dataset document audit (read-only)
+
+**Prompt summary:**
+Query the live `production` dataset to classify every document against its current schema. Separate orphaned old-schema documents (deletion candidates) from current documents (keep) from mixed documents (human review). Also check `aboutPage` and `siteSettings` which the prior diagnostic flagged. Report empty-but-current fields separately from genuine orphans.
+
+---
+
+### Dataset overview — what types actually exist
+
+| `_type` | Count | Notes |
+|---|---|---|
+| `shopItem` | 52 published + 3 draft | All created 2026-06-18 |
+| `aboutPage` | 1 | ID: `aboutPage`, created 2026-06-19 |
+| `siteSettings` | 1 | ID: `siteSettings`, created 2026-06-14 |
+| `pressItem` | **0** | Collection is completely empty |
+| `project` | **0** | No project documents |
+| `artwork` | **0** | No artwork documents |
+| `testimonial` | **0** | No testimonial documents |
+| `about` (old type) | **0** | Orphaned document noted in PROGRESS.md has been deleted |
+| `navigation` | 0 | Never populated |
+| `order` | 0 | Expected — no purchases have occurred |
+| `enquiry` | 0 | Expected — write-only via API |
+
+---
+
+### A — Orphaned documents using only OLD schema fields (deletion candidates)
+
+**None found.** There are zero documents of type `pressItem`, `about`, `project`, `artwork`, or `testimonial`. The old orphaned `about` document previously flagged in PROGRESS.md no longer exists in the dataset.
+
+---
+
+### B — Documents using CURRENT schema fields (keep)
+
+#### `aboutPage` — ID: `aboutPage` (created 2026-06-19, updated 2026-06-19)
+
+Fields present in document vs current `aboutPageQuery` (`aboutTeaserLine`, `aboutBlockBio`, `aboutBlockPortrait`):
+
+| Field in document | Fetched by current query? | Status |
+|---|---|---|
+| `aboutTeaserLine` | ✓ yes (`aboutPageQuery`) | Current, populated |
+| `aboutBlockBio` | ✓ yes (`aboutPageQuery`) | Current, populated |
+| `aboutBlockPortrait` | ✓ yes (`aboutPageQuery`) | Current, populated (Mandakini portrait image) |
+| `homeSnippet` | ✓ yes (`home-data.ts` inline query) | Current, populated |
+| `aboutBlockBio` (dupe check) | ✓ | — |
+| `name` | ✗ not queried | Extra — present but unused |
+| `discipline` | ✗ not queried | Extra — present but unused |
+| `heroDisplayWord` | ✗ not queried | Extra — present but unused |
+| `heroLeadIn` | ✗ not queried | Extra — present but unused |
+| `heroSubhead` | ✗ not queried | Extra — present but unused |
+| `heroLeftImage` | ✗ not queried | Extra — present but unused |
+| `heroRightImage` | ✗ not queried | Extra — present but unused |
+| `bodyParagraph` | ✗ not queried | Extra — present but unused |
+| `edgeWords` | ✗ not queried | Extra — present but unused |
+
+**Classification: B (keep).** The document is NOT an orphan — the 4 queried fields are present and populated. However, 9 extra fields exist in the document that no current query or component reads. These look like fields from an intermediate version of the `aboutPage` schema that was later simplified. They are invisible on the live site but visible in the Studio editor, which may be contributing to the "old design" confusion. The Studio form will show these fields as blank sections (schema removed them) OR as unrecognised data.
+
+#### `siteSettings` — ID: `siteSettings` (created 2026-06-14, updated 2026-06-20)
+
+Fields present in document vs current queries:
+
+| Field in document | Fetched by current query? | Status |
+|---|---|---|
+| `heroImages` (7 images) | ✓ `heroImagesQuery` | Current, populated |
+| `aboutPortrait` | ✓ `siteSettingsBasicQuery` | Current, populated |
+| `instagramHandle` | ✓ `footerSocialQuery` | Current, populated — but FooterV2 no longer uses the prop (dropped in recent refactor). Minor dead wire. |
+| `youtubeChannelName` | ✓ `footerSocialQuery` | Same as above |
+| `homepageHeadline` | ✗ no query | NOT in document (never populated — absent from raw data) |
+| `homepageSubtext` | ✗ no query | NOT in document (absent) |
+| `signupCtaText` | ✗ no query | NOT in document (absent) |
+| `socialLinks` | ✗ no query | NOT in document (absent) |
+| `worksPageHeadline` etc. | ✗ no query | NOT in document (absent) |
+
+**Classification: B (keep).** The document uses current fields. The zombie schema fields (`homepageHeadline`, `homepageSubtext`, etc.) that the prior diagnostic flagged were never populated — they are absent from the raw document data, not just null. The only issue is the zombie field definitions still appear as empty inputs in the Studio UI, which creates clutter but causes no data harm.
+
+#### `shopItem` — 52 published documents (created 2026-06-18)
+
+Field audit on all 52 documents:
+
+| Field | Value across all 52 | Status |
+|---|---|---|
+| `title` | Set (titles like "Tambura 1", "Fragments Charcoal 5", etc.) | Current |
+| `slug` | Set | Current |
+| `availabilityStatus` | `"available"` on all | Current |
+| `purchaseType` | `"buy"` on all | Current (matches new schema) |
+| `sold` | `0` on all | Current (matches new schema) |
+| `stock` | `0` on all | Current (matches new schema) |
+| `frameOptions` | Present (truthy) | Current |
+| `basePrice` | **`null` on all 52** | Empty — not old, just unpopulated |
+| `stripePriceId` | **`null` on all 52** | Empty — not old, just unpopulated |
+| `editionNumber` | absent | — |
+| `stripeProductId` (old field) | absent | — |
+| `displayOrder` (old field) | absent | — |
+| `sizes` (old field) | absent | — |
+
+**Classification: B (keep).** All 52 documents use the current schema structure. No old-schema fields are present. However, `basePrice` and `stripePriceId` are null on every document — the shop is structurally sound but commerce is non-functional until Mandakini enters prices and Stripe product IDs via the Studio.
+
+**3 draft shopItems** (IDs: `drafts.5836183d...`, `drafts.5f5cfb36...`, `drafts.74ca49d7...`) — same structure, unpublished.
+
+---
+
+### C — Documents with mixed old+new fields (needs human review)
+
+**None found.**
+
+---
+
+### Summary of findings
+
+| Type | Orphans (A) | Current (B) | Mixed (C) | Empty-but-current |
+|---|---|---|---|---|
+| `pressItem` | 0 | 0 | 0 | **Collection empty — no documents at all** |
+| `aboutPage` | 0 | 1 | 0 | 9 extra fields in document not read by any query |
+| `siteSettings` | 0 | 1 | 0 | Zombie schema fields defined but never populated |
+| `shopItem` | 0 | 52 + 3 draft | 0 | `basePrice` and `stripePriceId` null on all 52 |
+| `project` | 0 | 0 | 0 | — |
+| `artwork` | 0 | 0 | 0 | — |
+| `testimonial` | 0 | 0 | 0 | — |
+| `about` (old) | 0 | 0 | 0 | Already deleted |
+
+---
+
+### Root cause of "stale content from old design" — revised conclusion
+
+The prior diagnostic hypothesised old documents in the dataset as the cause. **The dataset audit disproves this.** There are no orphaned old-schema documents. The actual causes are:
+
+1. **`pressItem` collection is empty.** The `/press` page has no documents to display — it will always render the empty state. The press bento grid built in this session cannot show anything until press items are created in the Studio.
+
+2. **`project` and `artwork` collections are empty.** The `/works` page and the homepage Works section have no data and will fall back to placeholder series.
+
+3. **`testimonial` collection is empty.** The homepage Testimonials section will use `PLACEHOLDER_TESTIMONIALS` (hardcoded in `lib/home-data.ts`).
+
+4. **`aboutPage` has 9 extra fields** (`name`, `discipline`, `heroDisplayWord`, `heroLeadIn`, `heroSubhead`, `heroLeftImage`, `heroRightImage`, `bodyParagraph`, `edgeWords`) that exist in the document but are fetched by no current query and rendered by no current component. These were likely from an intermediate build of the about page. They show up in the Studio editor as data that appears "live" but goes nowhere on site.
+
+5. **`shopItem` records have no prices.** 52 shop items exist with correct structure but `basePrice: null` and `stripePriceId: null`. The shop renders items but none can be added to cart or purchased.
+
+**The "old design" in Studio** is most likely the `aboutPage` document displaying its 9 extra fields in the Studio editor — fields like `heroDisplayWord`, `edgeWords`, `heroLeftImage`, `heroRightImage` suggest a prior hero/about layout concept. These fields are harmless but create confusion about what the site actually uses.
+
+**The "stale content" on the live site** is not stale — it is the absence of content. No press items, no projects, no artworks, no testimonials have been entered.
+
+---
+
+## 2026-06-20 — Stale content diagnostic (read-only)
+
+**Prompt summary:**
+Investigate why Studio and/or the live site show stale content from an old design. Check dataset alignment, useCdn, fetch-level caching, orphaned schema types/fields, and distinguish old-content-in-dataset vs cache-serving-old-response.
+
+---
+
+### 1. Dataset alignment
+
+| Config location | projectId | dataset |
+|---|---|---|
+| `sanity.config.ts` (Studio) | `i4t9kzxg` (hardcoded) | `production` (hardcoded) |
+| `sanity/lib/client.ts` (Next.js) | `process.env.NEXT_PUBLIC_SANITY_PROJECT_ID \|\| 'i4t9kzxg'` | `process.env.NEXT_PUBLIC_SANITY_DATASET \|\| 'production'` |
+
+**Verdict: aligned.** Both point to `i4t9kzxg / production`. `.env.local` confirms `NEXT_PUBLIC_SANITY_PROJECT_ID=i4t9kzxg` and `NEXT_PUBLIC_SANITY_DATASET=production`. Mismatch is NOT the cause.
+
+---
+
+### 2. useCdn
+
+Set in `sanity/lib/client.ts` line 10: **`useCdn: false`**. The CDN is explicitly disabled. All reads go directly to the Content Lake API (api.sanity.io). CDN staleness is not a factor.
+
+Additionally: `perspective: 'published'` is set — drafts are never surfaced to the Next.js client.
+
+---
+
+### 3. Fetch-level caching
+
+`useCdn: false` means next-sanity uses `fetch` with `cache: 'no-store'` by default at the HTTP level (Next.js App Router behaviour when no `next.revalidate` option is passed). The ISR revalidation windows are set at the **route segment** level via `export const revalidate`:
+
+| Route | `export const revalidate` | fetch-level `next` option |
+|---|---|---|
+| `app/(site)/page.tsx` (home) | `60` | none passed to `client.fetch` |
+| `app/(site)/about/page.tsx` | `60` | `{ next: { revalidate: 60 } }` (redundant but harmless) |
+| `app/(site)/press/page.tsx` | **`3600`** | none |
+| `app/(site)/works/page.tsx` | `60` | none |
+| `app/(site)/works/[slug]/page.tsx` | `60` | none |
+| `app/(site)/shop/page.tsx` | `60` | none |
+| `app/(site)/shop/[slug]/page.tsx` | `60` | none |
+| `app/(site)/contact/page.tsx` | `60` | none |
+| `app/(site)/thank-you/page.tsx` | `60` | none |
+| `lib/home-data.ts` (server fn) | — | none passed to any `client.fetch` call |
+
+**Key finding:** The press page has `revalidate = 3600` (1 hour) — it will serve a stale cached page for up to an hour after a publish. All other routes use 60 s.
+
+**Revalidation webhook:** `app/api/revalidate/route.ts` exists and calls `revalidatePath('/', 'layout')` on POST. However:
+- It requires `SANITY_REVALIDATE_SECRET` to be set in Vercel's env.
+- `.env.local` does NOT contain `SANITY_REVALIDATE_SECRET`.
+- There is no evidence a Sanity webhook has been configured in the Studio to call this endpoint.
+- **If the webhook is not wired up in Sanity's project settings, no on-publish purge fires.** Pages only revalidate on their ISR timer (60 s or 3600 s).
+
+---
+
+### 4. Old document types — schema vs query gap
+
+**Schemas registered in `sanity/schemas/index.ts`** (13 total):
+`project`, `artwork`, `shopItem`, `order`, `pressItem`, `aboutPage`, `siteSettings`, `navigation`, `class`, `member`, `enquiry`, `testimonial`
+
+**Schema types that have NO corresponding query in `sanity/lib/queries.ts`:**
+- `navigation` — schema defined, no query, no UI reads it
+- `class` — Phase 2 placeholder (expected)
+- `member` — Phase 2 placeholder (expected)
+- `enquiry` — schema defined but no read query (write-only via API route, fine)
+- `order` — schema defined but no read query (admin panel reads directly, not via shared query)
+
+None of these is the cause of stale content.
+
+**Critical: `pressItem` schema vs PROJECT.md mismatch**
+
+PROJECT.md §7.5 describes the OLD pressItem schema:
+```
+type, title, source, date, excerpt, externalLink, logo, featured, displayOrder
+```
+
+The CURRENT `sanity/schemas/pressItem.ts` defines the NEW schema (rewritten in a prior session):
+```
+url, type, titleOverride, imageOverride, sourceOverride, order
+```
+
+These are completely different field sets. If any `pressItem` documents in the `production` dataset were created under the OLD schema (with `externalLink`, `logo`, `excerpt`, `featured`), they will have fields the current query (`pressItemsQuery`) never requests. The current query only fetches `url, type, titleOverride, imageOverride, sourceOverride, order`. Any old document with `externalLink` instead of `url` would return with `url: undefined` and be silently dropped by `enrichPressItems`.
+
+**`siteSettings` old fields still present in schema:**
+`homepageHeadline`, `homepageSubtext`, `signupCtaText`, `socialLinks` (old object with instagram/youtube/facebook URLs) — all defined in the schema but referenced by no query in `queries.ts`. They are zombie fields: visible in Studio but never consumed. Not a cause of stale content but a source of editor confusion.
+
+---
+
+### 5. Failure mode diagnosis
+
+**Evidence points to: (a) old documents still live in the dataset.**
+
+Reasons:
+1. `useCdn: false` — no CDN layer to serve stale responses
+2. `revalidate = 60` on all main pages — at most 60 s stale after a Sanity publish, not "old design" stale
+3. The revalidation webhook is not confirmed to be wired up in Sanity, but even without it the 60 s ISR ceiling means content is fresh within a minute
+4. **The most likely cause:** Documents in the `production` dataset were authored against the OLD schema (e.g. `pressItem` with `externalLink`, `logo`, `excerpt`; `siteSettings` with `homepageHeadline`). After the schema was replaced, those old documents still exist and still have the old field values. The new queries don't fetch those fields, so the new UI gets `undefined`/null and falls back to placeholders — which looks like "stale old design content"
+5. PROGRESS.md explicitly notes: *"The old 'about' document still exists in the Sanity dataset (invisible in Studio after schema removal). Awaiting manual deletion via dataset tools."* — this is documented evidence that old orphaned documents exist in the dataset.
+
+**Failure mode (b) — cache serving stale responses — is unlikely** because:
+- CDN is disabled
+- ISR windows are short (60 s)
+- The "old design" look is structural (field names changed), not just stale text values
+
+**Summary:** The Studio is showing old-design fields because old documents authored against the original schema still live in the dataset. After schema fields were renamed/replaced, the Studio's document forms show the old field values but the live site's new queries never read them — so the site shows fallbacks/placeholders. This is a **dataset hygiene problem**, not a caching problem.
+
+**Recommended next steps (not implemented — diagnostic only):**
+1. Use Sanity CLI or Vision tool to audit which `pressItem`, `siteSettings`, and `about` documents exist and what fields they contain
+2. Delete or re-author old documents that predate the schema rewrites
+3. If `SANITY_REVALIDATE_SECRET` is not set in Vercel, add it and configure the Sanity webhook to call `/api/revalidate` — eliminates the 60 s ISR lag and the 3600 s press lag entirely
+
+---
+
 ## 2026-06-19 (c) — /about blank page: Sanity client fallbacks
 
 **Prompt summary:**

@@ -6,8 +6,6 @@ export const siteSettingsSchema = defineType({
   type: 'document',
   __experimental_actions: ['update', 'publish'],
   fields: [
-    defineField({ name: 'homepageHeadline', title: 'Homepage Headline', type: 'string' }),
-    defineField({ name: 'homepageSubtext', title: 'Homepage Subtext', type: 'string' }),
     defineField({
       name: 'tagline',
       title: 'Tagline',
@@ -38,7 +36,6 @@ export const siteSettingsSchema = defineType({
       of: [{ type: 'image', options: { hotspot: true } }],
       validation: (Rule) => Rule.max(7),
     }),
-    defineField({ name: 'signupCtaText', title: 'Signup CTA Text', type: 'string' }),
     defineField({
       name: 'worksPageHeadline',
       title: 'Works Page Headline',
@@ -120,16 +117,6 @@ export const siteSettingsSchema = defineType({
       title: 'YouTube Channel Name',
       type: 'string',
       description: 'Shown in the footer hover preview. E.g. @mandakinirao',
-    }),
-    defineField({
-      name: 'socialLinks',
-      title: 'Social Links',
-      type: 'object',
-      fields: [
-        { name: 'instagram', title: 'Instagram URL', type: 'url' },
-        { name: 'youtube', title: 'YouTube URL', type: 'url' },
-        { name: 'facebook', title: 'Facebook URL', type: 'url' },
-      ],
     }),
     defineField({ name: 'contactEmail', title: 'Contact Email', type: 'string' }),
     defineField({ name: 'seoTitle', title: 'Default SEO Title', type: 'string' }),

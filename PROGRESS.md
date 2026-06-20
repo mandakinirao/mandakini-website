@@ -1,5 +1,39 @@
 # Progress Log
 
+## Schema zombie field cleanup — siteSettings (June 2026)
+- **Date:** 2026-06-20
+- **Task:** Remove unused legacy fields from `aboutPage` and `siteSettings` schemas after codebase-wide grep proof.
+- **aboutPage schema — no changes needed:** The schema already has only 3 fields (`aboutBlockPortrait`, `aboutBlockBio`, `aboutTeaserLine`). The 9 legacy fields flagged in the audit (`name`, `discipline`, `heroDisplayWord`, `heroLeadIn`, `heroSubhead`, `heroLeftImage`, `heroRightImage`, `bodyParagraph`, `edgeWords`) are ghost data in the Sanity document — they were already removed from the schema file previously. The schema is clean.
+- **Note — dead components:** `components/AboutSection.tsx` and `components/about/AboutEdgeWords.tsx` reference some of these ghost field names but are not mounted anywhere on the live site. They are dead code but were not touched in this session (scope: schema only).
+- **siteSettings schema — 4 zombie fields removed:** Confirmed zero references in all of `app/`, `components/`, `lib/`, `sanity/lib/` before removing:
+  - `homepageHeadline` — zero hits outside schema
+  - `homepageSubtext` — zero hits outside schema
+  - `signupCtaText` — zero hits outside schema
+  - `socialLinks` (instagram/youtube/facebook URLs) — zero hits; FooterV2 uses hardcoded links now
+- **All other siteSettings fields retained:** `tagline`, `aboutPortrait`, `aboutBio`, `featuredProjects`, `featuredShopItems`, `heroImages`, `worksPageHeadline`, `worksEmptyHeadline`, `worksEmptyBody`, `shopPageHeadline`, `shopPrintNote`, `printDefaultPaper`, `printDefaultSignature`, `printDefaultShipping`, `thankYouMessage`, `contactPageIntro`, `privateCollectionTitle`, `privateCollectionLine`, `instagramHandle`, `youtubeChannelName`, `contactEmail`, `seoTitle`, `seoDescription` — all actively referenced in queries, `lib/site-settings.ts`, or pages.
+- **Build result:** ✓ zero errors. Warnings are pre-existing (unrelated `<img>` tags in Navigation and LoadingScreenStripes).
+- **Files changed:** `sanity/schemas/siteSettings.ts` (4 fields removed), `PROGRESS.md`, `PROMPT_LOG.md`.
+- **No commit — awaiting localhost review.**
+
+## Dataset document audit — read-only (June 2026)
+- **Date:** 2026-06-20
+- **Task:** Query all document types flagged by the stale-content diagnostic. Classify each document as orphaned old-schema (A), current schema (B), or mixed (C). No files were changed.
+- **Result:** No orphaned documents found. Zero Category A documents exist.
+- **Key findings:**
+  - `pressItem`: **0 documents** — collection completely empty. The press page bento grid built in this session has no content. Mandakini must create press items via Studio.
+  - `aboutPage`: 1 document (B — keep). The 4 fields queried by `aboutPageQuery` are all present. However, 9 extra fields exist in the document (`name`, `discipline`, `heroDisplayWord`, `heroLeadIn`, `heroSubhead`, `heroLeftImage`, `heroRightImage`, `bodyParagraph`, `edgeWords`) that no current query reads. These are from an intermediate design of the about page — invisible on site, but visible in Studio as seemingly live data.
+  - `siteSettings`: 1 document (B — keep). Zombie schema fields (`homepageHeadline`, `homepageSubtext`, etc.) are defined in the schema but **absent from the document itself** (never populated) — they appear as empty Studio inputs, not actual data.
+  - `shopItem`: 52 published + 3 drafts (all B). Use current schema. `basePrice` and `stripePriceId` are null on all 52 — data entry gap, not a schema problem. Commerce cannot function until prices are entered.
+  - `project`, `artwork`, `testimonial`, `navigation`, `order`, `enquiry`: **0 documents each**.
+  - `about` (old type): 0 documents — already deleted (prior PROGRESS note is resolved).
+- **Revised root cause:** "Stale content" is the absence of content, not old documents. All live-site sections that appear empty or placeholder are falling back because the Sanity collections are empty (press, works, testimonials). The `aboutPage` extra fields are the most likely cause of Studio confusion — they look populated but go nowhere on the live site.
+- **Action needed:**
+  1. Enter `pressItem` documents in Studio (press page has 0 content)
+  2. Enter prices (`basePrice`, `stripePriceId`) for shopItems before enabling commerce
+  3. Optionally clean up `aboutPage` extra fields — either remove them from the schema (if the intermediate design is abandoned) or wire them to components
+  4. Wire Sanity revalidation webhook: add `SANITY_REVALIDATE_SECRET` to Vercel env, create on-publish webhook in Sanity project settings
+- **Files changed:** PROGRESS.md (this entry), PROMPT_LOG.md (audit tables appended). No code changes.
+
 ## /about blank page fixed — Sanity client hardcoded fallbacks (June 2026)
 - **Date:** 2026-06-19
 - **Root cause:** `NEXT_PUBLIC_SANITY_PROJECT_ID` and `NEXT_PUBLIC_SANITY_DATASET` were not configured in Vercel's build environment. `createClient` received `undefined` as projectId, threw during static generation, and the env-var guard in the about page returned `<AboutSection data={{}} />` — blank content. Confirmed via Sanity CLI: the `aboutPage` document exists, is published, and has all fields filled.
