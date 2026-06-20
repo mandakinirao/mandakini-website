@@ -2,6 +2,70 @@
 
 ---
 
+## 2026-06-20 (d) — siteSettings schema grouped tabs
+
+**Prompt summary:**
+Reorganise the siteSettings Studio editor into collapsible tabs using Sanity's `groups` feature. No fields added, removed, or renamed. Homepage is the default group. Add missing `description` strings to any field that lacks one.
+
+---
+
+### Fields audited before grouping
+
+All 23 fields confirmed present in `sanity/schemas/siteSettings.ts` after the zombie field cleanup in the previous session:
+
+`tagline`, `aboutPortrait`, `aboutBio`, `heroImages`, `featuredProjects`, `featuredShopItems`, `worksPageHeadline`, `worksEmptyHeadline`, `worksEmptyBody`, `shopPageHeadline`, `shopPrintNote`, `printDefaultPaper`, `printDefaultSignature`, `printDefaultShipping`, `thankYouMessage`, `privateCollectionTitle`, `privateCollectionLine`, `contactPageIntro`, `contactEmail`, `instagramHandle`, `youtubeChannelName`, `seoTitle`, `seoDescription`
+
+### Group assignment
+
+| Group | Fields assigned |
+|---|---|
+| **Homepage** (default) | `tagline`, `aboutPortrait`, `aboutBio`, `heroImages`, `featuredProjects`, `featuredShopItems` |
+| **Works** | `worksPageHeadline`, `worksEmptyHeadline`, `worksEmptyBody` |
+| **Shop** | `shopPageHeadline`, `shopPrintNote`, `printDefaultPaper`, `printDefaultSignature`, `printDefaultShipping`, `thankYouMessage`, `privateCollectionTitle`, `privateCollectionLine` |
+| **Contact** | `contactPageIntro`, `contactEmail` |
+| **Social** | `instagramHandle`, `youtubeChannelName` |
+| **SEO** | `seoTitle`, `seoDescription` |
+
+### Descriptions added or improved
+
+Fields that had no `description` or a thin one now have a full sentence. No field names or types were changed.
+
+| Field | Description added |
+|---|---|
+| `worksEmptyHeadline` | "Heading shown when no projects are published yet." |
+| `worksEmptyBody` | "Supporting line shown below the empty state headline on /works." |
+| `shopPageHeadline` | "Large heading on the /shop listing page." |
+| `printDefaultSignature` | "Shown in the print spec table. E.g. 'Signed & numbered by hand'" |
+| `printDefaultShipping` | "Shown in the print spec table. E.g. 'Rolled, worldwide from Hyderabad'" |
+| `privateCollectionTitle` | "Heading for the Private Collection enquiry block on the shop page." |
+| `privateCollectionLine` | "One or two sentences below the Private Collection heading." |
+| `contactPageIntro` | "Introductory paragraph shown at the top of the /contact page." |
+| `contactEmail` | "Displayed as a mailto link on the contact page." |
+| `instagramHandle` | "Shown in the footer. E.g. @mandakini_rao" |
+| `youtubeChannelName` | "Shown in the footer. E.g. @mandakinirao" |
+| `seoTitle` | "Fallback page title used in browser tabs and search results when a page does not set its own." |
+| `seoDescription` | "Fallback meta description. Keep under 160 characters." |
+| `featuredProjects` | "Falls back to the four most recent published projects if left empty." |
+| `featuredShopItems` | "Falls back to the three most recent available items if left empty." |
+| `aboutPortrait` | "Portrait shown in the About section on the homepage." (tightened) |
+| `aboutBio` | "Single sentence shown beside the portrait in the homepage About section." (tightened) |
+
+### Build result
+
+```
+✓ Compiled successfully
+✓ Type-check passed
+✓ Static pages generated (16/16)
+```
+
+Pre-existing warnings only (no new issues). Field count: 23 in, 23 out. No field lost or duplicated.
+
+### Studio verification
+
+Groups appear as horizontal tabs at the top of the Site Settings document form. Homepage tab is active by default. Every field is visible in its assigned tab. No field appears in the unfiltered "All" view outside its group.
+
+---
+
 ## 2026-06-20 (c) — Schema zombie field cleanup
 
 **Prompt summary:**

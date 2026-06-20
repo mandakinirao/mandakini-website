@@ -1,5 +1,21 @@
 # Progress Log
 
+## siteSettings schema — grouped tabs for Studio editor (June 2026)
+- **Date:** 2026-06-20
+- **Task:** Reorganise the siteSettings schema into collapsible groups so the Studio editor is no longer one long scroll. No fields added, removed, or renamed.
+- **Groups added (Sanity `groups` feature):**
+  - **Homepage** (default) — `tagline`, `aboutPortrait`, `aboutBio`, `heroImages`, `featuredProjects`, `featuredShopItems`
+  - **Works** — `worksPageHeadline`, `worksEmptyHeadline`, `worksEmptyBody`
+  - **Shop** — `shopPageHeadline`, `shopPrintNote`, `printDefaultPaper`, `printDefaultSignature`, `printDefaultShipping`, `thankYouMessage`, `privateCollectionTitle`, `privateCollectionLine`
+  - **Contact** — `contactPageIntro`, `contactEmail`
+  - **Social** — `instagramHandle`, `youtubeChannelName`
+  - **SEO** — `seoTitle`, `seoDescription`
+- **Descriptions added** to all fields that lacked one (`worksEmptyHeadline`, `worksEmptyBody`, `shopPageHeadline`, `printDefaultSignature`, `printDefaultShipping`, `privateCollectionTitle`, `privateCollectionLine`, `contactPageIntro`, `contactEmail`, `instagramHandle`, `youtubeChannelName`, `seoTitle`, `seoDescription`, `featuredProjects`, `featuredShopItems`).
+- **No field names, types, or validation rules changed** — stored data in existing Sanity documents is unaffected.
+- **Build result:** ✓ zero errors. Pre-existing warnings unchanged.
+- **Files changed:** `sanity/schemas/siteSettings.ts` (groups + descriptions added).
+- **No commit — awaiting localhost review.**
+
 ## Schema zombie field cleanup — siteSettings (June 2026)
 - **Date:** 2026-06-20
 - **Task:** Remove unused legacy fields from `aboutPage` and `siteSettings` schemas after codebase-wide grep proof.
