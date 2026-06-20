@@ -36,17 +36,7 @@ export default function FooterV2({ instagramHandle, youtubeChannelName }: Footer
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 
-  // Merge Sanity handles into the social items if available
-  const socials: Social[] = [
-    {
-      ...SOCIALS[0],
-      name: instagramHandle ?? SOCIALS[0].name,
-    },
-    {
-      ...SOCIALS[1],
-      name: youtubeChannelName ?? SOCIALS[1].name,
-    },
-  ]
+  const socials: Social[] = SOCIALS
 
   useEffect(() => {
     const root = rootRef.current
@@ -83,7 +73,7 @@ export default function FooterV2({ instagramHandle, youtubeChannelName }: Footer
           ))}
         </div>
         <div className="mr2-footer__col">
-          <h4>Elsewhere</h4>
+          <h4>Social Links</h4>
           <AnimatedSocialLinks socials={socials} className="-ml-5" />
         </div>
         <PillCta href="/contact" className="mr2-footer__stamp">
