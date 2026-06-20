@@ -1125,17 +1125,9 @@ body.mr2-light .mr2-works__meta {
   border-color: var(--accent-link);
 }
 
-/* Social icon links — icon + label in a row */
-.mr2-footer__col a.mr2-social-link {
-  display: flex;
-  align-items: center;
-  gap: 7px;
+/* Animated social links (framer-motion) — override footer link underline */
+.mr2-footer__col .mr2-social-animated a {
   border-bottom: none;
-}
-
-.mr2-footer__col a.mr2-social-link:hover {
-  color: var(--accent-terracotta);
-  border-color: transparent;
 }
 
 /* contact/footer CTA — layout positioning only; visual from .mr2-cta */

@@ -2,6 +2,7 @@
 
 import Link from 'next/link'
 import PillCta from '@/components/ui/PillCta'
+import AnimatedSocialLinks, { type Social } from '@/components/ui/social-links'
 import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { mandaGsap, prefersReducedMotion } from '@/lib/motion'
@@ -13,58 +14,39 @@ const NAV_LINKS = [
   { label: 'Press', href: '/press' },
 ]
 
-function InstagramIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="15"
-      height="15"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
-      <circle cx="12" cy="12" r="4" />
-      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-
-function YouTubeIcon() {
-  return (
-    <svg
-      xmlns="http://www.w3.org/2000/svg"
-      viewBox="0 0 24 24"
-      width="16"
-      height="16"
-      fill="none"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-      aria-hidden="true"
-    >
-      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
-      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
+const SOCIALS: Social[] = [
+  {
+    name: 'Instagram',
+    href: 'https://www.instagram.com/mandakini_rao/',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/a/a5/Instagram_icon.png',
+  },
+  {
+    name: 'YouTube',
+    href: 'https://www.youtube.com/@mandakinirao',
+    image: 'https://upload.wikimedia.org/wikipedia/commons/0/09/YouTube_full-color_icon_%282017%29.svg',
+  },
+]
 
 type FooterProps = {
   instagramHandle?: string
   youtubeChannelName?: string
 }
 
-export default function FooterV2({
-  instagramHandle,
-  youtubeChannelName,
-}: FooterProps = {}) {
+export default function FooterV2({ instagramHandle, youtubeChannelName }: FooterProps = {}) {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
+
+  // Merge Sanity handles into the social items if available
+  const socials: Social[] = [
+    {
+      ...SOCIALS[0],
+      name: instagramHandle ?? SOCIALS[0].name,
+    },
+    {
+      ...SOCIALS[1],
+      name: youtubeChannelName ?? SOCIALS[1].name,
+    },
+  ]
 
   useEffect(() => {
     const root = rootRef.current
@@ -102,24 +84,7 @@ export default function FooterV2({
         </div>
         <div className="mr2-footer__col">
           <h4>Elsewhere</h4>
-          <a
-            className="mr2-social-link"
-            href="https://www.instagram.com/mandakini_rao/"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <InstagramIcon />
-            {instagramHandle ?? 'Instagram'}
-          </a>
-          <a
-            className="mr2-social-link"
-            href="https://www.youtube.com/@mandakinirao"
-            target="_blank"
-            rel="noreferrer"
-          >
-            <YouTubeIcon />
-            {youtubeChannelName ?? 'YouTube'}
-          </a>
+          <AnimatedSocialLinks socials={socials} className="-ml-5" />
         </div>
         <PillCta href="/contact" className="mr2-footer__stamp">
           Say hello <span aria-hidden="true">→</span>
