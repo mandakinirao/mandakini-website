@@ -5,8 +5,16 @@ import FooterV2 from '@/components/home/v2/FooterV2'
 import CartDrawer from '@/components/shop/CartDrawer'
 import { CartProvider } from '@/lib/cart'
 import { commerceEnabled } from '@/lib/commerce'
+import { client } from '@/sanity/lib/client'
+import { footerSocialQuery } from '@/sanity/lib/queries'
 
-export default function SiteLayout({ children }: { children: React.ReactNode }) {
+type FooterSocial = { instagramHandle?: string; youtubeChannelName?: string }
+
+export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const social = await client
+    .fetch<FooterSocial | null>(footerSocialQuery, {}, { next: { revalidate: 3600 } })
+    .catch(() => null)
+
   const inner = (
     <>
       <Suspense fallback={null}>
@@ -14,12 +22,13 @@ export default function SiteLayout({ children }: { children: React.ReactNode }) 
       </Suspense>
       <Navigation />
       <main>{children}</main>
-      <FooterV2 />
+      <FooterV2
+        instagramHandle={social?.instagramHandle}
+        youtubeChannelName={social?.youtubeChannelName}
+      />
     </>
   )
 
-  // Flag off (or Stripe keys absent): no provider, no drawer — the tree
-  // is byte-identical to the pre-commerce site.
   if (!commerceEnabled()) return inner
 
   return (

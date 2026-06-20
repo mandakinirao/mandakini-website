@@ -282,3 +282,40 @@ to files/PROMPT_LOG.md.
 - `--font-display`, `--font-label` matched directly
 
 **CSS import convention:** imported inside `components/Testimonials.tsx` (`import '@/styles/testimonials.css'`) — matches Next.js App Router pattern used by other style sheets.
+
+---
+
+## Session June 20, 2026 — Footer social hover previews
+
+**Files touched:**
+- `sanity/schemas/siteSettings.ts` — added two new string fields: `instagramHandle` ("Instagram Display Handle") and `youtubeChannelName` ("YouTube Channel Name"). Placed immediately before the existing `socialLinks` object. No existing fields renamed or removed. The existing `socialLinks.instagram` and `socialLinks.youtube` URL fields were left intact (they are separate concerns — URL routing vs. display label).
+- `sanity/lib/queries.ts` — added new `footerSocialQuery` export: `*[_type == "siteSettings"][0] { instagramHandle, youtubeChannelName }`. Extended as a new named export; existing `siteSettingsBasicQuery` untouched.
+- `app/(site)/layout.tsx` — made `async`; static imports of `client` and `footerSocialQuery` added; fetch with `{ next: { revalidate: 3600 } }` and `.catch(() => null)` fallback; `instagramHandle` and `youtubeChannelName` passed as props to `FooterV2`.
+- `components/home/v2/FooterV2.tsx` — module-level `SocialLink` sub-component added (not nested inside the default export); `FooterProps` type added with two optional string props; `SocialLink` renders the handle card as a direct child of `<a>` (valid HTML5 flow content inside block anchor); GSAP `autoAlpha` + `y` on mouseenter/mouseleave; `isTouch()` JS guard in handlers; card hidden via CSS `@media (hover: none), (pointer: coarse)` as second-layer guard.
+- `app/v2.css` — added `.mr2-social-link` and `.mr2-social-card` rules immediately after `.mr2-footer__col a:hover`; media query `(hover: none), (pointer: coarse)` applies `display: none` to `.mr2-social-card`.
+
+**Href verification result:**
+- WRONG before this session: Instagram was `https://instagram.com/`, YouTube was `https://youtube.com/`.
+- Corrected to: `https://www.instagram.com/mandakini_rao/` and `https://www.youtube.com/@mandakinirao` per prompt spec. Flagged and fixed.
+
+**Sanity fields used/added:**
+- `instagramHandle` — new field, type `string`. Seeded: `@mandakini_rao`. Published to production.
+- `youtubeChannelName` — new field, type `string`. Seeded: `@mandakinirao`. Published to production.
+- Pre-existing `socialLinks` object reused for URL routing only; not duplicated.
+
+**Card color/font choice:**
+- Card background: `--v2-cream` (`#f5efe4`) — light pill floats against the dark footer (`--v2-bg: #0d0a07`).
+- Card text: `--v2-night` (`#0d0a07`) — near-black on cream, excellent contrast.
+- Accent: `border-top: 2px solid var(--accent-terracotta)` — thin terracotta stripe at the card top, the editorial accent moment.
+- Font: `--font-label` (Mailendra, fallback Cormorant SC) — quiet label voice appropriate for a handle, legible at 11px.
+- No grain, no blue, no hard rectangle, no borders beyond the terracotta accent.
+
+**Motion exports used:**
+- `EASE` = `'mandakini'` (master ease, cubic-bezier 0.25,1,0.5,1)
+- `DUR.fast` = 0.6s — both enter and leave transitions use this
+- `prefersReducedMotion()` — instant show/hide via `mandaGsap.set` when true, no tween
+- `isTouch()` — JS guard: `window.matchMedia('(hover: none), (pointer: coarse)')` — if true, handlers return early, no GSAP tween fires
+
+**Desktop guard method (two layers):**
+1. JS: `isTouch()` check at the top of `onEnter` (and bail in `onLeave`), preventing GSAP from running on touch devices even if a mouseenter fires (e.g. iOS hover simulation bugs).
+2. CSS: `@media (hover: none), (pointer: coarse) { .mr2-social-card { display: none; } }` — card is structurally invisible on touch devices regardless of any JS.

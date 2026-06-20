@@ -51,6 +51,15 @@ Final Prompt 03 homepage work is complete. The site now uses the warm aged-paper
 
 ---
 
+**Footer social hover previews — June 20, 2026:**
+- Two new fields added to `sanity/schemas/siteSettings.ts`: `instagramHandle` (string, "Instagram Display Handle") and `youtubeChannelName` (string, "YouTube Channel Name"). These are display-only strings, not links — separate from the existing `socialLinks` URL object.
+- `footerSocialQuery` added to `sanity/lib/queries.ts` (new export, projects `instagramHandle` and `youtubeChannelName` from siteSettings).
+- `app/(site)/layout.tsx` made `async`; fetches footer handles server-side (ISR 3600s, falls back to null on error) and passes them as props to `FooterV2`.
+- `components/home/v2/FooterV2.tsx`: added `SocialLink` sub-component (module-level, not nested) with GSAP `autoAlpha` + `y: 8→0` rise on mouseenter, reverse on mouseleave; `isTouch()` guard prevents any hover behavior on touch devices; `prefersReducedMotion()` guard shows card instantly (no tween). Footer now accepts `instagramHandle?` and `youtubeChannelName?` props. **Hrefs corrected** (were wrong: `https://instagram.com/` and `https://youtube.com/`; now `https://www.instagram.com/mandakini_rao/` and `https://www.youtube.com/@mandakinirao`).
+- CSS added to `app/v2.css`: `.mr2-social-link` (position: relative); `.mr2-social-card` (cream pill `--v2-cream`, night ink `--v2-night`, terracotta top accent `--accent-terracotta`, `--font-label` Mailendra, pill border-radius 100px, `opacity:0; visibility:hidden` start state); `@media (hover: none), (pointer: coarse)` sets `display: none` as a CSS-level touch guard.
+- Sanity seeded and published: `instagramHandle = @mandakini_rao`, `youtubeChannelName = @mandakinirao`.
+- `tsc --noEmit` clean.
+
 ## What Is In Progress
 Nothing yet.
 

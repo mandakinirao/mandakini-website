@@ -110,6 +110,18 @@ export const siteSettingsSchema = defineType({
       rows: 2,
     }),
     defineField({
+      name: 'instagramHandle',
+      title: 'Instagram Display Handle',
+      type: 'string',
+      description: 'Shown in the footer hover preview. E.g. @mandakini_rao',
+    }),
+    defineField({
+      name: 'youtubeChannelName',
+      title: 'YouTube Channel Name',
+      type: 'string',
+      description: 'Shown in the footer hover preview. E.g. @mandakinirao',
+    }),
+    defineField({
       name: 'socialLinks',
       title: 'Social Links',
       type: 'object',

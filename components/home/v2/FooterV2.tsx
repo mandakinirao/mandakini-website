@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import PillCta from '@/components/ui/PillCta'
 import { usePathname } from 'next/navigation'
-import { useEffect, useRef } from 'react'
-import { mandaGsap, prefersReducedMotion } from '@/lib/motion'
+import { useCallback, useEffect, useRef } from 'react'
+import { mandaGsap, prefersReducedMotion, isTouch, EASE, DUR } from '@/lib/motion'
 
 const NAV_LINKS = [
   { label: 'Works', href: '/works' },
@@ -13,24 +13,61 @@ const NAV_LINKS = [
   { label: 'Press', href: '/press' },
 ]
 
-const SOCIAL_LINKS = [
-  { label: 'Instagram', href: 'https://instagram.com/' },
-  { label: 'YouTube', href: 'https://youtube.com/' },
-]
+type SocialLinkProps = {
+  label: string
+  href: string
+  handle?: string
+}
 
-/**
- * V2 §7 — the final frame: columns up top, a marigold contact stamp,
- * and "MANDAKINI" so large only its middle fits, rising as you arrive.
- */
-export default function FooterV2() {
+function SocialLink({ label, href, handle }: SocialLinkProps) {
+  const cardRef = useRef<HTMLDivElement>(null)
+
+  const onEnter = useCallback(() => {
+    if (!cardRef.current || !handle || isTouch()) return
+    if (prefersReducedMotion()) {
+      mandaGsap.set(cardRef.current, { autoAlpha: 1, y: 0 })
+      return
+    }
+    mandaGsap.to(cardRef.current, { autoAlpha: 1, y: 0, duration: DUR.fast, ease: EASE })
+  }, [handle])
+
+  const onLeave = useCallback(() => {
+    if (!cardRef.current || !handle) return
+    if (prefersReducedMotion()) {
+      mandaGsap.set(cardRef.current, { autoAlpha: 0, y: 8 })
+      return
+    }
+    mandaGsap.to(cardRef.current, { autoAlpha: 0, y: 8, duration: DUR.fast, ease: EASE })
+  }, [handle])
+
+  return (
+    <a
+      className="mr2-social-link"
+      href={href}
+      target="_blank"
+      rel="noreferrer"
+      onMouseEnter={onEnter}
+      onMouseLeave={onLeave}
+    >
+      {label}
+      {handle && (
+        <div ref={cardRef} className="mr2-social-card" aria-hidden="true">
+          {handle}
+        </div>
+      )}
+    </a>
+  )
+}
+
+type FooterProps = {
+  instagramHandle?: string
+  youtubeChannelName?: string
+}
+
+export default function FooterV2({ instagramHandle, youtubeChannelName }: FooterProps = {}) {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 
-  // Re-created per route: the footer persists across client-side
-  // navigation while the page above it changes height, so a mount-once
-  // trigger measures against the first page's layout and the reveal
-  // never fires anywhere else. MotionProvider's post-paint
-  // ScrollTrigger.refresh() then settles the exact positions.
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -67,11 +104,16 @@ export default function FooterV2() {
         </div>
         <div className="mr2-footer__col">
           <h4>Elsewhere</h4>
-          {SOCIAL_LINKS.map((link) => (
-            <a key={link.label} href={link.href} target="_blank" rel="noreferrer">
-              {link.label}
-            </a>
-          ))}
+          <SocialLink
+            label="Instagram"
+            href="https://www.instagram.com/mandakini_rao/"
+            handle={instagramHandle}
+          />
+          <SocialLink
+            label="YouTube"
+            href="https://www.youtube.com/@mandakinirao"
+            handle={youtubeChannelName}
+          />
         </div>
         <PillCta href="/contact" className="mr2-footer__stamp">
           Say hello <span aria-hidden="true">→</span>

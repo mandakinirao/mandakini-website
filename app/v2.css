@@ -1154,6 +1154,40 @@ body.mr2-light .mr2-works__meta {
   border-color: var(--accent-link);
 }
 
+/* Social links with hover-preview card */
+.mr2-social-link {
+  position: relative;
+}
+
+/* Cream pill card that rises above the link on hover (desktop only).
+   Card: --v2-cream bg / --v2-night ink, terracotta top accent.
+   Font: --font-label (Mailendra) — quiet editorial label voice.
+   Starts invisible; GSAP drives autoAlpha + y on mouseenter/leave.
+   CSS guard ensures touch devices never see it. */
+.mr2-social-card {
+  position: absolute;
+  bottom: calc(100% + 10px);
+  left: -12px;
+  padding: 5px 14px 6px;
+  background: var(--v2-cream);
+  color: var(--v2-night);
+  border-radius: 100px;
+  border-top: 2px solid var(--accent-terracotta);
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.12em;
+  white-space: nowrap;
+  pointer-events: none;
+  /* GSAP autoAlpha manages visibility+opacity; start hidden */
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Touch/coarse-pointer devices: card is never shown */
+@media (hover: none), (pointer: coarse) {
+  .mr2-social-card { display: none; }
+}
+
 /* contact/footer CTA — layout positioning only; visual from .mr2-cta */
 .mr2-footer__stamp {
   align-self: start;

@@ -16,6 +16,13 @@ export const siteSettingsBasicQuery = groq`
   }
 `
 
+export const footerSocialQuery = groq`
+  *[_type == "siteSettings"][0] {
+    instagramHandle,
+    youtubeChannelName
+  }
+`
+
 export const testimonialsQuery = groq`
   *[_type == "testimonial"] | order(order asc, _createdAt asc) {
     _id,
