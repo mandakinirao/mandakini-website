@@ -53,12 +53,23 @@
   --bg-linen: #F0E8DC;
   --ink-cacao: #3D1F0D;
   --ink-night: #2C1A0E;
+  /* ── Core brand palette ── */
   --accent-toffee: #DA682F;
   --accent-amber: #C89839;
   --accent-rosehip: #792318;
   --accent-moss: #5B643E;
   --accent-terracotta: #B8572A;   /* enquiry CTA fill (fixed) */
   --accent-error: #C4685A;        /* gentle inline error tint */
+  /* ── Extended client palette ── */
+  --accent-pumpkin: #AB5E16;
+  --accent-cacao: #7B533B;
+  --accent-lagoon: #314350;
+  --accent-ocean: #4B8299;
+  --accent-forrest: #44724F;
+  --accent-skyline: #99BFDF;
+  --accent-tangerine: #E99E26;
+  --accent-salsa: #DB3100;
+  /* ── Fixed surface tokens ── */
   --ink-cream: #F5EFE4;           /* fixed cream type on night surfaces */
   --bg-void: #060606;             /* loader field — never theme-switched */
   --cream-on-dark: rgba(245, 239, 228, 0.92);

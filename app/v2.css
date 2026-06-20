@@ -830,6 +830,7 @@ body.mr2-light .mr2-works__meta {
   font-family: var(--font-label);
   font-size: clamp(12px, 1.05vw, 15px);
   letter-spacing: 0.3em;
+  color: var(--accent-ocean);
 }
 
 .mr2-works__titles {
@@ -879,15 +880,27 @@ body.mr2-light .mr2-works__meta {
   row-gap: 2.8rem;
   padding: 18vh clamp(20px, 6vw, 80px);
   text-align: center;
+  background: var(--accent-toffee);
 }
 
 .mr2-contact__line {
   max-width: 22ch;
-  color: var(--v2-fg);
+  color: var(--ink-cream);
   font-family: var(--font-display);
   font-size: clamp(1.8rem, 4.4vw, 4.2rem);
   font-weight: 400;
   line-height: 1.25;
+}
+
+/* Pill CTA inherits toffee stage — cream border + cream text */
+.mr2-contact .mr2-pill {
+  border-color: var(--ink-cream);
+  color: var(--ink-cream);
+}
+
+.mr2-contact .mr2-pill:hover {
+  background: var(--ink-cream);
+  color: var(--accent-toffee);
 }
 
 .mr2-pill {
@@ -928,7 +941,7 @@ body.mr2-light .mr2-works__meta {
 }
 
 .mr2-shop__head p {
-  color: var(--accent-eyebrow);
+  color: var(--accent-forrest);
   font-family: var(--font-label);
   font-size: 13px;
   letter-spacing: 0.3em;
@@ -1002,10 +1015,9 @@ body.mr2-light .mr2-works__meta {
 .mr2-press {
   overflow: hidden;
   padding: 13vh 0;
-  border-top: 1px solid var(--v2-fg-faint);
-  border-bottom: 1px solid var(--v2-fg-faint);
   display: grid;
   row-gap: 2.4rem;
+  background: var(--accent-lagoon);
 }
 
 
@@ -1040,18 +1052,18 @@ body.mr2-light .mr2-works__meta {
 
 .mr2-press__item b {
   font-weight: 400;
-  color: var(--v2-fg);
+  color: var(--ink-cream);
 }
 
 .mr2-press__item i {
   font-style: normal;
   color: transparent;
-  -webkit-text-stroke: 1px var(--v2-fg-dim);
+  -webkit-text-stroke: 1px rgba(245, 239, 228, 0.4);
 }
 
 .mr2-press__item em {
   font-style: normal;
-  color: var(--v2-fg-dim);
+  color: rgba(245, 239, 228, 0.5);
   font-size: 0.5em;
   transform: translateY(-0.4em);
 }
