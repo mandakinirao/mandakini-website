@@ -48,7 +48,7 @@ export default function HomeExperienceV2(props: HomeData) {
       <EditionShop prints={prints} />
       <ContactStage />
       <Testimonials items={testimonials} />
-      <MarqueePress items={press} testimonials={testimonials} />
+      <MarqueePress items={press} />
     </div>
   )
 }

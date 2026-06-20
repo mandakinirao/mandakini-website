@@ -51,6 +51,11 @@ Final Prompt 03 homepage work is complete. The site now uses the warm aged-paper
 
 ---
 
+**Testimonials containment fixed — June 20, 2026:**
+- Root cause: `MarqueePress` (the original "Voices & Press" component) still rendered testimonial quotes inside `.mr2-press__quotes` inside the dark Press section — the original design from before the dedicated `<Testimonials>` section was built. Both rendered the same content simultaneously, causing quotes to appear merged into the Press band and the `<Testimonials>` section's nav controls to appear visually detached from where the user expected the content to be.
+- Fix: removed the `testimonials` prop, `HomeTestimonial` import, and `.mr2-press__quotes` block from `MarqueePress.tsx`. Updated `HomeExperienceV2.tsx` call site (no longer passes `testimonials` to `<MarqueePress>`). Removed dead `.mr2-press__quotes`, `.mr2-press__quote` CSS from `v2.css` (including responsive block). Added `position: relative; overflow: clip` to `.testimonials` in `testimonials.css` and `position: relative` to `.testimonials-inner` for proper stacking containment. V1 `PressStrip` (frozen, /?v=1) untouched.
+- `tsc --noEmit` clean.
+
 **Footer social hover previews — June 20, 2026:**
 - Two new fields added to `sanity/schemas/siteSettings.ts`: `instagramHandle` (string, "Instagram Display Handle") and `youtubeChannelName` (string, "YouTube Channel Name"). These are display-only strings, not links — separate from the existing `socialLinks` URL object.
 - `footerSocialQuery` added to `sanity/lib/queries.ts` (new export, projects `instagramHandle` and `youtubeChannelName` from siteSettings).

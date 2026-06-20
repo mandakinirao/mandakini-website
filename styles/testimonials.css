@@ -1,10 +1,16 @@
 .testimonials {
+  /* position: relative creates a stacking context so nothing escapes */
+  position: relative;
   background-color: var(--bg-cream);
   color: var(--ink-cacao);
   padding: 140px 0;
+  /* overflow: clip contains GSAP transforms to this band */
+  overflow: clip;
 }
 
 .testimonials-inner {
+  /* All children — eyebrow, stage, nav — stack in a single column */
+  position: relative;
   max-width: 980px;
   margin: 0 auto;
   padding: 0 40px;

@@ -319,3 +319,23 @@ to files/PROMPT_LOG.md.
 **Desktop guard method (two layers):**
 1. JS: `isTouch()` check at the top of `onEnter` (and bail in `onLeave`), preventing GSAP from running on touch devices even if a mouseenter fires (e.g. iOS hover simulation bugs).
 2. CSS: `@media (hover: none), (pointer: coarse) { .mr2-social-card { display: none; } }` — card is structurally invisible on touch devices regardless of any JS.
+
+---
+
+## Session June 20, 2026 — Testimonials containment fix
+
+**Root cause:** `MarqueePress` (V2 "Voices & Press" section) was the original container for both testimonial quotes AND the press marquee. It accepted a `testimonials: HomeTestimonial[]` prop and rendered each testimonial as a `<figure className="mr2-press__quote">` inside a 3-column grid (`.mr2-press__quotes`) at the top of the dark press section. When the dedicated `<Testimonials>` component was built and mounted above `<MarqueePress>` in `HomeExperienceV2`, the `testimonials` prop was still being passed to `MarqueePress`, so testimonial content rendered in TWO places simultaneously:
+1. Once in the cream `<Testimonials>` section (eyebrow + quote + nav controls)
+2. Again inside the dark `<MarqueePress>` press band (quote + cite, no controls)
+
+This caused: quotes appearing "merged into Press" (the MarqueePress render); and nav controls appearing visually orphaned from the quotes (user saw content in Press but arrows/dots were in the earlier Testimonials section, creating a perceived split).
+
+**Files changed:**
+- `components/home/v2/MarqueePress.tsx` — removed `testimonials` prop, `HomeTestimonial` import, and the `.mr2-press__quotes` render block. Now accepts only `items: HomePress[]`. `aria-label` updated from "Voices and press" to "Press".
+- `components/home/v2/HomeExperienceV2.tsx` — removed `testimonials` from `<MarqueePress>` call site. `<Testimonials items={testimonials} />` remains the sole render, mounted directly above `<MarqueePress>`.
+- `app/v2.css` — removed dead CSS: `.mr2-press__quotes` (grid block), `.mr2-press__quote` (figure block), `.mr2-press__quote blockquote`, `.mr2-press__quote cite`, and the `@media (max-width: 900px)` override for `.mr2-press__quotes`. Zero visual change to remaining press or testimonials appearance.
+- `styles/testimonials.css` — added `position: relative; overflow: clip` to `.testimonials` and `position: relative` to `.testimonials-inner`. These create a proper stacking context and contain GSAP transforms within the section so children cannot escape the cream band.
+
+**Not changed:** V1 `PressStrip.tsx` (frozen, /?v=1 only) still receives testimonials — intentionally untouched.
+
+**Verification:** `tsc --noEmit` clean. `<Testimonials>` confirmed mounted exactly once (grep of all tsx/ts files). `MarqueePress.tsx` has zero testimonials/HomeTestimonial references.
