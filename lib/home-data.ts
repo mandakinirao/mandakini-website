@@ -56,8 +56,10 @@ export interface HomeSeries {
 }
 
 export interface HomeTestimonial {
+  _id?: string
   quote: string
   author: string
+  role?: string
 }
 
 export interface HomeData {
@@ -552,7 +554,7 @@ export async function getHomeData(): Promise<HomeData> {
     client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
       queries.siteSettingsBasicQuery
     ),
-    client.fetch<{ quote: string; author: string }[] | null>(queries.testimonialsQuery),
+    client.fetch<{ _id: string; quote: string; author: string; role?: string }[] | null>(queries.testimonialsQuery),
     client.fetch<string | null>('*[_type == "aboutPage"][0].homeSnippet'),
     client.fetch<string | null>('*[_type == "aboutPage"][0].aboutTeaserLine'),
   ])

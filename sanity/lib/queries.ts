@@ -17,9 +17,11 @@ export const siteSettingsBasicQuery = groq`
 `
 
 export const testimonialsQuery = groq`
-  *[_type == "testimonial"] | order(displayOrder asc) {
+  *[_type == "testimonial"] | order(order asc, _createdAt asc) {
+    _id,
     quote,
-    author
+    author,
+    role
   }
 `
 

@@ -6,6 +6,7 @@ import EditionShop from '@/components/home/v2/EditionShop'
 import HeroScene, { type HeroSceneHandle } from '@/components/home/v2/HeroScene'
 import LoadingScreenStripes from '@/components/home/v2/LoadingScreenStripes'
 import MarqueePress from '@/components/home/v2/MarqueePress'
+import Testimonials from '@/components/Testimonials'
 import RisingSunWorks from '@/components/home/v2/RisingSunWorks'
 import StripeBand from '@/components/home/v2/StripeBand'
 import type { HomeData } from '@/lib/home-data'
@@ -46,6 +47,7 @@ export default function HomeExperienceV2(props: HomeData) {
       <RisingSunWorks series={series} />
       <EditionShop prints={prints} />
       <ContactStage />
+      <Testimonials items={testimonials} />
       <MarqueePress items={press} testimonials={testimonials} />
     </div>
   )

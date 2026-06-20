@@ -7,12 +7,22 @@
 
 ## Current Status
 **Build phase:** Block 8 complete; Block 12 complete; /about rebuild complete
-**Last updated by:** About split — homepage teaser + amber panel on /about
-**Last session date:** June 19, 2026
+**Last updated by:** Testimonials section built
+**Last session date:** June 20, 2026
 
 ---
 
 ## What Is Complete
+**Testimonials section built — June 20, 2026:**
+- `sanity/schemas/testimonial.ts` reconciled: existing schema had `quote`, `author`, `displayOrder` — added `role` (string) and renamed `displayOrder` → `order`; added `orderings`; updated `preview` subtitle to `role`. No data existed so no migration needed.
+- `sanity/lib/queries.ts`: updated existing `testimonialsQuery` (sort `order asc, _createdAt asc`; projects `_id, quote, author, role`). Export name unchanged.
+- `components/Testimonials.tsx`: client component, GSAP crossfade (fade out `DUR.fast` → set index → fade in `DUR.base`); auto-advance 7 s; prev/next arrows + circular dots; returns null when no items; `prefersReducedMotion()` disables tween and auto-advance. CSS imported inline.
+- `styles/testimonials.css`: cream background (`--bg-cream`/`--ink-cacao`); quote in `--font-display` italic; attribution in `--font-accent` (Konya) rosehip; eyebrow + role in `--font-label`; transitions use `--dur-fast`/`--ease-manda` CSS tokens.
+- `components/home/v2/HomeExperienceV2.tsx`: `<Testimonials items={testimonials} />` mounted directly above `<MarqueePress>` (the Press section) — renders nothing when collection is empty.
+- `lib/home-data.ts`: `HomeTestimonial` type extended with optional `_id?` and `role?` to match new query projection.
+- Token remapping from prompt's placeholder names: `--color-cream`→`--bg-cream`, `--color-cacao`→`--ink-cacao`, `--color-terracotta`→`--accent-terracotta`, `--color-rosehip`→`--accent-rosehip`, `--font-script`→`--font-accent`. DUR key remapping: `DUR.sm`→`DUR.fast`, `DUR.md`→`DUR.base`.
+- Collection left empty in Sanity; `<Testimonials>` returns null until entries are added via Studio.
+
 **About split: homepage teaser + amber panel moved to /about; terracotta teaser pill — June 19, 2026:**
 - `aboutTeaserLine` (string) added to `aboutPage` schema, `aboutPageQuery`, and `AboutData` type. Falls back to `homeSnippet` → empty string when not set. Content seeded in Sanity: "Art has been a part of my life for as long as I can remember."
 - New `components/home/v2/AboutTeaser.tsx`: dark `--v2-bg` section, one display-font line (`revealLines`, scrollTrigger top 75%), terracotta `PillCta` → /about (border/text terracotta at rest, fills terracotta on hover via `.mr2-teaser .mr2-cta` scope in `v2.css`). Returns null when `line` is empty so the section hides gracefully.

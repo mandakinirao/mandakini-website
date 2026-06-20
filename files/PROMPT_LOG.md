@@ -245,3 +245,40 @@ VERIFY:
 On completion update files/PROGRESS.md ("About split: homepage teaser + amber
 panel moved to /about; terracotta teaser pill") and append this prompt verbatim
 to files/PROMPT_LOG.md.
+
+---
+
+## Session June 20, 2026 — Testimonials section
+
+**Files created:**
+- `sanity/schemas/testimonial.ts` (reconciled — see below)
+- `components/Testimonials.tsx`
+- `styles/testimonials.css`
+
+**Files touched:**
+- `sanity/lib/queries.ts` — updated existing `testimonialsQuery` (sort field `displayOrder` → `order`; added `_id`, `role` to projection)
+- `components/home/v2/HomeExperienceV2.tsx` — added `<Testimonials items={testimonials} />` directly above `<MarqueePress>` (mount location: `components/home/v2/HomeExperienceV2.tsx`, between `<ContactStage />` and `<MarqueePress>`)
+- `lib/home-data.ts` — `HomeTestimonial` type extended with `_id?` and `role?` (not in the original files-to-touch list; updated because the TypeScript fetch type needed to match the new query projection)
+
+**Pre-existing testimonial schema reconciliation:**
+- Schema already existed at `sanity/schemas/testimonial.ts` (registered as `testimonialSchema`, exported named export, registered in `sanity/schemas/index.ts`)
+- Existing fields: `quote` (rows 3), `author`, `displayOrder` (number, initialValue 99)
+- Missing fields added: `role` (string), `order` (number) — `displayOrder` renamed to `order` (no data existed so no migration needed)
+- Updated: rows 4, title 'Testimonials', added `orderings`, updated preview subtitle to `role`
+- `testimonialsQuery` already existed sorting by `displayOrder`; updated to sort by `order asc, _createdAt asc` and project `_id, quote, author, role`
+
+**Real `@/lib/motion` export names used:**
+- `EASE` = `'mandakini'` ✓ (same name as prompt)
+- `DUR.fast` (0.6 s) — prompt used `DUR.sm` (remapped)
+- `DUR.base` (1.0 s) — prompt used `DUR.md` (remapped)
+- `prefersReducedMotion()` — used directly from `@/lib/motion` instead of `window.matchMedia` inline check
+
+**CSS token names remapped:**
+- `--color-cream` → `--bg-cream`
+- `--color-cacao` → `--ink-cacao`
+- `--color-terracotta` → `--accent-terracotta`
+- `--color-rosehip` → `--accent-rosehip`
+- `--font-script` → `--font-accent` (Konya script is `--font-accent` in this project)
+- `--font-display`, `--font-label` matched directly
+
+**CSS import convention:** imported inside `components/Testimonials.tsx` (`import '@/styles/testimonials.css'`) — matches Next.js App Router pattern used by other style sheets.

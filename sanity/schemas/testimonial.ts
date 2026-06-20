@@ -1,15 +1,43 @@
-import { defineField, defineType } from 'sanity'
+import { defineType, defineField } from 'sanity'
 
 export const testimonialSchema = defineType({
   name: 'testimonial',
-  title: 'Testimonial',
+  title: 'Testimonials',
   type: 'document',
   fields: [
-    defineField({ name: 'quote', title: 'Quote', type: 'text', rows: 3, validation: (Rule) => Rule.required() }),
-    defineField({ name: 'author', title: 'Author', type: 'string', validation: (Rule) => Rule.required() }),
-    defineField({ name: 'displayOrder', title: 'Display Order', type: 'number', initialValue: 99 }),
+    defineField({
+      name: 'quote',
+      title: 'Quote',
+      type: 'text',
+      rows: 4,
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'author',
+      title: 'Author Name',
+      type: 'string',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'role',
+      title: 'Role / Context',
+      type: 'string',
+      description: 'e.g. "Collector, Mumbai" or "Student, 2019–2023"',
+    }),
+    defineField({
+      name: 'order',
+      title: 'Display Order',
+      type: 'number',
+      description: 'Lower numbers show first.',
+      initialValue: 99,
+    }),
   ],
-  preview: {
-    select: { title: 'author', subtitle: 'quote' },
-  },
+  orderings: [
+    {
+      title: 'Display order',
+      name: 'orderAsc',
+      by: [{ field: 'order', direction: 'asc' }],
+    },
+  ],
+  preview: { select: { title: 'author', subtitle: 'role' } },
 })
