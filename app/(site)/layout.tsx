@@ -11,7 +11,7 @@ import { footerSocialQuery } from '@/sanity/lib/queries'
 type FooterSocial = { instagramHandle?: string; youtubeChannelName?: string }
 
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const social = await client
+  const footerSocial = await client
     .fetch<FooterSocial | null>(footerSocialQuery, {}, { next: { revalidate: 3600 } })
     .catch(() => null)
 
@@ -23,8 +23,8 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Navigation />
       <main>{children}</main>
       <FooterV2
-        instagramHandle={social?.instagramHandle}
-        youtubeChannelName={social?.youtubeChannelName}
+        instagramHandle={footerSocial?.instagramHandle}
+        youtubeChannelName={footerSocial?.youtubeChannelName}
       />
     </>
   )

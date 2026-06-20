@@ -3,8 +3,8 @@
 import Link from 'next/link'
 import PillCta from '@/components/ui/PillCta'
 import { usePathname } from 'next/navigation'
-import { useCallback, useEffect, useRef } from 'react'
-import { mandaGsap, prefersReducedMotion, isTouch, EASE, DUR } from '@/lib/motion'
+import { useEffect, useRef } from 'react'
+import { mandaGsap, prefersReducedMotion } from '@/lib/motion'
 
 const NAV_LINKS = [
   { label: 'Works', href: '/works' },
@@ -13,49 +13,44 @@ const NAV_LINKS = [
   { label: 'Press', href: '/press' },
 ]
 
-type SocialLinkProps = {
-  label: string
-  href: string
-  handle?: string
+function InstagramIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="15"
+      height="15"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
+    >
+      <rect x="2" y="2" width="20" height="20" rx="5" ry="5" />
+      <circle cx="12" cy="12" r="4" />
+      <circle cx="17.5" cy="6.5" r="1" fill="currentColor" stroke="none" />
+    </svg>
+  )
 }
 
-function SocialLink({ label, href, handle }: SocialLinkProps) {
-  const cardRef = useRef<HTMLDivElement>(null)
-
-  const onEnter = useCallback(() => {
-    if (!cardRef.current || !handle || isTouch()) return
-    if (prefersReducedMotion()) {
-      mandaGsap.set(cardRef.current, { autoAlpha: 1, y: 0 })
-      return
-    }
-    mandaGsap.to(cardRef.current, { autoAlpha: 1, y: 0, duration: DUR.fast, ease: EASE })
-  }, [handle])
-
-  const onLeave = useCallback(() => {
-    if (!cardRef.current || !handle) return
-    if (prefersReducedMotion()) {
-      mandaGsap.set(cardRef.current, { autoAlpha: 0, y: 8 })
-      return
-    }
-    mandaGsap.to(cardRef.current, { autoAlpha: 0, y: 8, duration: DUR.fast, ease: EASE })
-  }, [handle])
-
+function YouTubeIcon() {
   return (
-    <a
-      className="mr2-social-link"
-      href={href}
-      target="_blank"
-      rel="noreferrer"
-      onMouseEnter={onEnter}
-      onMouseLeave={onLeave}
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="16"
+      height="16"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      aria-hidden="true"
     >
-      {label}
-      {handle && (
-        <div ref={cardRef} className="mr2-social-card" aria-hidden="true">
-          {handle}
-        </div>
-      )}
-    </a>
+      <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46a2.78 2.78 0 0 0-1.95 1.96A29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
+      <polygon points="9.75 15.02 15.5 12 9.75 8.98 9.75 15.02" fill="currentColor" stroke="none" />
+    </svg>
   )
 }
 
@@ -64,7 +59,10 @@ type FooterProps = {
   youtubeChannelName?: string
 }
 
-export default function FooterV2({ instagramHandle, youtubeChannelName }: FooterProps = {}) {
+export default function FooterV2({
+  instagramHandle,
+  youtubeChannelName,
+}: FooterProps = {}) {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 
@@ -104,16 +102,24 @@ export default function FooterV2({ instagramHandle, youtubeChannelName }: Footer
         </div>
         <div className="mr2-footer__col">
           <h4>Elsewhere</h4>
-          <SocialLink
-            label="Instagram"
+          <a
+            className="mr2-social-link"
             href="https://www.instagram.com/mandakini_rao/"
-            handle={instagramHandle}
-          />
-          <SocialLink
-            label="YouTube"
+            target="_blank"
+            rel="noreferrer"
+          >
+            <InstagramIcon />
+            {instagramHandle ?? 'Instagram'}
+          </a>
+          <a
+            className="mr2-social-link"
             href="https://www.youtube.com/@mandakinirao"
-            handle={youtubeChannelName}
-          />
+            target="_blank"
+            rel="noreferrer"
+          >
+            <YouTubeIcon />
+            {youtubeChannelName ?? 'YouTube'}
+          </a>
         </div>
         <PillCta href="/contact" className="mr2-footer__stamp">
           Say hello <span aria-hidden="true">→</span>
