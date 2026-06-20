@@ -27,12 +27,7 @@ const SOCIALS: Social[] = [
   },
 ]
 
-type FooterProps = {
-  instagramHandle?: string
-  youtubeChannelName?: string
-}
-
-export default function FooterV2(_props: FooterProps = {}) {
+export default function FooterV2() {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 

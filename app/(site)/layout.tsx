@@ -5,16 +5,7 @@ import FooterV2 from '@/components/home/v2/FooterV2'
 import CartDrawer from '@/components/shop/CartDrawer'
 import { CartProvider } from '@/lib/cart'
 import { commerceEnabled } from '@/lib/commerce'
-import { client } from '@/sanity/lib/client'
-import { footerSocialQuery } from '@/sanity/lib/queries'
-
-type FooterSocial = { instagramHandle?: string; youtubeChannelName?: string }
-
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
-  const footerSocial = await client
-    .fetch<FooterSocial | null>(footerSocialQuery, {}, { next: { revalidate: 3600 } })
-    .catch(() => null)
-
   const inner = (
     <>
       <Suspense fallback={null}>
@@ -22,10 +13,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       </Suspense>
       <Navigation />
       <main>{children}</main>
-      <FooterV2
-        instagramHandle={footerSocial?.instagramHandle}
-        youtubeChannelName={footerSocial?.youtubeChannelName}
-      />
+      <FooterV2 />
     </>
   )
 
