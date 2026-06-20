@@ -123,6 +123,23 @@ export default function WorksIndex({
           toX(e.clientX)
           toY(e.clientY)
         }
+
+        // pointerleave does NOT fire when the page scrolls under a
+        // stationary cursor — force-hide on any scroll event instead.
+        const hidePreview = () =>
+          mandaGsap.to(preview, {
+            autoAlpha: 0,
+            scale: 0.92,
+            duration: 0.25,
+            ease: EASE,
+          })
+        window.addEventListener('scroll', hidePreview, { passive: true })
+        // Tie scroll-listener cleanup to the AbortController so a single
+        // aborter.abort() in the useEffect return tears down everything.
+        signal.addEventListener('abort', () =>
+          window.removeEventListener('scroll', hidePreview)
+        )
+
         root.querySelectorAll<HTMLElement>('.mr-windex__row').forEach((row) => {
           row.addEventListener(
             'pointerenter',
