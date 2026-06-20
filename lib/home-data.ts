@@ -1,4 +1,5 @@
 import type { Image as SanityImageType } from 'sanity'
+import type { RawPressItem } from '@/lib/press'
 
 /**
  * Homepage data with hard fallbacks. No `.env.local` exists in this
@@ -546,10 +547,7 @@ export async function getHomeData(): Promise<HomeData> {
         }[]
       | null
     >(queries.featuredShopItemsQuery),
-    client.fetch<
-      | { source?: string; title?: string; date?: string; externalLink?: string }[]
-      | null
-    >(queries.featuredPressItemsQuery),
+    client.fetch<RawPressItem[] | null>(queries.pressItemsQuery),
     client.fetch<string[] | null>(queries.heroImagesQuery),
     client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
       queries.siteSettingsBasicQuery
@@ -560,9 +558,14 @@ export async function getHomeData(): Promise<HomeData> {
   ])
 
   const shopItems = ok(shopRes)
-  const pressItems = ok(pressRes)
+  const rawPressItems = ok(pressRes)
   const rawHeroImages = ok(heroRes)
   const siteBasic = ok(basicRes)
+  const { enrichPressItems } = await import('@/lib/press')
+  const enrichedPress = rawPressItems?.length
+    ? await enrichPressItems(rawPressItems).catch(() => null)
+    : null
+
   const rawTestimonials = ok(testiRes)
   const homeSnippet = ok(snippetRes)
   const teaserLine = ok(teaserRes)
@@ -591,12 +594,12 @@ export async function getHomeData(): Promise<HomeData> {
       : PLACEHOLDER_PRINTS
 
   const press: HomePress[] =
-    pressItems && pressItems.length
-      ? pressItems.map((p) => ({
-          source: p.source ?? '',
-          title: p.title ?? '',
-          year: p.date ? p.date.slice(0, 4) : '',
-          url: p.externalLink,
+    enrichedPress?.length
+      ? enrichedPress.map((p) => ({
+          source: p.source,
+          title: p.title,
+          year: '',
+          url: p.url,
         }))
       : PLACEHOLDER_PRESS
 

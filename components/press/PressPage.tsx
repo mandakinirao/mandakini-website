@@ -1,26 +1,15 @@
 import Image from 'next/image'
 import Link from 'next/link'
-
-export interface PressItem {
-  _id: string
-  type: string
-  title: string
-  source: string
-  date: string
-  excerpt?: string
-  externalLink?: string
-  logo?: string
-}
+import type { EnrichedPressItem } from '@/lib/press'
 
 const TYPE_LABEL: Record<string, string> = {
-  newspaper: 'Press',
-  feature: 'Feature',
-  interview: 'Interview',
+  article: 'Article',
+  video: 'Video',
   podcast: 'Podcast',
-  testimonial: 'Testimonial',
+  feature: 'Feature',
 }
 
-export default function PressPage({ items }: { items: PressItem[] }) {
+export default function PressPage({ items }: { items: EnrichedPressItem[] }) {
   if (items.length === 0) {
     return (
       <section className="mr2-page-shell">
@@ -38,47 +27,42 @@ export default function PressPage({ items }: { items: PressItem[] }) {
 
       <ul className="mr2-press-list">
         {items.map((item) => {
-          const year = item.date ? item.date.slice(0, 4) : ''
           const label = TYPE_LABEL[item.type] ?? item.type
           const inner = (
             <>
               <div className="mr2-press-list__meta">
-                {item.logo ? (
+                {item.thumbnail ? (
                   <span className="mr2-press-list__logo">
-                    <Image src={item.logo} alt={item.source} width={64} height={32} style={{ objectFit: 'contain' }} />
+                    <Image
+                      src={item.thumbnail}
+                      alt={item.source}
+                      width={120}
+                      height={68}
+                      style={{ objectFit: 'cover' }}
+                    />
                   </span>
                 ) : (
                   <span className="mr2-press-list__source">{item.source}</span>
                 )}
                 <span className="mr2-press-list__type">{label}</span>
-                {year && <span className="mr2-press-list__year">{year}</span>}
               </div>
               <h2 className="mr2-press-list__title">{item.title}</h2>
-              {item.excerpt && (
-                <p className="mr2-press-list__excerpt">{item.excerpt}</p>
-              )}
-              {item.externalLink && (
-                <span className="mr2-press-list__cta">
-                  Read {item.type === 'podcast' ? 'episode' : 'article'} →
-                </span>
-              )}
+              <span className="mr2-press-list__cta">
+                {item.type === 'podcast' ? 'Listen' : item.type === 'video' ? 'Watch' : 'Read'} →
+              </span>
             </>
           )
 
           return (
             <li key={item._id} className="mr2-press-list__item">
-              {item.externalLink ? (
-                <Link
-                  href={item.externalLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="mr2-press-list__link"
-                >
-                  {inner}
-                </Link>
-              ) : (
-                <div className="mr2-press-list__link">{inner}</div>
-              )}
+              <Link
+                href={item.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mr2-press-list__link"
+              >
+                {inner}
+              </Link>
             </li>
           )
         })}

@@ -50,16 +50,15 @@ export const siteSettingsShopQuery = groq`
   }
 `
 
-export const allPressQuery = groq`
-  *[_type == "pressItem"] | order(coalesce(displayOrder, 999) asc, date desc) {
+export const pressItemsQuery = groq`
+  *[_type == "pressItem"] | order(coalesce(order, 99) asc) {
     _id,
+    url,
     type,
-    title,
-    source,
-    date,
-    excerpt,
-    externalLink,
-    "logo": logo.asset->url
+    titleOverride,
+    imageOverride { asset, alt },
+    sourceOverride,
+    order
   }
 `
 
@@ -133,18 +132,6 @@ export const shopItemsBySlugsQuery = groq`
     stock,
     stripePriceId
   }
-`
-
-export const featuredPressItemsQuery = groq`
-  *[_type == "pressItem" && featured == true]
-    | order(displayOrder asc) [0...4] {
-      _id,
-      type,
-      title,
-      source,
-      date,
-      externalLink
-    }
 `
 
 // Series view of projects — the homepage Projects section and the

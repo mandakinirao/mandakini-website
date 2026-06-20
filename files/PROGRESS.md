@@ -65,6 +65,16 @@ Final Prompt 03 homepage work is complete. The site now uses the warm aged-paper
 - Sanity seeded and published: `instagramHandle = @mandakini_rao`, `youtubeChannelName = @mandakinirao`.
 - `tsc --noEmit` clean.
 
+**Press data layer rebuilt — June 20, 2026:**
+- `sanity/schemas/pressItem.ts` fully replaced. Old fields (`title`, `source`, `date`, `excerpt`, `externalLink`, `logo`, `featured`, `displayOrder`) removed. New fields: `url` (required URL), `type` (radio: article/video/podcast/feature, default article), `titleOverride` (string override), `imageOverride` (image with hotspot + alt), `sourceOverride` (string override), `order` (number, initialValue 99). Schema export name unchanged (`pressItemSchema`) — no registry change needed.
+- `sanity/lib/queries.ts`: removed `allPressQuery` and `featuredPressItemsQuery`; added `pressItemsQuery` (all pressItems ordered by `order asc`, returns `_id, url, type, titleOverride, imageOverride{asset,alt}, sourceOverride, order`).
+- `lib/press.ts` created: `RawPressItem` and `EnrichedPressItem` interfaces; `enrichPressItem()` calls YouTube oEmbed (keyless, `https://www.youtube.com/oembed?url=…&format=json`) for YouTube/youtu.be URLs or OG tag parsing (server-side fetch, regex) for all others; 5 s AbortController timeout; desktop User-Agent; graceful empty-object return on any error; override fields win over derived; `urlForImage(imageOverride)` for Sanity image override; hostname fallback. `enrichPressItems()` is `Promise.all` across all items.
+- `lib/home-data.ts`: added `import type { RawPressItem } from '@/lib/press'`; switched press fetch to `pressItemsQuery`; after `allSettled`, dynamically imports `enrichPressItems` and awaits enrichment; maps `EnrichedPressItem[]` to `HomePress[]` (title, source, url; year left as empty string — no date field in new schema); falls back to `PLACEHOLDER_PRESS` if no Sanity items or enrichment fails.
+- `app/(site)/press/page.tsx`: updated to import `pressItemsQuery` + `enrichPressItems`; revalidate bumped to 3600s (enrichment is build-time/ISR cached).
+- `components/press/PressPage.tsx`: switched to `EnrichedPressItem` type; removed `PressItem` export; updated `TYPE_LABEL` for new type values (article/video/podcast/feature); renders `thumbnail` as image card or `source` text; CTA copy adapts to type (Read/Watch/Listen); all items link to `item.url`.
+- Smoke tests: YouTube oEmbed (keyless), OG tag parsing (The Hindu), and graceful fallback on unreachable host — all 3 passed. Test file deleted.
+- `tsc --noEmit` clean.
+
 ## What Is In Progress
 Nothing yet.
 

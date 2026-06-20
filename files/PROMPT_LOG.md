@@ -339,3 +339,19 @@ This caused: quotes appearing "merged into Press" (the MarqueePress render); and
 **Not changed:** V1 `PressStrip.tsx` (frozen, /?v=1 only) still receives testimonials — intentionally untouched.
 
 **Verification:** `tsc --noEmit` clean. `<Testimonials>` confirmed mounted exactly once (grep of all tsx/ts files). `MarqueePress.tsx` has zero testimonials/HomeTestimonial references.
+
+## Session June 20, 2026 — Press data layer rebuilt (schema, enrichment, queries)
+
+Replaced the old `pressItem` schema (which required manual title/source/date/logo entry) with a URL-first schema where the client pastes a link and picks a type. Auto-enrichment runs at build time / ISR. Key decisions:
+
+**Schema:** `url` (required), `type` (radio: article/video/podcast/feature), `titleOverride`, `imageOverride` (image with hotspot), `sourceOverride`, `order` (default 99). No `featured` field — ordering by `order asc` replaces the old `featured` boolean + `displayOrder` number. Schema export name (`pressItemSchema`) unchanged so `sanity/schemas/index.ts` needed no edit.
+
+**Enrichment (`lib/press.ts`):** YouTube URLs (`youtube.com` or `youtu.be`) use the keyless oEmbed endpoint (`/oembed?url=…&format=json`) which returns title + thumbnail + author. All other URLs receive a server-side fetch that parses `og:title`, `og:image`, and `og:site_name` regex from the HTML. Both paths use a 5 s `AbortController` timeout and a desktop User-Agent to avoid bot blocks. Override fields (`titleOverride`, `sourceOverride`, `imageOverride`) always win over derived data. Fallback: title = URL, source = hostname without `www.`. Sanity `imageOverride` is resolved to a CDN URL via `urlForImage` from `@/sanity/lib/image`.
+
+**Query change:** Removed `allPressQuery` (all fields, manual) and `featuredPressItemsQuery` (featured=true limited to 4). Added `pressItemsQuery` (all items, `order asc`). Both home-data and press page now use this single query + enrichment.
+
+**Home press:** `getHomeData()` fetches `pressItemsQuery` in the existing `allSettled` batch, then dynamically imports `enrichPressItems` and awaits after — keeps the Sanity fetches parallel. Maps `EnrichedPressItem[]` → `HomePress[]` (source, title, url; year left empty — no date in new schema). `MarqueePress` is unaffected.
+
+**Press page ISR:** Revalidate bumped from 60 s to 3600 s — press items change rarely and enrichment involves external fetches.
+
+**Tests:** 3/3 passed — YouTube oEmbed returned title + thumbnail; The Hindu OG tags returned `site_name = "The Hindu"` + image; unreachable host aborted and returned empty object correctly. Test file (`/tmp/test-press-enrichment.mjs`) deleted after verification.

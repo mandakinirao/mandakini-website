@@ -1,22 +1,25 @@
 import type { Metadata } from 'next'
-import PressPage, { type PressItem } from '@/components/press/PressPage'
+import PressPage from '@/components/press/PressPage'
+import type { EnrichedPressItem } from '@/lib/press'
 
 export const metadata: Metadata = {
   title: 'Press — Mandakini Rao',
   description: 'Press, features, interviews and podcasts featuring Mandakini Rao.',
 }
 
-export const revalidate = 60
+export const revalidate = 3600
 
 export default async function PressRoute() {
-  let items: PressItem[] = []
+  let items: EnrichedPressItem[] = []
   try {
-    if (process.env.NEXT_PUBLIC_SANITY_PROJECT_ID) {
-      const [{ client }, { allPressQuery }] = await Promise.all([
-        import('@/sanity/lib/client'),
-        import('@/sanity/lib/queries'),
-      ])
-      items = (await client.fetch<PressItem[]>(allPressQuery)) ?? []
+    const [{ client }, { pressItemsQuery }, { enrichPressItems }] = await Promise.all([
+      import('@/sanity/lib/client'),
+      import('@/sanity/lib/queries'),
+      import('@/lib/press'),
+    ])
+    const raw = await client.fetch<import('@/lib/press').RawPressItem[] | null>(pressItemsQuery)
+    if (raw?.length) {
+      items = await enrichPressItems(raw)
     }
   } catch {
     items = []
