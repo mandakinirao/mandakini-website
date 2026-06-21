@@ -7,7 +7,6 @@ export const shopItemSchema = defineType({
   fields: [
     defineField({ name: 'title', title: 'Title', type: 'string', validation: Rule => Rule.required() }),
     defineField({ name: 'slug', title: 'Slug', type: 'slug', options: { source: 'title', maxLength: 96 }, validation: Rule => Rule.required() }),
-    defineField({ name: 'artwork', title: 'Artwork', type: 'reference', to: [{ type: 'artwork' }] }),
     defineField({ name: 'itemType', title: 'Item Type', type: 'string', options: { list: [{ title: 'Print', value: 'print' }, { title: 'Original', value: 'original' }, { title: 'Limited Edition', value: 'limitedEdition' }, { title: 'Commission', value: 'commission' }], layout: 'radio' }, initialValue: 'print' }),
     defineField({
       name: 'purchaseType',

@@ -2,6 +2,40 @@
 
 ---
 
+## 2026-06-21 (b) — shopItem dangling artwork reference fix
+
+**Prompt summary:**
+Urgent fix — Studio failing to load with "Unknown type: artwork" because `shopItem.artwork` referenced the now-deleted `artwork` type. Audit reads and dataset data, then remove the field if safe.
+
+---
+
+### Step 1 — Audit
+
+**Field definition (`sanity/schemas/shopItem.ts` line 10):**
+```typescript
+defineField({ name: 'artwork', title: 'Artwork', type: 'reference', to: [{ type: 'artwork' }] })
+```
+
+**Reads in app/components/lib/sanity/lib:** 0 — field was never queried or rendered anywhere.
+
+**Dataset check (GROQ `*[_type == "shopItem" && defined(artwork)]`):** 0 documents — no shopItem has this field populated.
+
+**Other `artwork` in schema files:** One prose comment in `enquiry.ts` ("NOTE: this document never references private artworks") — not a type reference, no action needed.
+
+**Conclusion:** Safe to remove. No data loss, no rendering breakage.
+
+### Step 2 — Fix
+
+Removed line 10 from `sanity/schemas/shopItem.ts`. No query or component changes required.
+
+### Step 3 — Verification
+
+**Schema grep for `{ type: 'artwork' }` after fix:** 0 hits across all schema files.
+
+**Build:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+
+---
+
 ## 2026-06-21 (a) — Project/artwork schema collapse
 
 **Prompt summary:**

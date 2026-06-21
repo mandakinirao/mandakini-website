@@ -1,5 +1,18 @@
 # Progress Log
 
+## shopItem — remove dangling `artwork` reference field (June 2026)
+- **Date:** 2026-06-21
+- **Task:** Urgent fix — Studio failing to load with "Unknown type: artwork" because `shopItem.artwork` referenced the now-deleted `artwork` type.
+- **Audit findings:**
+  - Field: `shopItem.ts` line 10 — `type: 'reference', to: [{ type: 'artwork' }]`
+  - Reads in app/components/lib/sanity/lib: **0** — field was never queried or rendered
+  - shopItem documents with `artwork` populated in dataset: **0**
+  - Only other `artwork` occurrence in schemas: a prose comment in `enquiry.ts` — not a type reference
+- **Fix:** Removed the `artwork` field definition from `sanity/schemas/shopItem.ts`. No query or component changes needed (nothing read the field). No document data lost.
+- **Schema grep after fix:** Zero `{ type: 'artwork' }` references across all schema files.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `sanity/schemas/shopItem.ts` (1 field removed), `PROGRESS.md`, `PROMPT_LOG.md`.
+
 ## Project/artwork schema collapse — single `project` type (June 2026)
 - **Date:** 2026-06-21
 - **Task:** Collapse two-type structure (`project` series + `artwork` piece) into a single `project` type — showcase only, no commerce. Remove all `artwork` dependencies.
