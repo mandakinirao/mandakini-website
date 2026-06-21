@@ -2,6 +2,118 @@
 
 ---
 
+## 2026-06-21 (c) — Multi-upload image diagnosis (report only)
+
+**Prompt summary:**
+Diagnose why multi-upload doesn't work for image-array fields in Studio. Audit every image-array field definition across all schemas, classify each, and report what change would enable multi-file upload and any tradeoffs.
+
+---
+
+### How Sanity Studio v3 handles image arrays — root cause
+
+Sanity Studio v3's `array` of `image` items always adds **one image per "Add item" click**. The flow is: "Add item" → file picker opens → select one file → upload. There is no native "select multiple files" button in the standard Studio. The `options: { layout: 'grid' }` on the **outer** array changes how uploaded thumbnails are *displayed* (grid vs list) and exposes a drag-and-drop zone, but does not change the "Add item" single-file picker.
+
+**The only multi-file path in standard Studio v3 is drag-and-drop**: drag several files from the OS file manager and drop them onto the array's drop zone. With `layout: 'grid'` this zone is more prominent; without it the zone exists but is less obvious. Either way, the "Add item" button will always open a single-file browser dialog.
+
+**No schema change enables multi-select in the browser's file dialog** without a third-party plugin (e.g. `sanity-plugin-media` library) or a custom input component.
+
+---
+
+### Image-array field inventory
+
+#### 1. `project.images` — `sanity/schemas/project.ts`
+
+```typescript
+defineField({
+  name: 'images',
+  title: 'Images',
+  type: 'array',
+  of: [{ type: 'image', options: { hotspot: true } }],
+  options: { layout: 'grid' },   // ← outer array option
+})
+```
+
+| Question | Answer |
+|---|---|
+| Structure | Array of bare `image` directly — no wrapper object, no caption/alt fields |
+| Multi-upload support today | Partial. `layout: 'grid'` is set, so the drag-drop zone exists and is visible. Dragging multiple OS files onto the grid zone will upload them all. Clicking "Add item" still opens a single-file picker. |
+| What would improve it | Nothing more needed in the schema — the grid layout is already the best Sanity offers natively. User education: tell Mandakini to drag files from Finder rather than clicking "Add item". |
+| Tradeoff of change | N/A — field is already optimally configured for native Studio v3. |
+
+---
+
+#### 2. `shopItem.images` — `sanity/schemas/shopItem.ts`
+
+```typescript
+defineField({ name: 'images', title: 'Product Images', type: 'array', of: [{ type: 'image', options: { hotspot: true } }] })
+```
+
+| Question | Answer |
+|---|---|
+| Structure | Array of bare `image` directly — no wrapper object, no caption/alt fields |
+| Multi-upload support today | Minimal. No `layout` option set, so the array renders as a vertical list. The drag-drop zone exists but is much less discoverable — no visible grid to drop onto. "Add item" is still single-file only. |
+| What would enable multi-file drag | Add `options: { layout: 'grid' }` to the outer `array` field (not to the `of: [image]` entry). |
+| Tradeoff | None — this field has no caption/alt sub-fields. The change is cosmetic (grid vs list display) plus making the drag zone more obvious. No data schema change. |
+
+---
+
+#### 3. `siteSettings.heroImages` — `sanity/schemas/siteSettings.ts`
+
+```typescript
+defineField({
+  name: 'heroImages',
+  title: 'Hero Panels (7 images, centre outward)',
+  type: 'array',
+  of: [{ type: 'image', options: { hotspot: true } }],
+  group: 'homepage',
+  validation: (Rule) => Rule.max(7),
+})
+```
+
+| Question | Answer |
+|---|---|
+| Structure | Array of bare `image` directly — no wrapper object, no caption/alt fields |
+| Multi-upload support today | Same as shopItem — no `layout` set, vertical list, drag zone not visible. Single-file "Add item" only. |
+| What would enable multi-file drag | Add `options: { layout: 'grid' }` to the outer `array` field. |
+| Tradeoff | None — no caption/alt sub-fields. The `validation: Rule.max(7)` cap is unchanged. |
+
+---
+
+### Fields with single images (not relevant)
+
+| Field | Schema | Type | Notes |
+|---|---|---|---|
+| `pressItem.imageOverride` | `pressItem.ts` | Single `image` with `alt` sub-field | Not an array — single image per press item, by design |
+| `siteSettings.aboutPortrait` | `siteSettings.ts` | Single `image` | Not an array |
+| `class.coverImage` | `class.ts` | Single `image` | Not an array |
+
+---
+
+### Fields that are arrays but contain no images
+
+| Field | Schema | Type |
+|---|---|---|
+| `shopItem.sizes` | `shopItem.ts` | Array of objects (`label` + `price`) |
+| `siteSettings.featuredProjects` | `siteSettings.ts` | Array of `reference → project` |
+| `siteSettings.featuredShopItems` | `siteSettings.ts` | Array of `reference → shopItem` |
+| `member.enrolledClasses` | `member.ts` | Array of `reference → class` |
+
+---
+
+### Summary verdict
+
+| Field | Has `layout: 'grid'`? | Multi-drag works? | Click-to-multi? | Schema fix needed? |
+|---|---|---|---|---|
+| `project.images` | ✓ yes | ✓ yes (drag) | ✗ no (Studio limit) | None — already optimal |
+| `shopItem.images` | ✗ no | ✗ drag zone hidden | ✗ no | Add `options: { layout: 'grid' }` |
+| `siteSettings.heroImages` | ✗ no | ✗ drag zone hidden | ✗ no | Add `options: { layout: 'grid' }` |
+
+**Root cause in one sentence:** `project.images` already has `layout: 'grid'` (drag-drop multi-upload is available but not obvious); `shopItem.images` and `siteSettings.heroImages` are missing `layout: 'grid'` entirely, making even drag-drop hard to discover. True "click to select multiple" is not available in standard Sanity Studio v3 without a plugin — it is a platform limitation, not a schema bug.
+
+**If the user wants true multi-select via file picker:** The `sanity-plugin-media` package provides a proper asset library browser with multi-select capability and replaces the default image upload UI across all image fields with zero schema changes.
+
+---
+
 ## 2026-06-21 (b) — shopItem dangling artwork reference fix
 
 **Prompt summary:**
