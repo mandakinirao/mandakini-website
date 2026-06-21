@@ -4,12 +4,10 @@ import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './sanity/schemas'
 
 // Desk organised for a non-technical editor: curation first (Site
-// Settings), then the things she adds (Projects → Artworks → Shop),
-// then everything else.
+// Settings), then the things she adds (Projects → Shop), then everything else.
 const PINNED = [
   'siteSettings',
   'project',
-  'artwork',
   'shopItem',
   'order',
   'pressItem',
@@ -28,7 +26,6 @@ const structure = (S: StructureBuilder) =>
         ),
       S.divider(),
       S.documentTypeListItem('project').title('Projects (series)'),
-      S.documentTypeListItem('artwork').title('Artworks (pieces)'),
       S.documentTypeListItem('shopItem').title('Shop items'),
       S.documentTypeListItem('order').title('Orders'),
       S.divider(),
