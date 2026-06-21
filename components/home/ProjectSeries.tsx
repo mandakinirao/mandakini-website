@@ -87,7 +87,7 @@ export default function ProjectSeries({ series }: ProjectSeriesProps) {
               <span className="mr-series__index">{item.index}</span>
               <h3 className="mr-series__name">{item.name}</h3>
               <p className="mr-series__meta">
-                {item.medium} — {item.desc}
+                {item.desc}
               </p>
             </div>
             <div className="mr-series__row">

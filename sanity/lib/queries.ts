@@ -136,31 +136,14 @@ export const shopItemsBySlugsQuery = groq`
 
 // Series view of projects — the homepage Projects section and the
 // /works pages treat each published project as a named series.
-// `artworks` are the per-piece documents (title, note, sale link);
-// when a project has none, the site falls back to its artworkImages.
 export const allSeriesQuery = groq`
-  *[_type == "project" && status == "published"] | order(displayOrder asc) {
+  *[_type == "project"] | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
     _id,
-    title,
+    seriesName,
     "slug": slug.current,
-    medium,
-    projectNote,
-    coverImage,
-    artworkImages,
-    "artworks": *[_type == "artwork" && project._ref == ^._id]
-      | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
-        title,
-        note,
-        "image": images[0],
-        "sale": shopItem-> {
-          "slug": slug.current,
-          basePrice,
-          editionSize,
-          sold,
-          availabilityStatus,
-          "purchaseType": coalesce(purchaseType, "buy")
-        }
-      }
+    description,
+    images,
+    year
   }
 `
 
@@ -182,22 +165,20 @@ export const featuredSeriesQuery = groq`
   coalesce(
     *[_type == "siteSettings"][0].featuredProjects[]-> {
       _id,
-      title,
+      seriesName,
       "slug": slug.current,
-      medium,
-      projectNote,
-      coverImage,
-      artworkImages
+      description,
+      images,
+      year
     },
-    *[_type == "project" && status == "published"]
-      | order(displayOrder asc) {
+    *[_type == "project"]
+      | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
         _id,
-        title,
+        seriesName,
         "slug": slug.current,
-        medium,
-        projectNote,
-        coverImage,
-        artworkImages
+        description,
+        images,
+        year
       }
   )[0...4]
 `

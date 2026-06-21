@@ -76,7 +76,7 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
         <p>Project {series.index}</p>
         <h1>{series.name}</h1>
         <span className="mr-detail__note">
-          {series.medium} — {series.desc}
+          {series.desc}
         </span>
       </header>
 

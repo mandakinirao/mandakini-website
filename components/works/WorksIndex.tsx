@@ -3,7 +3,7 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import PillCta from '@/components/ui/PillCta'
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import type { HomeSeries } from '@/lib/home-data'
 import {
   DUR,
@@ -17,7 +17,6 @@ import {
 } from '@/lib/motion'
 
 const FEATURED_COUNT = 3 // Tier 1 — editorial rows
-const FILTER_THRESHOLD = 8 // chips appear only past this many projects
 
 interface WorksIndexProps {
   series: HomeSeries[]
@@ -44,14 +43,7 @@ export default function WorksIndex({
   const rootRef = useRef<HTMLElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
   const previewImgRef = useRef<HTMLImageElement>(null)
-  const [filter, setFilter] = useState<string | null>(null)
-
-  const mediums = Array.from(
-    new Set(series.map((s) => s.medium).filter(Boolean))
-  )
-  const showFilters = series.length > FILTER_THRESHOLD
   const tierOne = (featured.length ? featured : series).slice(0, FEATURED_COUNT)
-  const listed = filter ? series.filter((s) => s.medium === filter) : series
 
   useEffect(() => {
     const root = rootRef.current
@@ -175,7 +167,7 @@ export default function WorksIndex({
       aborter.abort()
       ctx.revert()
     }
-  }, [series, filter])
+  }, [series])
 
   if (series.length === 0) {
     return (
@@ -213,7 +205,7 @@ export default function WorksIndex({
               <span className="mr-series__index">{item.index}</span>
               <h2 className="mr-series__name">{item.name}</h2>
               <p className="mr-series__meta">
-                {item.medium} — {item.desc}
+                {item.desc}
               </p>
             </div>
             <div className="mr-series__row">
@@ -240,30 +232,8 @@ export default function WorksIndex({
       <div className="mr-windex">
         <p className="mr-eyebrow">All projects</p>
 
-        {showFilters && (
-          <div className="mr-windex__filters" role="group" aria-label="Filter by medium">
-            <button
-              type="button"
-              className={`mr-windex__chip${filter === null ? ' is-on' : ''}`}
-              onClick={() => setFilter(null)}
-            >
-              All
-            </button>
-            {mediums.map((m) => (
-              <button
-                key={m}
-                type="button"
-                className={`mr-windex__chip${filter === m ? ' is-on' : ''}`}
-                onClick={() => setFilter(m)}
-              >
-                {m}
-              </button>
-            ))}
-          </div>
-        )}
-
         <div className="mr-windex__list">
-          {listed.map((item) => (
+          {series.map((item) => (
             <Link
               key={item.slug}
               href={item.href}
@@ -272,7 +242,6 @@ export default function WorksIndex({
             >
               <span className="mr-windex__num">{item.index}</span>
               <span className="mr-windex__name">{item.name}</span>
-              <span className="mr-windex__medium">{item.medium}</span>
               <span className="mr-windex__count">
                 {item.pieces.length} pieces
               </span>

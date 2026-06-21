@@ -6,7 +6,7 @@ import { NextRequest, NextResponse } from 'next/server'
  *
  * Studio → API → Webhooks: POST to
  *   https://<site>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>
- * on create/update/delete of project, artwork, shopItem, pressItem,
+ * on create/update/delete of project, shopItem, pressItem,
  * siteSettings. Combined with `export const revalidate = 60` on the
  * content pages, the site is static-fast and never more than seconds
  * stale after a publish.

@@ -49,7 +49,6 @@ export interface HomeSeries {
   index: string
   name: string
   slug: string
-  medium: string
   desc: string
   href: string
   images: string[]
@@ -87,7 +86,6 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
     index: '01',
     name: 'The Subbulakshmi Series',
     slug: 'the-subbulakshmi-series',
-    medium: 'Duotone portraits',
     desc: 'One voice, many faces — a tribute to M.S. Subbulakshmi.',
     href: '/works/the-subbulakshmi-series',
     images: [
@@ -124,7 +122,6 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
     index: '02',
     name: 'Studio Diaries',
     slug: 'studio-diaries',
-    medium: 'Photography',
     desc: 'Quiet records of the Hyderabad studio at work.',
     href: '/works/studio-diaries',
     images: [
@@ -142,7 +139,6 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
     index: '03',
     name: 'Palette Studies',
     slug: 'palette-studies',
-    medium: 'Oil on board',
     desc: 'Colour exercises that begin where the brushes rest.',
     href: '/works/palette-studies',
     images: [
@@ -230,49 +226,12 @@ function hasSanityEnv(): boolean {
   return true
 }
 
-interface SanitySaleLite {
-  slug?: string
-  basePrice?: number
-  editionSize?: number
-  sold?: number
-  availabilityStatus?: string
-  purchaseType?: string
-}
-
-interface SanityArtworkLite {
-  title?: string
-  note?: string
-  image?: SanityImageType
-  sale?: SanitySaleLite | null
-}
-
 interface SanitySeriesLite {
-  title?: string
+  seriesName?: string
   slug?: string
-  medium?: string
-  projectNote?: string
-  coverImage?: SanityImageType
-  artworkImages?: SanityImageType[]
-  artworks?: SanityArtworkLite[]
-}
-
-/** A linked shopItem becomes a sale marker only while it is actually
- *  buyable (IA interim rule: no dead ends in the selling loop). */
-function saleFrom(s?: SanitySaleLite | null): SeriesPiece['sale'] {
-  if (!s?.slug) return undefined
-  // Private Collection pieces never surface a sale link anywhere.
-  if (s.purchaseType === 'privateCollection') return undefined
-  const soldOut =
-    s.availabilityStatus === 'soldOut' ||
-    (s.editionSize != null && s.sold != null && s.sold >= s.editionSize)
-  if (soldOut) return undefined
-  const price = s.basePrice
-    ? `from ₹${s.basePrice.toLocaleString('en-IN')}`
-    : ''
-  const label = s.editionSize
-    ? `Edition of ${s.editionSize}${price ? ' — ' + price : ''}`
-    : price || 'Available'
-  return { href: `/shop/${s.slug}`, label }
+  description?: string
+  images?: SanityImageType[]
+  year?: number
 }
 
 function printAvailable(s: {
@@ -373,36 +332,17 @@ function mapSeriesDoc(
   urlForImage: UrlFor
 ): HomeSeries {
   const slug = d.slug ?? `series-${i + 1}`
-
-  // Pieces come from artwork documents (title, note, sale link); a
-  // project with no artworks falls back to its own image gallery.
-  let pieces: SeriesPiece[]
-  if (d.artworks && d.artworks.length) {
-    pieces = d.artworks
-      .filter((a) => a.image)
-      .map((a, n) => ({
-        src: urlForImage(a.image as SanityImageType).width(1600).url(),
-        title: a.title ?? `${d.title ?? 'Untitled'} ${String(n + 1).padStart(2, '0')}`,
-        note: a.note,
-        sale: saleFrom(a.sale),
-      }))
-  } else {
-    const images = [d.coverImage, ...(d.artworkImages ?? [])]
-      .filter((img): img is SanityImageType => Boolean(img))
-      .map((img) => urlForImage(img).width(1600).url())
-    pieces = images.map((src) => ({ src, title: '' }))
-  }
-
+  const imgUrls = (d.images ?? [])
+    .filter((img): img is SanityImageType => Boolean(img))
+    .map((img) => urlForImage(img).width(1600).url())
   const fallback = PLACEHOLDER_SERIES[i % PLACEHOLDER_SERIES.length]
-  const images = pieces.length ? pieces.map((p) => p.src) : fallback.images
-  if (!pieces.length) pieces = fallback.images.map((src) => ({ src, title: '' }))
-
+  const images = imgUrls.length ? imgUrls : fallback.images
+  const pieces: SeriesPiece[] = images.map((src) => ({ src, title: '' }))
   return {
     index: String(i + 1).padStart(2, '0'),
-    name: d.title ?? 'Untitled series',
+    name: d.seriesName ?? 'Untitled series',
     slug,
-    medium: d.medium ?? '',
-    desc: d.projectNote ?? '',
+    desc: d.description ?? '',
     href: `/works/${slug}`,
     images,
     pieces,

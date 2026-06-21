@@ -227,7 +227,6 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
             {series.map((item) => (
               <div key={item.index} className="mr2-works__title">
                 <strong>{item.name}</strong>
-                <small>{item.medium}</small>
               </div>
             ))}
           </div>

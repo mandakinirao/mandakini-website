@@ -1,5 +1,26 @@
 # Progress Log
 
+## Project/artwork schema collapse — single `project` type (June 2026)
+- **Date:** 2026-06-21
+- **Task:** Collapse two-type structure (`project` series + `artwork` piece) into a single `project` type — showcase only, no commerce. Remove all `artwork` dependencies.
+- **Data migration (Step 2):** Patched `drafts.d15c7417-4ecb-47ca-9af9-93feb041882d` (Fragments Charcoal) — copied `title` → `seriesName` before removing `title`. Slug unchanged. Verified via GROQ query.
+- **Schema rewrite (Step 3):** Rewrote `sanity/schemas/project.ts`. New fields: `seriesName` (required), `slug`, `description`, `images` (array with grid layout), `year`, `displayOrder`. Removed: `title`, `status`, `coverImage`, `artworkImages`, `medium`, `dimensions`, `projectNote`, `projectType`, `relatedProjects`.
+- **Artwork type removed (Step 4):** `sanity/schemas/artwork.ts` deleted. Removed import + entry from `sanity/schemas/index.ts`.
+- **GROQ queries updated:** `allSeriesQuery` and `featuredSeriesQuery` in `sanity/lib/queries.ts` now project `seriesName`, `description`, `images`, `year` from `project` documents only. Removed artwork sub-query, `status` filter (client uses `perspective: 'published'`).
+- **`lib/home-data.ts` updated:**
+  - Removed `SanitySaleLite` interface, `SanityArtworkLite` interface, `saleFrom()` function.
+  - Updated `SanitySeriesLite` interface: `seriesName`, `slug`, `description`, `images`, `year`.
+  - Rewrote `mapSeriesDoc()`: uses `d.seriesName`/`d.description`/`d.images` directly, no artwork paths, no sale links.
+  - Removed `medium` from `HomeSeries` interface and all 3 `PLACEHOLDER_SERIES` objects.
+- **Components updated (all `medium` references removed):**
+  - `components/works/WorksIndex.tsx` — removed `filter`/`setFilter` state, `mediums`, `showFilters`, filters UI block, `{item.medium}` in Tier 1 meta and Tier 2 row, replaced `listed` with `series`, removed `useState` import and `filter` from deps array.
+  - `components/works/SeriesDetail.tsx` — `{series.medium} — {series.desc}` → `{series.desc}`.
+  - `components/home/v2/RisingSunWorks.tsx` — removed `<small>{item.medium}</small>`.
+  - `components/home/ProjectSeries.tsx` — `{item.medium} — {item.desc}` → `{item.desc}`.
+  - `app/api/revalidate/route.ts` — removed `artwork` from webhook type list in comment.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `sanity/schemas/project.ts`, `sanity/schemas/artwork.ts` (deleted), `sanity/schemas/index.ts`, `sanity/lib/queries.ts`, `lib/home-data.ts`, `components/works/WorksIndex.tsx`, `components/works/SeriesDetail.tsx`, `components/home/v2/RisingSunWorks.tsx`, `components/home/ProjectSeries.tsx`, `app/api/revalidate/route.ts`.
+
 ## siteSettings schema — grouped tabs for Studio editor (June 2026)
 - **Date:** 2026-06-20
 - **Task:** Reorganise the siteSettings schema into collapsible groups so the Studio editor is no longer one long scroll. No fields added, removed, or renamed.

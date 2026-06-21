@@ -1,6 +1,5 @@
 import type { SchemaTypeDefinition } from 'sanity'
 import { projectSchema } from './project'
-import { artworkSchema } from './artwork'
 import { shopItemSchema } from './shopItem'
 import { orderSchema } from './order'
 import { pressItemSchema } from './pressItem'
@@ -14,7 +13,6 @@ import { testimonialSchema } from './testimonial'
 
 export const schemaTypes = [
   projectSchema,
-  artworkSchema,
   shopItemSchema,
   orderSchema,
   pressItemSchema,

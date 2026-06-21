@@ -2,6 +2,85 @@
 
 ---
 
+## 2026-06-21 (a) — Project/artwork schema collapse
+
+**Prompt summary:**
+Collapse the two-type structure (`project` series + `artwork` piece) into a single `project` type — showcase only, no commerce. Migrate data, rewrite schema, remove `artwork` type, update all queries/lib/components. Verify zero build errors. Commit and push.
+
+---
+
+### Step 1 — Audit
+
+| Type | Documents in dataset | Safe to remove? |
+|------|---------------------|-----------------|
+| `artwork` | 0 | Yes — no data to migrate |
+| `project` | 1 draft (Fragments Charcoal) | `title` exists; `seriesName` absent — needs patch before schema change |
+
+`allSeriesQuery` artwork sub-query path: dead code (0 artwork docs). Falls back to `coverImage`/`artworkImages` path which also returns nothing — page already shows `PLACEHOLDER_SERIES`.
+
+### Step 2 — Data migration
+
+Patched `drafts.d15c7417-4ecb-47ca-9af9-93feb041882d` (Sanity MCP `patch_documents`):
+- Set `seriesName = "Fragments Charcoal"` (copied from `title`)
+- Slug `fragments-charcoal` already correct — unchanged
+- Verified via GROQ: both `seriesName` and `slug` confirmed present
+
+### Step 3 — Schema rewrite (`sanity/schemas/project.ts`)
+
+New fields:
+
+| Field | Type | Notes |
+|-------|------|-------|
+| `seriesName` | `string` | Required. Replaces `title`. |
+| `slug` | `slug` | Source: `seriesName`. Required. |
+| `description` | `text` (rows: 5) | Replaces `projectNote`. |
+| `images` | `array of image` | Grid layout. Replaces `coverImage` + `artworkImages`. |
+| `year` | `number` | Optional. |
+| `displayOrder` | `number` | Lower = first on Works page. |
+
+Removed fields: `title`, `status`, `coverImage`, `artworkImages`, `medium`, `dimensions`, `projectNote`, `projectType`, `relatedProjects`.
+
+### Step 4 — Artwork type removed
+
+- `sanity/schemas/artwork.ts` deleted
+- `sanity/schemas/index.ts`: removed `artworkSchema` import and array entry
+
+### Step 5 — Queries updated (`sanity/lib/queries.ts`)
+
+Both `allSeriesQuery` and `featuredSeriesQuery` updated:
+- Project fields now: `_id`, `seriesName`, `"slug": slug.current`, `description`, `images`, `year`
+- Removed: `title`, `medium`, `projectNote`, `coverImage`, `artworkImages`, artwork sub-query
+- Removed `status == "published"` filter — client uses `perspective: 'published'` globally
+
+### Step 6 — `lib/home-data.ts` changes
+
+- `HomeSeries` interface: removed `medium: string`
+- `PLACEHOLDER_SERIES`: removed `medium` from all 3 entries
+- Removed `SanitySaleLite` interface, `SanityArtworkLite` interface, `saleFrom()` function
+- `SanitySeriesLite` interface rewritten: `seriesName?`, `slug?`, `description?`, `images?`, `year?`
+- `mapSeriesDoc()` rewritten: uses `d.seriesName`/`d.description`/`d.images` directly; no artwork paths
+
+### Step 7 — Components updated
+
+| File | Change |
+|------|--------|
+| `components/works/WorksIndex.tsx` | Removed `useState` import, `filter`/`setFilter`, `mediums`, `showFilters`, filters UI block, `{item.medium}` in Tier 1 meta and Tier 2 row, `<span class="mr-windex__medium">`, replaced `listed` with `series`, removed `filter` from deps array, removed `FILTER_THRESHOLD` constant |
+| `components/works/SeriesDetail.tsx` | `{series.medium} — {series.desc}` → `{series.desc}` |
+| `components/home/v2/RisingSunWorks.tsx` | Removed `<small>{item.medium}</small>` |
+| `components/home/ProjectSeries.tsx` | `{item.medium} — {item.desc}` → `{item.desc}` |
+| `app/api/revalidate/route.ts` | Removed `artwork` from webhook type list in comment |
+
+### Build result
+
+```
+✓ Compiled successfully
+✓ 16 routes — zero errors
+```
+
+Pre-existing warnings unchanged (2× `<img>` in Navigation and LoadingScreenStripes).
+
+---
+
 ## 2026-06-20 (d) — siteSettings schema grouped tabs
 
 **Prompt summary:**
