@@ -1,6 +1,5 @@
 import { defineConfig } from 'sanity'
 import { deskTool, type StructureBuilder } from 'sanity/desk'
-import { visionTool } from '@sanity/vision'
 import { schemaTypes } from './sanity/schemas'
 
 // Desk organised for a non-technical editor: curation first (Site
@@ -42,7 +41,7 @@ export default defineConfig({
   basePath: '/studio',
   projectId: 'i4t9kzxg',
   dataset: 'production',
-  plugins: [deskTool({ structure }), visionTool()],
+  plugins: [deskTool({ structure })],
   schema: {
     types: schemaTypes,
   },
