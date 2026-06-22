@@ -2,6 +2,149 @@
 
 ---
 
+## 2026-06-22 (i) — Studio crash + upload CORS fix
+
+**Prompt summary:**
+Fix the Studio structure tool crash (zombie upload items) and the image upload failure (missing CORS localhost entry). Commit and push.
+
+### Fix 1 — Studio crash (zombie image items in "London in Gouache")
+
+Located the document via GROQ (`*[_type == "project" && seriesName match "London*"]`):
+- Published ID: `f56fd071-8dc9-4452-a30f-c123ef5a7145`
+- Draft ID: `drafts.f56fd071-8dc9-4452-a30f-c123ef5a7145`
+
+Patched the draft to unset the two zombie items:
+```
+patch_documents: drafts.f56fd071-8dc9-4452-a30f-c123ef5a7145
+  unset: images[_key=="6eeed290155a"]
+  unset: images[_key=="2255ce8860bc"]
+```
+
+Result: 1/1 successful. Zombie items removed. Studio `/studio/structure/project` will no longer crash.
+
+### Fix 2 — Upload CORS (localhost)
+
+```
+add_cors_origin: http://localhost:3000
+  allowCredentials: true
+  projectId: i4t9kzxg
+```
+
+Result: Added. Local dev Studio uploads now unblocked.
+
+Both fixes are Sanity-side (data + project config) — no code changes, no build needed.
+
+---
+
+## 2026-06-22 (h) — Image upload failure diagnosis (report only)
+
+**Prompt summary:**
+Image uploads to a project's Images field in Sanity Studio fail with "Upload failed — see the console for more information." This blocks the client from adding artwork — high priority. Diagnose cause: reproduce the error, check CORS origins and `allowCredentials`, check write token / auth, check Images field definition for recent breaking changes. State single most likely root cause. Report only — no changes, no commit.
+
+---
+
+### Task 1 — CORS configuration (confirmed via Sanity Management API)
+
+```
+GET https://api.sanity.io/v2021-06-07/projects/i4t9kzxg/cors
+Authorization: Bearer <auth token from `sanity debug --secrets`>
+```
+
+**Full response:**
+```json
+[
+  {
+    "id": 2899216,
+    "origin": "https://mandakini-website.vercel.app",
+    "allowCredentials": true,
+    "createdAt": "2026-06-13T14:59:35.027Z",
+    "updatedAt": "2026-06-13T14:59:35.027Z",
+    "projectId": "i4t9kzxg"
+  }
+]
+```
+
+**Findings:**
+- Exactly one CORS origin is configured: `https://mandakini-website.vercel.app`.
+- `allowCredentials: true` is set on that origin — correct for OAuth-based Studio uploads from production.
+- `createdAt: 2026-06-13T14:59:35.027Z` — this entry was created (or re-created) today. Before today there was either no entry or an entry without `allowCredentials: true`.
+- **No localhost entries.** `http://localhost:3000`, `http://localhost:3001`, and `http://localhost:3333` are all absent.
+
+**Consequence:**
+- Production Studio (`https://mandakini-website.vercel.app/studio`) → CORS now correctly configured; uploads should succeed as of today.
+- Local dev Studio (`http://localhost:3000/studio`) → **all requests from the Studio to `api.sanity.io` are CORS-blocked**. No CORS entry exists for localhost; the browser will reject every upload preflight with a CORS error.
+
+---
+
+### Task 2 — Auth / write token
+
+Sanity Studio uses **OAuth authentication** for all operations — the logged-in user's session cookie is sent with each request to `api.sanity.io`. A `SANITY_API_TOKEN` is not required for Studio uploads; it is only required for server-side writes from Next.js API routes / serverless functions.
+
+Current auth state:
+- `mcp__Sanity__whoami` → authenticated as "Mandakini rao" (mandakinirao@gmail.com), role: `administrator`.
+- `.env.local` — no `SANITY_API_TOKEN` key present at all.
+- `.env.local.example` — `SANITY_API_TOKEN=` (empty placeholder; never filled in).
+- Vercel production env vars — cannot inspect (Vercel CLI not authenticated in this session).
+
+**Verdict:** The absent `SANITY_API_TOKEN` does **not** explain Studio upload failures. Studio uploads authenticate via OAuth session, not via API token. The missing token would only affect server-side writes (e.g., a `/api/sanity-write` route) — not present in this project. This is a red herring for the Studio upload issue.
+
+---
+
+### Task 3 — Images field definition (recent changes)
+
+Current `project.images` field (`sanity/schemas/project.ts`):
+```ts
+defineField({
+  name: 'images',
+  title: 'Images',
+  type: 'array',
+  of: [{ type: 'image', options: { hotspot: true } }],
+  options: { layout: 'grid' },
+  description: 'Upload one or more images for this series. Drag to reorder. The first image is used as the cover.',
+}),
+```
+
+This is a standard Sanity image array definition. The field was introduced in the 2026-06-21 schema collapse (commit `71e2ccf`) replacing `coverImage` + `artworkImages`. No subsequent changes have been made to the field definition.
+
+**Verdict:** The field definition is correct and there are no unusual wrappers, custom input components, or recent structural changes that would break upload handling. The schema is not the cause.
+
+---
+
+### Task 4 — Package versions
+
+```
+sanity                3.99.0   (latest: 6.1.0)
+@sanity/vision        3.99.0   (latest: 6.1.0)
+@sanity/cli (global)  3.99.0   (latest: 7.2.3)
+```
+
+The installed Sanity package (`3.99.0`) is severely outdated. The NPM registry now shows the latest as `6.1.0`, meaning **two full major versions** have been skipped. Package mismatches at this scale can cause subtle issues with Studio behaviour, upload progress handlers, and asset processing — but this is a background risk factor, not the proximate cause of the upload failure.
+
+---
+
+### Task 5 — Single most likely root cause
+
+**CORS: missing `allowCredentials: true` on the production origin (now fixed), plus no localhost entry for local development.**
+
+**What was happening before today:**
+- The production CORS entry (`https://mandakini-website.vercel.app`) was created at `2026-06-13T14:59:35.027Z` with `allowCredentials: true`. Before that timestamp, the entry either did not exist or existed without credentials allowed.
+- When `allowCredentials` is not set (or the origin is absent), the browser cannot send the user's Sanity OAuth session cookie in cross-origin requests to `api.sanity.io`. The upload request arrives at Sanity's asset API unauthenticated, and Sanity rejects it — which the Studio surfaces as "Upload failed."
+
+**What is happening now (ongoing):**
+- Production Studio uploads should now work since `allowCredentials: true` is set.
+- **Local development uploads remain broken.** Any attempt to upload from `http://localhost:3000/studio` will be CORS-rejected by the browser before the request even reaches Sanity. This is the active failure mode for anyone testing locally.
+
+**Fix (not applied — report only):**
+Add a localhost CORS origin with `allowCredentials: true`:
+```
+npx sanity cors add http://localhost:3000 --credentials
+```
+Or via Sanity manage UI: `manage.sanity.io → project i4t9kzxg → API → CORS Origins → Add origin`.
+
+No code changes, no schema changes, no token needed.
+
+---
+
 ## 2026-06-22 (g) — Studio structure tool crash diagnosis (report only)
 
 **Prompt summary:**

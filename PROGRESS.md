@@ -1,5 +1,10 @@
 # Progress Log
 
+## Sanity fixes — Studio crash + upload CORS (June 2026)
+- **Date:** 2026-06-22
+- **Studio crash fix (data):** Removed two zombie image items (`_key: 6eeed290155a`, `_key: 2255ce8860bc`) from the "London in Gouache" project document draft (`f56fd071-8dc9-4452-a30f-c123ef5a7145`). Items were stuck in `_upload: { progress: 100 }` state with no `asset` reference — caused `G.rebase` → `d.getAttribute` to throw "getAttribute only applies to plain objects" and crash the Studio structure tool on every load. Fix via Sanity MCP `patch_documents` unset. No code changes.
+- **Upload CORS fix:** Added `http://localhost:3000` with `allowCredentials: true` to the Sanity project's CORS origins. Without this, the browser blocked all local dev Studio upload requests before they reached `api.sanity.io`. Production origin (`https://mandakini-website.vercel.app`) already had `allowCredentials: true`. Fix via Sanity MCP `add_cors_origin`. No code changes.
+
 ## Four-branch merge to main + Production deploy (June 2026)
 - **Date:** 2026-06-22
 - **Branches merged (in order):** `about-redesign` → `logo-size` → `press-reel-speed` → `page-color-washes`
