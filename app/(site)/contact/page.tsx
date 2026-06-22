@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import ContactForm from '@/components/contact/ContactForm'
+import PageWash from '@/components/ui/PageWash'
 import { getSiteSettings } from '@/lib/site-settings'
+import '@/styles/pages.css'
 
 export const metadata: Metadata = {
   title: 'Contact — Mandakini Rao',
@@ -13,6 +15,8 @@ export default async function ContactPage() {
   const { contactPageIntro, contactEmail } = await getSiteSettings()
 
   return (
+    <>
+    <PageWash className="contact-rosehip page-wash-light" />
     <section className="mr2-contact-page mr2-page-shell">
       <div className="mr2-contact__layout">
         <div className="mr2-contact__intro">
@@ -27,5 +31,6 @@ export default async function ContactPage() {
         <ContactForm />
       </div>
     </section>
+    </>
   )
 }

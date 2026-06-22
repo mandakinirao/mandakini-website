@@ -1,0 +1,70 @@
+/* ─── Per-page background washes ─────────────────────────────────────
+   All washes override body.mr2-mode's near-black surface with a soft,
+   low-saturation tint drawn from the locked palette.
+   Ink tokens are flipped to cacao (dark) because every tinted surface
+   reads as a light field.
+   Logo is swapped to cacao version; nav text forced dark.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Shared nav / logo fix for all light-field pages ──────────────── */
+body.mr2-mode.page-wash-light .site-nav { color: var(--ink-cacao); }
+body.mr2-mode.page-wash-light .site-logo__img--cream { display: none; }
+body.mr2-mode.page-wash-light .site-logo__img--cacao { display: block; }
+
+/* ── Shared ink token override for all light-field pages ──────────── */
+body.mr2-mode.page-wash-light {
+  --ink-current: var(--ink-cacao);
+  --ink-muted-current: rgba(61, 31, 13, 0.52);
+  --rule-current: rgba(61, 31, 13, 0.10);
+  --v2-fg: var(--ink-cacao);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   WORKS LISTING  (/works)  — cream
+   Keeps the default base: no extra tint, just restores the cream
+   surface so the listing reads like a curated editorial catalogue.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.mr2-mode.works-cream {
+  background: var(--bg-cream);
+  --scroll-bg: var(--bg-cream);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   INDIVIDUAL PROJECT  (/works/[slug])  — soft amber
+   Distinct from the cream listing: warm golden field that wraps the
+   artwork without competing with it.
+   Mix at 20% amber so it reads clearly warmer than pure cream but
+   still feels like paper, not paint.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.mr2-mode.series-amber {
+  background: color-mix(in srgb, var(--accent-amber) 20%, var(--bg-cream) 80%);
+  --scroll-bg: color-mix(in srgb, var(--accent-amber) 20%, var(--bg-cream) 80%);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   SHOP ITEM  (/shop/[slug])  — soft moss
+   Mandakini's explicitly requested green. 10% moss is earthy and sage;
+   high enough to read as intentional, low enough to stay paper-like.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.mr2-mode.pdp-moss {
+  background: color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%);
+  --scroll-bg: color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   CONTACT  (/contact)  — soft rosehip
+   Rosehip #792318 is a deep, saturated crimson — use at 7% so the
+   result reads as a warm blush rather than a statement colour.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.mr2-mode.contact-rosehip {
+  background: color-mix(in srgb, var(--accent-rosehip) 7%, var(--bg-cream) 93%);
+  --scroll-bg: color-mix(in srgb, var(--accent-rosehip) 7%, var(--bg-cream) 93%);
+}

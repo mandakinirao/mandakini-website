@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import WorksIndex from '@/components/works/WorksIndex'
+import PageWash from '@/components/ui/PageWash'
 import { getAllSeries, getFeaturedSeries } from '@/lib/home-data'
 import { getSiteSettings } from '@/lib/site-settings'
+import '@/styles/pages.css'
 
 export const metadata: Metadata = {
   title: 'Projects — Mandakini Rao',
@@ -17,12 +19,15 @@ export default async function WorksPage() {
     getSiteSettings(),
   ])
   return (
-    <WorksIndex
-      series={series}
-      featured={featured}
-      headline={settings.worksPageHeadline}
-      emptyHeadline={settings.worksEmptyHeadline}
-      emptyBody={settings.worksEmptyBody}
-    />
+    <>
+      <PageWash className="works-cream page-wash-light" />
+      <WorksIndex
+        series={series}
+        featured={featured}
+        headline={settings.worksPageHeadline}
+        emptyHeadline={settings.worksEmptyHeadline}
+        emptyBody={settings.worksEmptyBody}
+      />
+    </>
   )
 }
