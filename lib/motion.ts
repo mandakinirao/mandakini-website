@@ -36,6 +36,13 @@ export const STAGGER = {
   burst: 0.05,
 } as const
 
+/** Marquee reel durations — drives the CSS animation via CSS variables set
+ *  in MarqueePress. Slowed from 36s/46s after client review. */
+export const MARQUEE = {
+  dur: 60,    // forward track (seconds)
+  durAlt: 80, // reverse track — slightly slower for perceived depth
+} as const
+
 let registered = false
 
 function register() {

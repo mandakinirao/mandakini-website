@@ -1032,12 +1032,12 @@ body.mr2-light .mr2-works__meta {
   align-items: baseline;
   gap: 3.4rem;
   padding-right: 3.4rem;
-  animation: mr2-marquee 36s linear infinite;
+  animation: mr2-marquee var(--mr2-marquee-dur, 60s) linear infinite;
 }
 
 .mr2-press__row--reverse .mr2-press__track {
   animation-direction: reverse;
-  animation-duration: 46s;
+  animation-duration: var(--mr2-marquee-dur-alt, 80s);
 }
 
 .mr2-press__item {
@@ -1074,6 +1074,24 @@ body.mr2-light .mr2-works__meta {
 
 @media (prefers-reduced-motion: reduce) {
   .mr2-press__track { animation: none; }
+}
+
+.mr2-press__footer {
+  display: flex;
+  justify-content: center;
+  padding-top: 4rem;
+}
+
+/* CTA sits on the fixed-dark lagoon field — must read as cream regardless
+   of the theme toggle that controls --v2-fg elsewhere. */
+.mr2-press .mr2-cta {
+  border-color: var(--v2-cream);
+  color: var(--v2-cream);
+}
+.mr2-press .mr2-cta:hover:not(:disabled) {
+  background-color: var(--v2-cream);
+  border-color: var(--v2-cream);
+  color: var(--v2-night);
 }
 
 /* ── Placeholder shells — unbuilt pages (About/Contact/Press) ──────── */
