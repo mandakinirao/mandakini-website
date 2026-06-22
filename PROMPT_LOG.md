@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-06-22 (c) — Shop item crash fix + cohesive moss wash
+
+**Prompt summary:**
+Fix "Application error: a client-side exception" on /shop/[slug]. Find root cause, report it, fix it, guard empty fields. Then apply the same moss tint to both /shop listing and /shop/[slug] so there is no cream→green jump.
+
+**Root cause (Part A):**
+`getPrintBySlug` → `getAllPrints` → `getHomeData` → `featuredShopItemsQuery`. This query returns at most 3 items (the featured ones from siteSettings). For any of the 52 real Sanity shop items whose slug is not in those 3 featured, `print` was `null` → `notFound()` threw → the error boundary showed "Application error." The fix: added `getShopItemBySlug(slug)` that calls `getAllShopItems()` (queries the full catalogue with no cap). Updated the detail page and generateMetadata to use this function.
+
+**Decisions:**
+- New function `getShopItemBySlug` added to `lib/home-data.ts` rather than changing `getPrintBySlug` — the old function is still used by the homepage (correctly, to get only featured items for the homepage shop teaser). Changing `getPrintBySlug` would have made `getAllPrints` over-fetch on every homepage load.
+- `getAllShopItems` is already the correct query for the full catalogue — reused it, no new GROQ.
+- Empty-field guards in `ProductDetail`: `image` gets fallback URL, `title` gets "Untitled print", `price` and `desc` conditionally rendered with `&&` so missing values don't render empty `<p>` tags.
+
+**Part B decision:**
+Applied `pdp-moss page-wash-light` to `/shop` listing (same class already used on `/shop/[slug]`). Both shop pages now share `color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%)`. No CSS change needed — the rule already existed; only a PageWash import was added to the listing page.
+
+**Files changed:** `lib/home-data.ts`, `app/(site)/shop/[slug]/page.tsx`, `app/(site)/shop/page.tsx`, `components/shop/ProductDetail.tsx`.
+
+---
+
 ## 2026-06-22 (a) — Per-page background color washes
 
 **Prompt summary:**

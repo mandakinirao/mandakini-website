@@ -1,5 +1,13 @@
 # Progress Log
 
+## Shop item crash fix + cohesive moss wash (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `page-color-washes` (extended — not yet on main)
+- **Part A — crash fix (root cause):** `/shop/[slug]` used `getPrintBySlug` → `getAllPrints` → `getHomeData` → `featuredShopItemsQuery` which returns only 3 featured items. Any slug not in those 3 returned `null` → `notFound()` → Application error on Vercel. Added `getShopItemBySlug(slug)` to `lib/home-data.ts` which calls `getAllShopItems()` (full catalogue query). Updated `/shop/[slug]` page and `generateMetadata` to use `getShopItemBySlug` + `getAllShopItems`. Added empty-field guards in `ProductDetail` for `image`, `title`, `price`, `desc` (no-empty-pages rule — items with no artwork image or no price now show placeholder/omit the field rather than throwing).
+- **Part B — cohesive tint:** Applied `pdp-moss page-wash-light` to `/shop` listing page so both shop pages share the same 10% moss + 90% cream background. Eliminates the cream→green jump when navigating from listing to item.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `lib/home-data.ts` (getShopItemBySlug added), `app/(site)/shop/[slug]/page.tsx` (use getShopItemBySlug), `app/(site)/shop/page.tsx` (PageWash + pages.css import), `components/shop/ProductDetail.tsx` (field guards).
+
 ## Per-page background washes — cream / amber / moss / rosehip (June 2026)
 - **Date:** 2026-06-22
 - **Branch:** `page-color-washes` (not yet on main — awaiting visual review)
