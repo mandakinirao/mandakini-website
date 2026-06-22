@@ -1,5 +1,16 @@
 # Progress Log
 
+## Press reel — slow speed + add CTA (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `press-reel-speed` (not yet on main — awaiting visual review)
+- **Task:** Slow the homepage press marquee (Mandakini found it too fast) and add a CTA linking to /press.
+- **Speed change:** Forward track 36s → 60s (~67% slower). Reverse track 46s → 80s (~74% slower). `MARQUEE = { dur: 60, durAlt: 80 }` added to `lib/motion.ts`. `MarqueePress.tsx` sets `--mr2-marquee-dur` and `--mr2-marquee-dur-alt` CSS variables via `useEffect`. CSS uses `var(--mr2-marquee-dur, 60s)` — no raw duration outside the motion system.
+- **CTA added:** `<PillCta href="/press">All press & features</PillCta>` inside `.mr2-press__footer` below the two marquee rows. Fixed-cream styling (`var(--v2-cream)`) since the lagoon press section background is always dark regardless of theme toggle.
+- **Empty guard:** Component-level `PLACEHOLDER_ITEMS` fallback added for double safety (complements the existing `home-data.ts` `PLACEHOLDER_PRESS` fallback).
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `lib/motion.ts` (MARQUEE constant), `components/home/v2/MarqueePress.tsx` (speed, CTA, guard), `app/v2.css` (CSS vars, footer, CTA override).
+- **No merge to main yet — review on Vercel preview first.**
+
 ## Per-page background washes — cream / amber / moss / rosehip (June 2026)
 - **Date:** 2026-06-22
 - **Branch:** `page-color-washes` (not yet on main — awaiting visual review)

@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-06-22 (b) — Press reel speed + CTA
+
+**Prompt summary:**
+Slow the homepage press marquee reel (Mandakini found it too fast). Add a CTA linking to the full Press page. Drive timing from motion tokens in @/lib/motion — no raw durations outside the motion system. Use pill CTA. Ensure empty state shows placeholder content. Commit to `press-reel-speed` branch for Vercel preview.
+
+**Decisions:**
+- Added `MARQUEE = { dur: 60, durAlt: 80 }` to `lib/motion.ts`. Chosen values: ~67% slower than the original 36s/46s. Forward/reverse differ by 20s for the visual depth effect the original had.
+- Speed wired via CSS custom properties (`--mr2-marquee-dur`, `--mr2-marquee-dur-alt`) set in a `useEffect`. CSS `animation-duration` uses `var(--mr2-marquee-dur, 60s)` — the fallback matches the constant so SSR and hydration pre-paint match.
+- CTA placed in `.mr2-press__footer` (centered, `padding-top: 4rem`) below both marquee rows. Uses `PillCta` as required by the no-boxy rule.
+- CTA uses `var(--v2-cream)` for border/text (not `--v2-fg`) because the lagoon press background is always dark — `--v2-fg` would flip to dark in light mode and fail contrast.
+- Double-layer empty guard: `home-data.ts` already falls back to `PLACEHOLDER_PRESS`; `MarqueePress` now has a local fallback too so the section is immune if the prop arrives empty for any reason.
+
+**Files changed:** `lib/motion.ts`, `components/home/v2/MarqueePress.tsx`, `app/v2.css`.
+
+---
+
 ## 2026-06-22 (a) — Per-page background color washes
 
 **Prompt summary:**
