@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-06-22 (e) — Increase shop moss wash intensity
+
+**Prompt summary:**
+Moss tint on both shop pages (/shop and /shop/[slug]) reads too faint — green is not visible enough. Increase to ~22% moss + cream using the existing color-mix token approach. Keep both shop pages at the same tint for a continuous listing→item transition. Match the visible-but-soft strength of the amber project wash (~20%). Build must pass. Commit to page-color-washes branch, do not merge until reviewed.
+
+**Decision:**
+Single change to `styles/pages.css` — `pdp-moss` rule only. Percentage: `10%` → `22%`. Both `/shop` and `/shop/[slug]` already share the same `pdp-moss` class (applied via `PageWash` in each page.tsx), so one rule change covers both pages simultaneously. No page.tsx files needed to change.
+
+Rationale for 22%: amber wash is set at 20%, which Mandakini approved as the "warm but paper-like" benchmark. Moss is a muted, greyish-green — it needs a slightly higher percentage than amber to achieve the same perceptual saturation. 22% lands at approximately the same visual weight.
+
+**Files changed:** `styles/pages.css` (pdp-moss mix percentages only).
+
+---
+
 ## 2026-06-22 (d) — Client crash diagnosis (report only)
 
 **Prompt summary:**

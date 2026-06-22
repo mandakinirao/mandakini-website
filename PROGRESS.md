@@ -1,5 +1,14 @@
 # Progress Log
 
+## Shop moss wash intensity increase — 10% → 22% (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `page-color-washes` (not yet on main)
+- **Change:** Increased `pdp-moss` background mix from `color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%)` to `22% moss / 78% cream`. 10% was too faint to read as green; 22% matches the visible-but-soft intensity of the amber project wash (20%) so the shop reads as gently sage at the same perceptual weight the project page reads as warm.
+- **Continuity:** Both `/shop` listing and `/shop/[slug]` item use the same `pdp-moss` class — single rule change keeps listing→item transition continuous with zero jump.
+- **No hardcoded hex:** Change is entirely within the `color-mix()` + `var(--accent-moss)` token system.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `styles/pages.css` (pdp-moss percentage only).
+
 ## Shop item crash fix + cohesive moss wash (June 2026)
 - **Date:** 2026-06-22
 - **Branch:** `page-color-washes` (extended — not yet on main)
