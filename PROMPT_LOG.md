@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-06-22 (a) — Per-page background color washes
+
+**Prompt summary:**
+Apply per-page background color washes using only the locked palette and the wash rule (soft, low-saturation, one color per page, warm, never saturated). Find each page route via grep. Confirm works listing stays cream. Apply soft amber to works detail, soft moss to shop item (Mandakini's explicitly requested green), soft rosehip to contact. Background color only — no typography or layout changes. Run build, commit to `page-color-washes` branch for Vercel preview.
+
+**Decisions:**
+- Created `components/ui/PageWash.tsx` — null-render client component, adds/removes a body class string on mount/unmount. Reusable across any page, keeps separation from animation logic already in the existing components.
+- Created `styles/pages.css` — all four wash rules + shared `page-wash-light` block (ink tokens + logo swap + nav color). Single file keeps all page-level tints in one place, separate from about.css.
+- Import pattern: each page.tsx imports `'@/styles/pages.css'` and renders `<PageWash className="..." />` — no changes to underlying client components (WorksIndex, SeriesDetail, ProductDetail, ContactForm).
+- Wash percentages chosen to pass the "paper not paint" test: amber 20%, moss 10%, rosehip 7%. Rosehip is highly saturated so 7% achieves the blush without overloading the hue.
+- `page-wash-light` shared class handles ink token override, logo swap (cream→cacao), and nav text colour for ALL light-field washes — DRY pattern.
+
+**Files changed:** `components/ui/PageWash.tsx` (new), `styles/pages.css` (new), 4 page.tsx files (PageWash rendered + CSS imported).
+
+---
+
 ## 2026-06-21 (c) — Multi-upload image diagnosis (report only)
 
 **Prompt summary:**

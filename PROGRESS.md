@@ -1,5 +1,21 @@
 # Progress Log
 
+## Per-page background washes — cream / amber / moss / rosehip (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `page-color-washes` (not yet on main — awaiting visual review)
+- **Task:** Apply per-page background color washes from the locked palette. Soft, low-saturation, one color per page. Background only — no typography or layout changes.
+- **Approach:** New `components/ui/PageWash.tsx` — null-render client component that adds/removes body class on mount/unmount. New `styles/pages.css` with all four wash rules plus shared `page-wash-light` ink + logo selectors.
+- **Washes applied:**
+  - `/works` (listing): `works-cream` — restores `var(--bg-cream)` cream field. Listing reads like an editorial catalogue.
+  - `/works/[slug]` (series detail): `series-amber` — `color-mix(in srgb, var(--accent-amber) 20%, var(--bg-cream) 80%)`. 20% amber: distinctly warmer than cream listing, still reads as paper.
+  - `/shop/[slug]` (product detail): `pdp-moss` — `color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%)`. 10% moss: earthy sage per Mandakini's request. Very muted, not a saturated green block.
+  - `/contact`: `contact-rosehip` — `color-mix(in srgb, var(--accent-rosehip) 7%, var(--bg-cream) 93%)`. 7% rosehip: warm blush. Rosehip is deep/saturated so 7% reads clearly intentional without dominating.
+- **Shared handling (`page-wash-light`):** All washes flip `--ink-current`, `--ink-muted-current`, `--rule-current`, `--v2-fg` to cacao (dark). Logo swapped from cream→cacao variant. Nav text forced `var(--ink-cacao)`.
+- **No hardcoded hex:** All tints via `color-mix()` + existing palette tokens.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **Files changed:** `components/ui/PageWash.tsx` (new), `styles/pages.css` (new), `app/(site)/works/page.tsx`, `app/(site)/works/[slug]/page.tsx`, `app/(site)/shop/[slug]/page.tsx`, `app/(site)/contact/page.tsx`.
+- **No merge to main yet — review on Vercel preview first.**
+
 ## shopItem — remove dangling `artwork` reference field (June 2026)
 - **Date:** 2026-06-21
 - **Task:** Urgent fix — Studio failing to load with "Unknown type: artwork" because `shopItem.artwork` referenced the now-deleted `artwork` type.
