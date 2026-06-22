@@ -1660,9 +1660,9 @@ body.home-intro-active .site-nav {
 /* Image logo — hidden by default, v2 CSS activates the right variant */
 .site-logo__text { display: grid; gap: 1px; }
 .site-logo__mark { display: none; align-items: center; }
-.site-logo__img  { display: none; height: clamp(44px, 9vh, 96px); width: auto; }
+.site-logo__img  { display: none; height: clamp(54px, 11vh, 120px); width: auto; }
 @media (max-width: 480px) {
-  .site-logo__img { height: 44px; }
+  .site-logo__img { height: 50px; }
 }
 
 .menu-toggle {

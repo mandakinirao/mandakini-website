@@ -2,6 +2,61 @@
 
 ---
 
+## 2026-06-22 (b) — Logo size increase +25%
+
+**Prompt summary:**
+Increase the logo by roughly 25–30% following the client's request for a bigger logo after the previous 1.5× bump. Preserve theme-aware switching. Branch for preview before merging.
+
+---
+
+### Audit
+
+Logo sizing is CSS-only. The HTML `width`/`height` attributes are aspect-ratio hints; `width: auto` in CSS means the CSS `height` value alone drives the rendered size.
+
+**Before:**
+```css
+.site-logo__img { height: clamp(44px, 9vh, 96px); width: auto; }
+@media (max-width: 480px) { .site-logo__img { height: 44px; } }
+```
+HTML attrs: `width={120} height={66}` (ratio ~1.82:1, landscape)
+
+### Changes
+
+**`app/globals.css`:**
+```css
+/* before */
+.site-logo__img { height: clamp(44px, 9vh, 96px); width: auto; }
+@media (max-width: 480px) { .site-logo__img { height: 44px; } }
+
+/* after */
+.site-logo__img { height: clamp(54px, 11vh, 120px); width: auto; }
+@media (max-width: 480px) { .site-logo__img { height: 50px; } }
+```
+
+| Breakpoint | Before | After | Δ |
+|---|---|---|---|
+| Desktop min | 44px | 54px | +23% |
+| Desktop fluid | 9vh | 11vh | +22% |
+| Desktop max | 96px | 120px | +25% |
+| Mobile ≤480px | 44px | 50px | +14% (conservative) |
+
+Mobile is bumped less aggressively — a 25% increase at 44px would be ~55px, which risks looking oversized in the fixed-height mobile nav bar relative to the menu toggle.
+
+**`components/layout/Navigation.tsx`:**
+Both `<img>` tags (cream + cacao variants): `width={120} height={66}` → `width={150} height={83}`. Ratio preserved (~1.81:1). Theme-switching logic (`site-logo__img--cream` / `site-logo__img--cacao` CSS classes) untouched.
+
+### Build
+
+```
+✓ Compiled successfully — 16 routes, zero errors
+```
+
+### Status
+
+Branch `logo-size`. Not merged to main. Awaiting visual review on Vercel preview.
+
+---
+
 ## 2026-06-21 (c) — Multi-upload image diagnosis (report only)
 
 **Prompt summary:**
