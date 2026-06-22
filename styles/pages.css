@@ -47,14 +47,16 @@ body.mr2-mode.series-amber {
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   SHOP ITEM  (/shop/[slug])  — soft moss
-   Mandakini's explicitly requested green. 10% moss is earthy and sage;
-   high enough to read as intentional, low enough to stay paper-like.
+   SHOP  (/shop and /shop/[slug])  — soft moss
+   Mandakini's explicitly requested green. 22% moss matches the visible
+   intensity of the amber project wash (~20%) so the shop reads as
+   gently sage at the same strength the project page reads as warm.
+   Applied to BOTH listing and item page for continuous transition.
    ══════════════════════════════════════════════════════════════════════ */
 
 body.mr2-mode.pdp-moss {
-  background: color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%);
-  --scroll-bg: color-mix(in srgb, var(--accent-moss) 10%, var(--bg-cream) 90%);
+  background: color-mix(in srgb, var(--accent-moss) 22%, var(--bg-cream) 78%);
+  --scroll-bg: color-mix(in srgb, var(--accent-moss) 22%, var(--bg-cream) 78%);
 }
 
 

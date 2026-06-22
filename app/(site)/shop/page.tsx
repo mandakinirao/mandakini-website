@@ -1,9 +1,11 @@
 import type { Metadata } from 'next'
 import PrivateCollection from '@/components/shop/PrivateCollection'
 import ShopIndex from '@/components/shop/ShopIndex'
+import PageWash from '@/components/ui/PageWash'
 import { getAllShopItems } from '@/lib/home-data'
 import { getSiteSettings } from '@/lib/site-settings'
 import { commerceEnabled } from '@/lib/commerce'
+import '@/styles/pages.css'
 
 export const metadata: Metadata = {
   title: 'Shop — Mandakini Rao',
@@ -19,6 +21,7 @@ export default async function ShopPage() {
   ])
   return (
     <>
+      <PageWash className="pdp-moss page-wash-light" />
       <ShopIndex
         prints={prints}
         commerceEnabled={commerceEnabled()}

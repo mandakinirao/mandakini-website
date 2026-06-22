@@ -66,8 +66,8 @@ export default function ProductDetail({
       <div className="mr-pdp__layout">
         <span className="mr-pdp__image mr-mask">
           <Image
-            src={print.image}
-            alt={print.title}
+            src={print.image || '/art/subbulakshmi/ms-sq-3.jpg'}
+            alt={print.title || 'Print'}
             fill
             sizes="(max-width: 900px) 92vw, 46vw"
             data-reveal-img
@@ -76,9 +76,9 @@ export default function ProductDetail({
         </span>
 
         <div className="mr-pdp__info">
-          <h1>{print.title}</h1>
-          <p className="mr-pdp__price">{print.price}</p>
-          <p className="mr-pdp__desc">{print.desc}</p>
+          <h1>{print.title || 'Untitled print'}</h1>
+          {print.price && <p className="mr-pdp__price">{print.price}</p>}
+          {print.desc && <p className="mr-pdp__desc">{print.desc}</p>}
 
           <dl className="mr-pdp__meta">
             <div><dt>Paper</dt><dd>{paperSpec}</dd></div>
