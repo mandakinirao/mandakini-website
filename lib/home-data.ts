@@ -389,6 +389,13 @@ export async function getPrintBySlug(slug: string): Promise<HomePrint | null> {
   return prints.find((p) => p.slug === slug) ?? null
 }
 
+/** Detail-page lookup: searches the FULL shop catalogue (not just the
+ *  3 homepage-featured items). Use this on /shop/[slug]. */
+export async function getShopItemBySlug(slug: string): Promise<HomePrint | null> {
+  const all = await getAllShopItems()
+  return all.find((p) => p.slug === slug) ?? null
+}
+
 /**
  * Full shop listing for /shop — no limit, all non-private, non-hidden items.
  * The homepage EditionShop uses getHomeData() which intentionally caps at 3.
