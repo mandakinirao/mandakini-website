@@ -1,7 +1,9 @@
 import type { Metadata } from 'next'
 import { notFound } from 'next/navigation'
 import SeriesDetail from '@/components/works/SeriesDetail'
+import PageWash from '@/components/ui/PageWash'
 import { getAllSeries, getSeriesBySlug } from '@/lib/home-data'
+import '@/styles/pages.css'
 
 interface Params {
   params: { slug: string }
@@ -29,5 +31,10 @@ export default async function SeriesPage({ params }: Params) {
   const prev = all[(i - 1 + all.length) % all.length]
   const next = all[(i + 1) % all.length]
 
-  return <SeriesDetail series={series} prev={prev} next={next} />
+  return (
+    <>
+      <PageWash className="series-amber page-wash-light" />
+      <SeriesDetail series={series} prev={prev} next={next} />
+    </>
+  )
 }

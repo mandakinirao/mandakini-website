@@ -94,6 +94,36 @@ On branch `about-redesign`. Not merged to main. Awaiting visual review on Vercel
 
 Branch `logo-size`. Not merged to main. Awaiting visual review on Vercel preview.
 
+## 2026-06-22 (b) — Press reel speed + CTA
+
+**Prompt summary:**
+Slow the homepage press marquee reel (Mandakini found it too fast). Add a CTA linking to the full Press page. Drive timing from motion tokens in @/lib/motion — no raw durations outside the motion system. Use pill CTA. Ensure empty state shows placeholder content. Commit to `press-reel-speed` branch for Vercel preview.
+
+**Decisions:**
+- Added `MARQUEE = { dur: 60, durAlt: 80 }` to `lib/motion.ts`. Chosen values: ~67% slower than the original 36s/46s. Forward/reverse differ by 20s for the visual depth effect the original had.
+- Speed wired via CSS custom properties (`--mr2-marquee-dur`, `--mr2-marquee-dur-alt`) set in a `useEffect`. CSS `animation-duration` uses `var(--mr2-marquee-dur, 60s)` — the fallback matches the constant so SSR and hydration pre-paint match.
+- CTA placed in `.mr2-press__footer` (centered, `padding-top: 4rem`) below both marquee rows. Uses `PillCta` as required by the no-boxy rule.
+- CTA uses `var(--v2-cream)` for border/text (not `--v2-fg`) because the lagoon press background is always dark — `--v2-fg` would flip to dark in light mode and fail contrast.
+- Double-layer empty guard: `home-data.ts` already falls back to `PLACEHOLDER_PRESS`; `MarqueePress` now has a local fallback too so the section is immune if the prop arrives empty for any reason.
+
+**Files changed:** `lib/motion.ts`, `components/home/v2/MarqueePress.tsx`, `app/v2.css`.
+
+---
+
+## 2026-06-22 (a) — Per-page background color washes
+
+**Prompt summary:**
+Apply per-page background color washes using only the locked palette and the wash rule (soft, low-saturation, one color per page, warm, never saturated). Find each page route via grep. Confirm works listing stays cream. Apply soft amber to works detail, soft moss to shop item (Mandakini's explicitly requested green), soft rosehip to contact. Background color only — no typography or layout changes. Run build, commit to `page-color-washes` branch for Vercel preview.
+
+**Decisions:**
+- Created `components/ui/PageWash.tsx` — null-render client component, adds/removes a body class string on mount/unmount. Reusable across any page, keeps separation from animation logic already in the existing components.
+- Created `styles/pages.css` — all four wash rules + shared `page-wash-light` block (ink tokens + logo swap + nav color). Single file keeps all page-level tints in one place, separate from about.css.
+- Import pattern: each page.tsx imports `'@/styles/pages.css'` and renders `<PageWash className="..." />` — no changes to underlying client components (WorksIndex, SeriesDetail, ProductDetail, ContactForm).
+- Wash percentages chosen to pass the "paper not paint" test: amber 20%, moss 10%, rosehip 7%. Rosehip is highly saturated so 7% achieves the blush without overloading the hue.
+- `page-wash-light` shared class handles ink token override, logo swap (cream→cacao), and nav text colour for ALL light-field washes — DRY pattern.
+
+**Files changed:** `components/ui/PageWash.tsx` (new), `styles/pages.css` (new), 4 page.tsx files (PageWash rendered + CSS imported).
+
 ---
 
 ## 2026-06-21 (c) — Multi-upload image diagnosis (report only)
