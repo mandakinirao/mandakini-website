@@ -1,5 +1,18 @@
 # Progress Log
 
+## Four-branch merge to main + Production deploy (June 2026)
+- **Date:** 2026-06-22
+- **Branches merged (in order):** `about-redesign` → `logo-size` → `press-reel-speed` → `page-color-washes`
+- **Strategy:** Smallest/most-isolated first; large CSS branch last. Build run after each merge. Stop-on-conflict policy maintained — only `PROGRESS.md` and `PROMPT_LOG.md` conflicted (additive doc sections from the same ancestor), resolved by keeping both sides. No source-code conflicts on any merge.
+- **Merge outcomes:**
+  - `about-redesign` → fast-forward, zero conflicts. Build ✓.
+  - `logo-size` → PROGRESS.md + PROMPT_LOG.md conflict (additive). Resolved. Build ✓.
+  - `press-reel-speed` → PROGRESS.md + PROMPT_LOG.md conflict (additive). Resolved. Build ✓.
+  - `page-color-washes` → PROGRESS.md + PROMPT_LOG.md conflict (additive). All code files (PageWash fix, moss 22%, shop data, ProductDetail guards, shop/page.tsx) merged cleanly. Build ✓.
+- **Production push:** `git push origin main` → `78f1eba..784862c`. Vercel production deploy triggered.
+- **Smoke test (local build, all 16 routes):** ✓ home (ƒ), /about (○), /works (○), /works/[slug] (ƒ), /shop (○), /shop/[slug] (ƒ), /contact (○), /press (○). Zero errors.
+- **Branches retained:** `about-redesign`, `logo-size`, `press-reel-speed`, `page-color-washes` — kept until live Production site is verified.
+
 ## /about page redesign — full-bleed amber field (June 2026)
 - **Date:** 2026-06-22
 - **Branch:** `about-redesign` (not yet on main — awaiting visual review)

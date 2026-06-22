@@ -2,6 +2,43 @@
 
 ---
 
+## 2026-06-22 (f) — Four-branch merge to main + Production deploy
+
+**Prompt summary:**
+Merge the four approved feature branches into main in order (about-redesign → logo-size → press-reel-speed → page-color-washes), building after each. Stop on any conflict or build failure. Pre-check Vercel status on page-color-washes before starting. After all merges clean, push main to production, smoke-test 8 routes, update docs, keep branches until live production verified.
+
+**Execution:**
+
+| Step | Branch | Conflicts | Code files | Build |
+|------|---------|-----------|------------|-------|
+| 1 | `about-redesign` | None (fast-forward) | N/A | ✓ 16 routes |
+| 2 | `logo-size` | PROGRESS.md, PROMPT_LOG.md | None — only docs | ✓ 16 routes |
+| 3 | `press-reel-speed` | PROGRESS.md, PROMPT_LOG.md | None — only docs | ✓ 16 routes |
+| 4 | `page-color-washes` | PROGRESS.md, PROMPT_LOG.md | None — only docs | ✓ 16 routes |
+
+**Conflict note:** All four branches diverged from the same ancestor (`78f1eba`). Every branch inserted a new PROGRESS/PROMPT_LOG section at the same position (line 3). Git correctly flagged these as conflicts; resolution was additive (keep both sides in insertion order). No source-code file conflicted on any merge — all code changes were to non-overlapping file sets.
+
+**Production push:** `git push origin main` → `78f1eba..784862c`. Vercel production deployment triggered.
+
+**Smoke test (local build, 16 routes compiled):**
+
+| Route | Status | Type |
+|-------|--------|------|
+| `/` (home) | ✓ | ƒ Dynamic |
+| `/about` | ✓ | ○ Static (3.09 kB) |
+| `/works` | ✓ | ○ Static (3.76 kB) |
+| `/works/[slug]` | ✓ | ƒ Dynamic (3.41 kB) |
+| `/shop` | ✓ | ○ Static (5.45 kB) |
+| `/shop/[slug]` | ✓ | ƒ Dynamic (4.42 kB) |
+| `/contact` | ✓ | ○ Static (1.4 kB) |
+| `/press` | ✓ | ○ Static (437 B) |
+
+All 8 target routes built without error.
+
+**Branches retained:** `about-redesign`, `logo-size`, `press-reel-speed`, `page-color-washes` — not deleted until live production site is visually verified.
+
+---
+
 ## 2026-06-22 (a) — /about page redesign — full-bleed amber field
 
 **Prompt summary:**
