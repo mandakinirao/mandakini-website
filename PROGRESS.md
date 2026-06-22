@@ -11,6 +11,18 @@
 - **Portrait:** Sanity image now requested at `1200×1600` (was `900×1200`), `aspect-ratio: 3/4`, `border-radius: clamp(20px, 2.8vw, 48px)`.
 - **Motion:** Portrait wipe reveal (clipPath inset 100%→0%, scale 1.08→1), eyebrow fade, `revealLines` on name (theatrical line split), bio fade-up, CTA autoAlpha fade. All via `mandaGsap` / `@/lib/motion`.
 - **Files changed:** `components/about/AboutFull.tsx` (new), `styles/about.css` (Section 3 + body token override added), `app/(site)/about/page.tsx` (swapped CanvasCards → AboutFull, portrait size bumped).
+
+## Logo size increase — +25% (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `logo-size` (not yet on main — awaiting visual review)
+- **Task:** Increase the logo size by ~25% following Mandakini's request for a bigger logo after the previous 1.5× bump.
+- **Pre-change state:** Logo size was controlled entirely by CSS (`height: clamp(44px, 9vh, 96px); width: auto`). HTML `width={120}` `height={66}` were aspect-ratio hints only. Mobile fixed at `height: 44px` (≤480px).
+- **Change — CSS (`app/globals.css`):**
+  - Desktop: `clamp(44px, 9vh, 96px)` → `clamp(54px, 11vh, 120px)` (+23% min, +22% fluid, +25% max)
+  - Mobile ≤480px: `44px` → `50px` (+14% — conservative to keep mobile nav balanced)
+- **Change — HTML hint (`components/layout/Navigation.tsx`):**
+  - Both `logo-cream.png` and `logo-cacao.png`: `width={120} height={66}` → `width={150} height={83}` (proportional, ratio preserved at ~1.81:1)
+- **Theme switching untouched:** `site-logo__img--cream` / `site-logo__img--cacao` logic and all `body.mr2-mode`/`body.mr2-mode.mr2-light` rules unchanged.
 - **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
 - **No merge to main yet — review on Vercel preview first.**
 

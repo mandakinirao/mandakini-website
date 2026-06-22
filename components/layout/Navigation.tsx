@@ -80,16 +80,16 @@ export default function Navigation() {
               src="/art/logo/logo-cream.png"
               className="site-logo__img site-logo__img--cream"
               alt="Mandakini Rao"
-              width={120}
-              height={66}
+              width={150}
+              height={83}
             />
             <img
               src="/art/logo/logo-cacao.png"
               className="site-logo__img site-logo__img--cacao"
               alt=""
               aria-hidden="true"
-              width={120}
-              height={66}
+              width={150}
+              height={83}
             />
           </span>
         </Link>
