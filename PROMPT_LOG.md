@@ -2,6 +2,150 @@
 
 ---
 
+## 2026-06-22 (g) — Studio structure tool crash diagnosis (report only)
+
+**Prompt summary:**
+The Sanity Studio structure tool crashes ("The structure tool crashed") when opening the `project` document type at `/studio/structure/project`. REPORT ONLY — no fixes, no commits. Tasks: (1) show the structure/desk definition for the project pane, (2) grep all schema and config files for remaining `artwork` references, (3) reproduce the crash locally and capture the stack trace, (4) identify the exact cause.
+
+---
+
+### Task 1 — Structure tool definition for the project pane
+
+File: **`sanity.config.ts`** (complete, 49 lines)
+
+```ts
+import { defineConfig } from 'sanity'
+import { deskTool, type StructureBuilder } from 'sanity/desk'
+import { visionTool } from '@sanity/vision'
+import { schemaTypes } from './sanity/schemas'
+
+const PINNED = [
+  'siteSettings',
+  'project',
+  'shopItem',
+  'order',
+  'pressItem',
+  'testimonial',
+]
+
+const structure = (S: StructureBuilder) =>
+  S.list()
+    .title('Content')
+    .items([
+      S.listItem()
+        .title('Site Settings (featured & socials)')
+        .id('siteSettings')
+        .child(
+          S.document().schemaType('siteSettings').documentId('siteSettings')
+        ),
+      S.divider(),
+      S.documentTypeListItem('project').title('Projects (series)'),   // ← this pane crashes
+      S.documentTypeListItem('shopItem').title('Shop items'),
+      S.documentTypeListItem('order').title('Orders'),
+      S.divider(),
+      S.documentTypeListItem('pressItem').title('Press'),
+      S.documentTypeListItem('testimonial').title('Testimonials'),
+      ...S.documentTypeListItems().filter(
+        (item) => !PINNED.includes(item.getId() ?? '')
+      ),
+    ])
+
+export default defineConfig({
+  name: 'mandakini-rao',
+  title: 'Mandakini Rao',
+  basePath: '/studio',
+  projectId: 'i4t9kzxg',
+  dataset: 'production',
+  plugins: [deskTool({ structure }), visionTool()],
+  schema: { types: schemaTypes },
+})
+```
+
+A previous fix (commit `71e2ccf`) already removed `'artwork'` from the PINNED array and `S.documentTypeListItem('artwork').title('Artworks (pieces)')` from the structure items list — that fixed an earlier crash ("Schema type with name artwork not found"). The current structure definition is clean.
+
+---
+
+### Task 2 — Full `artwork` grep across all schema and config files
+
+Command: `grep -rn "artwork" . --include="*.ts" --include="*.tsx" --include="*.js" --exclude-dir=node_modules --exclude-dir=.next`
+
+**Results (2 hits, both comments — no type references):**
+
+| File | Line | Content |
+|------|------|---------|
+| `sanity/schemas/enquiry.ts` | 6 | `* NOTE: this document never references private artworks; the private` |
+| `lib/home-data.ts` | 6 | `* workspace and the Sanity dataset has no artwork yet (Block 13 pending),` |
+
+**Verdict:** Zero `artwork` type references anywhere. No reference type definitions, no GROQ queries, no `initialValue`, no `orderings`, no `preview`, no structure builder calls. The `artwork` type is fully removed from the project.
+
+---
+
+### Task 3 — Crash reproduced: verbatim stack trace
+
+The production Studio at `mandakini-website.vercel.app/studio/structure/project` provided this error (captured from the browser console by the user):
+
+```
+Error: getAttribute only applies to plain objects
+    at d.getAttribute
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:31916)
+    at H.applyViaAccessor
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:52144)
+    at H.apply
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:52086)
+    at V.compiled
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:54974)
+    at V.apply
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:55145)
+    at Array.reduce (<anonymous>)
+    at V.applyAll
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:55211)
+    at G.rebase
+       (https://mandakini-website.vercel.app/_next/static/chunks/6940-44a3b482fe461747.js:11:59662)
+```
+
+---
+
+### Task 4 — Root cause: exact identification
+
+**Not caused by `artwork`.** Schemas and structure are clean. The cause is in the dataset.
+
+#### The broken data
+
+GROQ query `*[_type == "project"] { _id, seriesName, "brokenImages": images[!defined(asset)] }` returns:
+
+| Document | `brokenImages` count | Details |
+|----------|---------------------|---------|
+| Fragments Charcoal (`87d07143`) | 0 | All 14 images have valid `asset` references |
+| London in Gouache (`eace351d`) | **2** | Two image array items with `_upload` metadata but **no `asset` field** |
+
+The two broken items in "London in Gouache":
+```json
+{ "_key": "6eeed290155a", "_type": "image", "_upload": { "progress": 100, "updatedAt": "2026-06-22T01:22:58.246Z" } }
+{ "_key": "2255ce8860bc", "_type": "image", "_upload": { "progress": 100, "updatedAt": "2026-06-22T01:23:06.053Z" } }
+```
+
+#### What these objects are
+
+Sanity Studio writes an `_upload: { progress: N }` placeholder into an array item during a file upload — progress goes 0→100 as the file uploads, then the Studio finalises the item by writing the real `asset: { _ref: '...' }` and removing `_upload`. If the Studio session is interrupted (tab close, network drop, save conflict) after the upload reaches 100% but before the finalisation write, the document is left with these "zombie" image items: `_type: 'image'`, `_upload: { progress: 100 }`, but **no `asset` property**.
+
+#### Why this crashes the structure tool
+
+The error `getAttribute only applies to plain objects` originates in Sanity's OT (Operational Transformation) rebase system — specifically `G.rebase` → `V.applyAll` → `V.apply` → `H.apply` → `H.applyViaAccessor` → `d.getAttribute`.
+
+When the Studio opens the project document list pane, it subscribes to a real-time listener for all `project` documents. The listener delivers the "London in Gouache" document, and Sanity's internal OT rebase system tries to traverse its attribute tree to reconcile local and remote document state. `d.getAttribute` is the function that reads a field from a document node — it expects every node to be a plain object with the standard Sanity document shape. The zombie image items contain `_upload: { progress: 100, updatedAt: "..." }` but no `asset`. This `_upload` value is not a shape the OT system expects at that position in the tree, so `getAttribute` throws `"getAttribute only applies to plain objects"`.
+
+This error is uncaught by any component inside the document list pane and propagates to the structure tool's top-level React error boundary → **"The structure tool crashed"**.
+
+#### Why only `project` crashes
+
+The "London in Gouache" document is the only document in any type that has zombie `_upload` items. Every other document type either has no documents (testimonial, project/artwork old types) or has properly-finalised images (shopItem, aboutPage, siteSettings). Only the `project` pane triggers the real-time listener that delivers this document, so only that pane crashes.
+
+#### The fix (not applied — report only)
+
+Remove the two zombie image items from the "London in Gouache" document using Sanity MCP `patch_documents` with an `unset` or array filter operation targeting `_key == "6eeed290155a"` and `_key == "2255ce8860bc"`. No schema changes needed.
+
+---
+
 ## 2026-06-22 (f) — Four-branch merge to main + Production deploy
 
 **Prompt summary:**
