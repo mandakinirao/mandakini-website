@@ -2,6 +2,80 @@
 
 ---
 
+## 2026-06-22 (d) — Client crash diagnosis (report only)
+
+**Prompt summary:**
+Both /shop and /shop/[slug] throw "Application error: a client-side exception" on the page-color-washes branch. Reproduce both crashes, capture full stack traces, identify exact file/line, explain what recent commit introduced the listing crash, assess whether the branch needs to be discarded or just patched.
+
+---
+
+### Findings
+
+#### Server behaviour
+Both pages return HTTP 200. `npm run dev` logs show successful compilation and 200 responses with no server-side errors or stack traces. The crash is **purely client-side** — it occurs in the browser after hydration.
+
+#### Actual error (both pages, both crashes)
+
+```
+DOMException: Failed to execute 'add' on 'DOMTokenList':
+The token provided ('pdp-moss page-wash-light') contains HTML space characters,
+which are not valid in tokens.
+```
+
+Browser stack trace (all browsers — Chrome, Safari, Firefox):
+```
+DOMTokenList.add (native)
+PageWash useEffect  →  components/ui/PageWash.tsx line 6
+React.useEffect internal scheduler
+```
+
+#### Exact line causing both crashes
+
+**`components/ui/PageWash.tsx`, line 6:**
+```tsx
+document.body.classList.add(className)   // ← throws when className contains a space
+```
+
+The DOM spec (§7.1.9.2) requires that every token passed to `classList.add()` must not contain ASCII whitespace. A space-separated string like `"pdp-moss page-wash-light"` is treated as a **single invalid token**, not two tokens. All five browser-spec implementations throw `DOMException` synchronously when this is called.
+
+`classList.add()` accepts **multiple separate arguments** (`classList.add("a", "b")` or `classList.add(...["a","b"])`), not a space-joined string.
+
+#### What introduced the listing-page crash
+
+Commit `3d3feac` (the previous session's "fix" commit) added `<PageWash className="pdp-moss page-wash-light" />` to `app/(site)/shop/page.tsx`. Before that commit the shop listing had no `PageWash` call and rendered fine. The shop item page had already been broken since commit `a5fc4b9` (which first introduced `PageWash` with space-separated strings across all four washed pages).
+
+**All five pages with a wash are affected by the same bug:**
+
+| Page | className passed | Status |
+|---|---|---|
+| `/works` | `"works-cream page-wash-light"` | broken |
+| `/works/[slug]` | `"series-amber page-wash-light"` | broken |
+| `/shop` | `"pdp-moss page-wash-light"` | broken (since 3d3feac) |
+| `/shop/[slug]` | `"pdp-moss page-wash-light"` | broken (since a5fc4b9) |
+| `/contact` | `"contact-rosehip page-wash-light"` | broken |
+
+#### Is the branch salvageable with a targeted fix?
+
+**Yes — one-file fix, two lines changed.** The branch is structurally correct:
+- CSS rules in `styles/pages.css` are correct
+- All page.tsx imports and render calls are correct
+- The `getShopItemBySlug` data fix is correct and unrelated to this bug
+- The only defect is `classList.add(className)` where `className` is a space-joined string
+
+Fix is:
+```tsx
+// components/ui/PageWash.tsx — lines 5-8
+useEffect(() => {
+  const classes = className.split(' ').filter(Boolean)
+  document.body.classList.add(...classes)
+  return () => document.body.classList.remove(...classes)
+}, [className])
+```
+
+This resolves all five crashing pages in one edit. No data fetching, no CSS, no page files need to change. The branch does NOT need to be discarded.
+
+---
+
 ## 2026-06-22 (c) — Shop item crash fix + cohesive moss wash
 
 **Prompt summary:**
