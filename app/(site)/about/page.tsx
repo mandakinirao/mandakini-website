@@ -1,5 +1,5 @@
 import type { Metadata } from 'next'
-import CanvasCards from '@/components/home/v2/CanvasCards'
+import AboutFull from '@/components/about/AboutFull'
 import { urlForImage } from '@/sanity/lib/image'
 import '@/styles/about.css'
 
@@ -23,18 +23,16 @@ export default async function AboutRoute() {
 
   const portraitUrl = data?.aboutBlockPortrait
     ? urlForImage(data.aboutBlockPortrait as Parameters<typeof urlForImage>[0])
-        .width(900)
-        .height(1200)
+        .width(1200)
+        .height(1600)
         .fit('crop')
         .url()
     : '/art/about-portrait.jpg'
 
   return (
-    <CanvasCards
+    <AboutFull
       bio={data?.aboutBlockBio ?? ''}
       portrait={portraitUrl}
-      ctaHref="/contact"
-      ctaLabel="Say hello"
     />
   )
 }

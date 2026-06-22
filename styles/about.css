@@ -1,12 +1,135 @@
 /* ─── About Page ─────────────────────────────────────────────────── */
 
-/* Nav fix: cream backgrounds need dark navigation ──────────────────
-   AboutHero adds body.about-page via useEffect; removed on unmount. */
+/* Nav fix: light/amber backgrounds need dark navigation.
+   AboutFull adds body.about-page + body.about-amber via useEffect. */
 body.about-page .site-nav {
   color: var(--ink-cacao);
 }
 body.mr2-mode.about-page .site-logo__img--cream { display: none; }
 body.mr2-mode.about-page .site-logo__img--cacao { display: block; }
+
+/* Amber body override: re-roots --ink-current to cacao so every V2
+   component (nav links, PillCta, menu overlay) inherits dark ink
+   automatically, regardless of the user's saved dark/light preference. */
+body.mr2-mode.about-amber {
+  background: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+  --ink-current: var(--ink-cacao);
+  --ink-muted-current: rgba(61, 31, 13, 0.52);
+  --rule-current: rgba(61, 31, 13, 0.1);
+  --v2-fg: var(--ink-cacao);
+}
+
+
+/* ═══════════════════════════════════════════════════════════════════
+   SECTION 3 — AboutFull
+   Full-bleed amber field with portrait + editorial bio.
+   No floating box. Colour fills edge-to-edge, top to bottom.
+   ═══════════════════════════════════════════════════════════════════ */
+
+.mr-about-full {
+  min-height: 100svh;
+  /* Amber softened with cream — warm and refined, not glaring */
+  background: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+
+  display: grid;
+  grid-template-columns: 0.9fr 1.1fr;
+  align-items: center;
+  gap: clamp(3.5rem, 6vw, 8rem);
+  padding:
+    clamp(7rem, 14vh, 11rem)
+    clamp(3rem, 8vw, 9rem)
+    clamp(5rem, 10vh, 8rem);
+}
+
+/* Portrait — generous size, soft corners, sits directly on the colour field */
+.mr-about-full__media {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 3 / 4;
+  border-radius: clamp(20px, 2.8vw, 48px);
+  overflow: hidden;
+}
+
+.mr-about-full__media img {
+  object-fit: cover;
+  will-change: transform;
+}
+
+/* Text column — ample breathing room */
+.mr-about-full__body {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: clamp(1.4rem, 3.2vh, 2.4rem);
+}
+
+.mr-about-full__eyebrow {
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ink-cacao);
+  opacity: 0.48;
+}
+
+/* Name: display serif, measured — not a wall of type */
+.mr-about-full__name {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(3.2rem, 5.5vw, 6.5rem);
+  line-height: 1.0;
+  letter-spacing: -0.025em;
+  color: var(--ink-cacao);
+}
+
+/* Bio: body serif at true reading size with generous leading */
+.mr-about-full__bio {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.2vw, 1.18rem);
+  line-height: 1.85;
+  color: var(--ink-cacao);
+  max-width: 44ch;
+}
+
+/* PillCta on amber — use inherited --ink-current (already dark cacao) */
+.mr-about-full .mr2-cta {
+  border-color: var(--ink-cacao);
+  color: var(--ink-cacao);
+}
+.mr-about-full .mr2-cta:hover:not(:disabled) {
+  background-color: var(--ink-cacao);
+  border-color: var(--ink-cacao);
+  color: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+}
+
+/* Mobile: portrait centred above text */
+@media (max-width: 768px) {
+  .mr-about-full {
+    grid-template-columns: 1fr;
+    padding: 7rem 1.75rem 4.5rem;
+    align-items: start;
+    gap: 2.75rem;
+  }
+
+  .mr-about-full__media {
+    width: min(72vw, 290px);
+    margin: 0 auto;
+  }
+
+  .mr-about-full__body {
+    align-items: center;
+    text-align: center;
+  }
+
+  .mr-about-full__name {
+    text-align: center;
+  }
+
+  .mr-about-full__bio {
+    text-align: left;
+    max-width: 36ch;
+  }
+}
 
 /* Shared: hidden SVG defs block ─────────────────────────────────── */
 .about-arch-svg {

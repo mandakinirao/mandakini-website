@@ -2,6 +2,55 @@
 
 ---
 
+## 2026-06-22 (a) — /about page redesign — full-bleed amber field
+
+**Prompt summary:**
+Replace the floating marigold card on /about with a full-bleed amber background design. Portrait bigger, bio text smaller and editorial, no rounded container/box — colour fills the entire viewport.
+
+---
+
+### Audit findings (before touching anything)
+
+**Route:** `app/(site)/about/page.tsx`
+**Current component:** `CanvasCards` (`components/home/v2/CanvasCards.tsx`)
+
+- `CanvasCards` renders `mr2-about-outer` (background `var(--v2-bg)`) wrapping `mr2-about` (marigold `#efa72e`, `border-radius: clamp(1.5rem, 2.5vw, 2.5rem)`, `max-width: 1200px`) — the "floating card on cream/dark" the user dislikes.
+- `mr2-about__line` bio text: `font-size: clamp(2rem, 3.4vw, 3.5rem)` — oversized display serif.
+- `CanvasCards` is used **only** on `/about` — not imported anywhere on the homepage. Safe to replace.
+- `ThemeV2` component adds `body.mr2-mode` on all non-V1, non-studio pages. `--ink-current` on `body.mr2-mode` becomes `var(--v2-fg)` = cream in dark mode — needs override for amber page.
+- Existing `body.about-page` body class (in `about.css`) already handles logo switch and nav colour — we extend this pattern.
+
+### Design decisions
+
+| Element | Old | New |
+|---|---|---|
+| Background | Cream/dark body + floating marigold card | Full-bleed `color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%)` |
+| Container | `max-width: 1200px`, `border-radius`, `padding` inside card | No container — section fills viewport |
+| Portrait size | `aspect-ratio: 3/4` inside a constrained card | `aspect-ratio: 3/4`, full left column (`0.9fr`), Sanity image at `1200×1600` |
+| Portrait corners | Inside a padded card | `border-radius: clamp(20px, 2.8vw, 48px)` on image mask directly |
+| Bio font-size | `clamp(2rem, 3.4vw, 3.5rem)` — display serif | `clamp(1rem, 1.2vw, 1.18rem)` — body serif, 1.85 leading |
+| Body class | None added | `about-page` (logo/nav) + `about-amber` (ink token override) |
+
+### Files changed
+
+| File | Change |
+|---|---|
+| `components/about/AboutFull.tsx` | New component — full-bleed amber about page |
+| `styles/about.css` | `body.mr2-mode.about-amber` token override block + Section 3 (AboutFull CSS) |
+| `app/(site)/about/page.tsx` | Swapped `CanvasCards` → `AboutFull`; portrait bump to `1200×1600` |
+
+### Build
+
+```
+✓ Compiled successfully — 16 routes, zero errors
+```
+
+### Status
+
+On branch `about-redesign`. Not merged to main. Awaiting visual review on Vercel preview.
+
+---
+
 ## 2026-06-21 (c) — Multi-upload image diagnosis (report only)
 
 **Prompt summary:**

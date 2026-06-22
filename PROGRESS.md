@@ -1,5 +1,19 @@
 # Progress Log
 
+## /about page redesign — full-bleed amber field (June 2026)
+- **Date:** 2026-06-22
+- **Branch:** `about-redesign` (not yet on main — awaiting visual review)
+- **Task:** Replace the floating marigold card on the /about page with a full-bleed amber background and a larger portrait placed directly on the colour field. Bio text reduced from `clamp(2rem, 3.4vw, 3.5rem)` display size to `clamp(1rem, 1.2vw, 1.18rem)` editorial body size.
+- **Previous component:** `CanvasCards` (shared with homepage, floating card pattern, `border-radius: clamp(1.5rem, 2.5vw, 2.5rem)`, marigold `#efa72e` background inside a padded outer wrapper on `var(--v2-bg)` background).
+- **New component:** `components/about/AboutFull.tsx` — full-page section, two-column grid desktop, single-column mobile. Portrait left, text right. No container, no card.
+- **Colour:** `color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%)` — softened amber from the locked palette, warm and refined. Applied both on `body.mr2-mode.about-amber` (so the body bg behind the nav matches) and on the section itself.
+- **Theme override:** `body.mr2-mode.about-amber` re-roots `--ink-current`, `--v2-fg`, `--ink-muted-current`, `--rule-current` to dark cacao values so all V2 components (nav links, PillCta, menu overlay) inherit correct dark ink on the amber field regardless of saved dark/light preference. Existing `about-page` body class handles logo switching (`site-logo__img--cacao` shown).
+- **Portrait:** Sanity image now requested at `1200×1600` (was `900×1200`), `aspect-ratio: 3/4`, `border-radius: clamp(20px, 2.8vw, 48px)`.
+- **Motion:** Portrait wipe reveal (clipPath inset 100%→0%, scale 1.08→1), eyebrow fade, `revealLines` on name (theatrical line split), bio fade-up, CTA autoAlpha fade. All via `mandaGsap` / `@/lib/motion`.
+- **Files changed:** `components/about/AboutFull.tsx` (new), `styles/about.css` (Section 3 + body token override added), `app/(site)/about/page.tsx` (swapped CanvasCards → AboutFull, portrait size bumped).
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+- **No merge to main yet — review on Vercel preview first.**
+
 ## shopItem — remove dangling `artwork` reference field (June 2026)
 - **Date:** 2026-06-21
 - **Task:** Urgent fix — Studio failing to load with "Unknown type: artwork" because `shopItem.artwork` referenced the now-deleted `artwork` type.
