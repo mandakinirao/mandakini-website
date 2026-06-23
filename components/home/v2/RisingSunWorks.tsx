@@ -150,6 +150,15 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
             duration: { min: 0.15, max: 0.4 },
             ease: EASE_SOFT_INOUT,
           },
+          onUpdate: (self) => {
+            if (!counter) return
+            const totalDur = steps + 1
+            let n = 1
+            for (let j = 1; j <= steps; j++) {
+              if (self.progress >= (j + 0.15) / totalDur) n = j + 1
+            }
+            counter.textContent = String(n)
+          },
         },
       })
 
@@ -174,11 +183,6 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
         )
         tl.to(titles[i - 1], { opacity: 0, duration: 0.2, ease: 'none' }, at + 0.1)
         tl.to(titles[i], { opacity: 1, duration: 0.25, ease: 'none' }, at + 0.55)
-        if (counter) {
-          tl.add(() => {
-            counter.textContent = String(i + 1)
-          }, at + 0.45)
-        }
       }
       tl.to({}, { duration: 0.4 })
     }, root)
