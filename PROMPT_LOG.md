@@ -2,6 +2,23 @@
 
 ---
 
+## 2026-06-23 — Schema audit + restructure (Phase 3)
+
+**Prompt summary:** Update all Sanity schemas to a new audited structure. Schema-only change — do not touch front-end components or GROQ consumers. Diagnose first, report, then implement. Do not commit or push.
+
+**Actions taken:**
+- Delivered full pre-change state report (11 document types, all fields, orphans identified).
+- Created `sanity/schemas/homepage.ts` and `sanity/schemas/about.ts` (new singletons).
+- Modified `project.ts`, `shopItem.ts`, `testimonial.ts`, `pressItem.ts`, `order.ts`, `siteSettings.ts`, `sanity/schemas/index.ts`, `sanity.config.ts`.
+- Build verified clean (`npm run build` — 16 routes, zero errors).
+- No commit or push. Stopped for localhost review.
+
+**Orphans pending confirmation:** `aboutPage` schema, `navigation` schema, 22 siteSettings fields, legacy shopItem commerce fields (`desc`, `basePrice`, Stripe fields, `purchaseType`, `availabilityStatus`, `stock`, `sizes`, `frameOptions`, `editionNumber`, `editionSize`, `sold`, `certificateIncluded`, `shippingInfo`).
+
+**Follow-up required:** GROQ query updates in `sanity/lib/queries.ts` (8 queries affected), data migration for `aboutPage` → `about`, `heroImages` → `homepage` singleton, siteSettings social handles.
+
+---
+
 ## 2026-06-22 (i) — Studio crash + upload CORS fix
 
 **Prompt summary:**

@@ -13,19 +13,13 @@ export const testimonialSchema = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'author',
-      title: 'Author Name',
+      name: 'personName',
+      title: 'Person Name',
       type: 'string',
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'role',
-      title: 'Role / Context',
-      type: 'string',
-      description: 'e.g. "Collector, Mumbai" or "Student, 2019–2023"',
-    }),
-    defineField({
-      name: 'order',
+      name: 'displayOrder',
       title: 'Display Order',
       type: 'number',
       description: 'Lower numbers show first.',
@@ -35,9 +29,9 @@ export const testimonialSchema = defineType({
   orderings: [
     {
       title: 'Display order',
-      name: 'orderAsc',
-      by: [{ field: 'order', direction: 'asc' }],
+      name: 'displayOrderAsc',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
     },
   ],
-  preview: { select: { title: 'author', subtitle: 'role' } },
+  preview: { select: { title: 'personName', subtitle: 'quote' } },
 })

@@ -1,5 +1,35 @@
 # Progress Log
 
+## Schema audit + restructure — Phase 3 (June 2026)
+- **Date:** 2026-06-23
+- **Scope:** Schema-only change. No front-end components or GROQ queries touched. Build verified clean after all changes.
+- **New schemas:**
+  - `sanity/schemas/homepage.ts` — `homepage` singleton; `heroRevealTop` + `heroRevealBottom` (both image + hotspot + alt, required). Replaces old `siteSettings.heroImages` array.
+  - `sanity/schemas/about.ts` — `about` singleton; `portrait` (image + hotspot + alt), `bio` (portable text blocks), `pullQuote` (string). Replaces `aboutPage` type.
+- **Modified schemas:**
+  - `project.ts`: `images` → `gallery` (array of images with alt required on each); `year`: `number` → `string`; slug reserved validation (learn/classes/login/account); added `featuredOnHomepage` (boolean, default false), `homepageOrder` (number).
+  - `shopItem.ts`: Images now have alt required. Added `price` (number), `description` (text), `displayOrder` (number), `featuredOnHomepage` (boolean, default false), `homepageOrder` (number). Old `desc`, `basePrice` fields and all legacy Stripe/commerce fields (`itemType`, `purchaseType`, `sizes`, `frameOptions`, `editionNumber`, `editionSize`, `sold`, `certificateIncluded`, `availabilityStatus`, `shippingInfo`, `stripeProductId`, `stripePriceId`, `stock`) kept in Studio with LEGACY labels pending explicit confirmation of removal.
+  - `testimonial.ts`: `author` → `personName`; `order` → `displayOrder`; `role` removed.
+  - `pressItem.ts`: `url` → `link`; `titleOverride` → `headlineOverride`; `imageOverride` → `thumbnailOverride`; `sourceOverride` → `source`; `order` → `displayOrder`; removed "Feature" from type list; added `featuredOnHomepage` (boolean, default false), `homepageOrder` (number).
+  - `order.ts`: Rebuilt for Razorpay. Removed Stripe fields (`orderId`, `stripeSessionId`). `shippingAddress` changed from structured object → plain text. `items` array: now `{shopItem ref, quantity, priceAtPurchase}`. Removed `paymentStatus` + `fulfillmentStatus` → single `status` select [Paid/Shipped/Delivered/Cancelled] default Paid. `waybillNumber` → `awbNumber`. Added `orderNumber`, `razorpayPaymentId`, `createdAt`. Removed `courierProvider`, `shippedDate`, `orderDate`.
+  - `siteSettings.ts`: Replaced 6-group / 23-field structure with 3-tab layout: Navigation (logo+alt, navItems array), Footer (footerText, instagramHandle default @mandakini_rao, youtubeHandle default @mandakinirao), Commerce (currency default INR, shippingNote, enquiryRecipientEmail, privateCollectionCtaLabel default "Enquire to view the private collection"). Old 22 siteSettings fields are now absent from the Studio — data still exists in documents but is not editable until migrated. Confirm removal.
+  - `sanity/schemas/index.ts`: Added `homepageSchema`, `aboutSchema`. `aboutPageSchema` and `navigationSchema` kept (existing data / legacy type continuity).
+  - `sanity.config.ts`: Desk structure reorganised into three tiers — Settings (Homepage/Site Settings/About singletons), Work (Projects/Press/Testimonials), Commerce (Shop Items/Orders/Enquiries) — plus catch-all for legacy types.
+- **GROQ queries that need updating in the NEXT task** (`sanity/lib/queries.ts` — not touched here):
+  - `testimonialsQuery`: `order(order asc)` → `order(displayOrder asc)`, `author` → `personName`, remove `role`
+  - `pressItemsQuery`: all 5 field renames
+  - `allSeriesQuery` + `featuredSeriesQuery`: `images` → `gallery`
+  - `featuredShopItemsQuery` + `allShopItemsQuery` + `shopItemsBySlugsQuery`: `desc` → `description`, `basePrice` → `price`
+  - `heroImagesQuery`: point at `*[_type == "homepage"][0]` with `heroRevealTop`/`heroRevealBottom`
+  - `siteSettingsBasicQuery`, `footerSocialQuery`, `siteSettingsShopQuery`: update to new siteSettings fields; `youtubeChannelName` → `youtubeHandle`
+  - `aboutPageQuery`: point at `*[_type == "about"][0]`, new field names
+- **Data migrations needed before decommissioning old types/fields:**
+  - Copy `aboutPage` documents → `about` (portrait, bio, pullQuote mapping)
+  - Populate `homepage` singleton with hero images (was `siteSettings.heroImages`)
+  - Copy `siteSettings.instagramHandle`, `youtubeChannelName` → new fields
+  - Existing `project.images` data → needs GROQ query update to target `gallery` (data stored under `images` key in documents is unaffected at the API level)
+- **Pending confirmation (await before deleting):** `aboutPage` schema, `navigation` schema, 22 orphaned siteSettings fields, legacy shopItem commerce fields.
+
 ## Sanity fixes — Studio crash + upload CORS (June 2026)
 - **Date:** 2026-06-22
 - **Studio crash fix (data):** Removed two zombie image items (`_key: 6eeed290155a`, `_key: 2255ce8860bc`) from the "London in Gouache" project document draft (`f56fd071-8dc9-4452-a30f-c123ef5a7145`). Items were stuck in `_upload: { progress: 100 }` state with no `asset` reference — caused `G.rebase` → `d.getAttribute` to throw "getAttribute only applies to plain objects" and crash the Studio structure tool on every load. Fix via Sanity MCP `patch_documents` unset. No code changes.

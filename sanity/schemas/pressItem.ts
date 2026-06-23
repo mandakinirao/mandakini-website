@@ -6,13 +6,12 @@ export const pressItemSchema = defineType({
   type: 'document',
   fields: [
     defineField({
-      name: 'url',
+      name: 'link',
       title: 'Link URL',
       type: 'url',
       description:
-        'Paste the article, video, or podcast link. Title, thumbnail, and source are auto-filled from this link at build time.',
-      validation: (Rule) =>
-        Rule.required().uri({ scheme: ['http', 'https'] }),
+        'Paste the article, video, or podcast link. Headline, thumbnail, and source are auto-filled at build time.',
+      validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }),
     }),
     defineField({
       name: 'type',
@@ -23,7 +22,6 @@ export const pressItemSchema = defineType({
           { title: 'Article', value: 'article' },
           { title: 'Video', value: 'video' },
           { title: 'Podcast', value: 'podcast' },
-          { title: 'Feature', value: 'feature' },
         ],
         layout: 'radio',
       },
@@ -31,18 +29,17 @@ export const pressItemSchema = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
-      name: 'titleOverride',
-      title: 'Title (override)',
+      name: 'headlineOverride',
+      title: 'Headline (override)',
       type: 'string',
       description: 'Leave blank to auto-fill from the link.',
     }),
     defineField({
-      name: 'imageOverride',
-      title: 'Image (override)',
+      name: 'thumbnailOverride',
+      title: 'Thumbnail (override)',
       type: 'image',
       options: { hotspot: true },
-      description:
-        'Leave blank to auto-fill. For print/online features, upload the publication’s logo here for a clean logo card.',
+      description: 'Leave blank to auto-fill. For print features, upload the publication logo here.',
       fields: [
         defineField({
           name: 'alt',
@@ -52,36 +49,48 @@ export const pressItemSchema = defineType({
       ],
     }),
     defineField({
-      name: 'sourceOverride',
-      title: 'Source / Publication (override)',
+      name: 'source',
+      title: 'Source / Publication',
       type: 'string',
-      description:
-        'e.g. “Telangana Today”. Leave blank to auto-fill from the link.',
+      description: 'e.g. "Telangana Today". Leave blank to auto-fill from the link.',
     }),
     defineField({
-      name: 'order',
+      name: 'displayOrder',
       title: 'Display Order',
       type: 'number',
       description: 'Lower numbers show first.',
       initialValue: 99,
     }),
+    defineField({
+      name: 'featuredOnHomepage',
+      title: 'Featured on Homepage',
+      type: 'boolean',
+      initialValue: false,
+      description: 'Show this press item in the homepage Press section.',
+    }),
+    defineField({
+      name: 'homepageOrder',
+      title: 'Homepage Order',
+      type: 'number',
+      description: 'Controls the sequence among featured homepage press items. Lower = first.',
+    }),
   ],
   orderings: [
     {
       title: 'Display Order',
-      name: 'orderAsc',
-      by: [{ field: 'order', direction: 'asc' }],
+      name: 'displayOrderAsc',
+      by: [{ field: 'displayOrder', direction: 'asc' }],
     },
   ],
   preview: {
     select: {
-      title: 'titleOverride',
-      url: 'url',
+      title: 'headlineOverride',
+      link: 'link',
       subtitle: 'type',
     },
-    prepare({ title, url, subtitle }: { title?: string; url?: string; subtitle?: string }) {
+    prepare({ title, link, subtitle }: { title?: string; link?: string; subtitle?: string }) {
       return {
-        title: title || url || '(no URL set)',
+        title: title || link || '(no URL set)',
         subtitle: subtitle ?? 'article',
       }
     },

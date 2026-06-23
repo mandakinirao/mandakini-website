@@ -5,12 +5,11 @@ export const orderSchema = defineType({
   title: 'Order',
   type: 'document',
   fields: [
-    defineField({ name: 'orderId', title: 'Order ID (Stripe)', type: 'string' }),
     defineField({
-      name: 'stripeSessionId',
-      title: 'Stripe Checkout Session ID',
+      name: 'orderNumber',
+      title: 'Order Number',
       type: 'string',
-      description: 'Idempotency key — one order per checkout session, webhook replays never duplicate.',
+      description: 'Human-readable reference, e.g. MR-2024-001.',
     }),
     defineField({ name: 'customerName', title: 'Customer Name', type: 'string' }),
     defineField({ name: 'customerEmail', title: 'Customer Email', type: 'string' }),
@@ -18,40 +17,76 @@ export const orderSchema = defineType({
     defineField({
       name: 'shippingAddress',
       title: 'Shipping Address',
-      type: 'object',
-      fields: [
-        { name: 'line1', title: 'Address Line 1', type: 'string' },
-        { name: 'line2', title: 'Address Line 2', type: 'string' },
-        { name: 'city', title: 'City', type: 'string' },
-        { name: 'state', title: 'State', type: 'string' },
-        { name: 'pincode', title: 'Pincode', type: 'string' },
-        { name: 'country', title: 'Country', type: 'string', initialValue: 'India' },
-      ],
+      type: 'text',
+      rows: 4,
+      description: 'Full shipping address as a block of text.',
     }),
     defineField({
       name: 'items',
       title: 'Items Ordered',
       type: 'array',
-      of: [{
-        type: 'object',
-        fields: [
-          { name: 'shopItemRef', title: 'Shop Item', type: 'reference', to: [{ type: 'shopItem' }] },
-          { name: 'sizeSelected', title: 'Size Selected', type: 'string' },
-          { name: 'frameOption', title: 'Frame Option', type: 'string' },
-          { name: 'quantity', title: 'Quantity', type: 'number' },
-          { name: 'price', title: 'Price (INR)', type: 'number' },
-        ],
-      }],
+      of: [
+        {
+          type: 'object',
+          fields: [
+            defineField({
+              name: 'shopItem',
+              title: 'Shop Item',
+              type: 'reference',
+              to: [{ type: 'shopItem' }],
+            }),
+            defineField({ name: 'quantity', title: 'Quantity', type: 'number' }),
+            defineField({ name: 'priceAtPurchase', title: 'Price at Purchase (INR)', type: 'number' }),
+          ],
+          preview: {
+            select: { title: 'shopItem.title', subtitle: 'priceAtPurchase' },
+          },
+        },
+      ],
     }),
-    defineField({ name: 'totalAmount', title: 'Total Amount (INR)', type: 'number' }),
-    defineField({ name: 'paymentStatus', title: 'Payment Status', type: 'string', options: { list: ['paid', 'pending', 'refunded'], layout: 'radio' }, initialValue: 'pending' }),
-    defineField({ name: 'fulfillmentStatus', title: 'Fulfillment Status', type: 'string', options: { list: ['new', 'processing', 'shipped', 'delivered'], layout: 'radio' }, initialValue: 'new' }),
-    defineField({ name: 'waybillNumber', title: 'Waybill Number', type: 'string', description: 'Enter after shipping the order' }),
-    defineField({ name: 'courierProvider', title: 'Courier Provider', type: 'string', description: 'e.g. Delhivery, India Post, Shiprocket' }),
-    defineField({ name: 'orderDate', title: 'Order Date', type: 'datetime' }),
-    defineField({ name: 'shippedDate', title: 'Shipped Date', type: 'datetime' }),
+    defineField({ name: 'amountTotal', title: 'Total Amount (INR)', type: 'number' }),
+    defineField({
+      name: 'razorpayPaymentId',
+      title: 'Razorpay Payment ID',
+      type: 'string',
+      description: 'Idempotency key from Razorpay — one order per payment.',
+    }),
+    defineField({
+      name: 'status',
+      title: 'Order Status',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Paid', value: 'paid' },
+          { title: 'Shipped', value: 'shipped' },
+          { title: 'Delivered', value: 'delivered' },
+          { title: 'Cancelled', value: 'cancelled' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'paid',
+    }),
+    defineField({
+      name: 'awbNumber',
+      title: 'AWB Number',
+      type: 'string',
+      description: 'Air Waybill / tracking number. Enter after shipping the order.',
+    }),
+    defineField({
+      name: 'createdAt',
+      title: 'Created At',
+      type: 'datetime',
+      description: 'Timestamp set by the payment webhook when the order is first created.',
+    }),
+  ],
+  orderings: [
+    {
+      title: 'Newest first',
+      name: 'createdAtDesc',
+      by: [{ field: 'createdAt', direction: 'desc' }],
+    },
   ],
   preview: {
-    select: { title: 'customerName', subtitle: 'fulfillmentStatus' },
+    select: { title: 'customerName', subtitle: 'status' },
   },
 })
