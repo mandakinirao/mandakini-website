@@ -97,15 +97,13 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
                 {piece.title || `${series.name} ${String(i + 1).padStart(2, '0')}`}
                 {piece.note && <em>{piece.note}</em>}
               </span>
-              {piece.sale ? (
+              {piece.sale && (
                 <Link
                   href={piece.sale.href}
                   className="mr-detail__sale"
-                                 >
+                >
                   For sale · {piece.sale.label} <span aria-hidden="true">→</span>
                 </Link>
-              ) : (
-                <span className="mr-detail__nfs">Not for sale</span>
               )}
             </figcaption>
           </figure>
