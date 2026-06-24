@@ -2,6 +2,49 @@
 
 ---
 
+## 2026-06-24 — Phase 3: 404 page
+
+**Prompt summary:** Multi-phase session. Phase 3: create the 404 not-found page with breathing GSAP radial gradient (terracotta/amber/rosehip/moss), Lottie Persian cat placeholder, and pill CTA home.
+
+**Actions taken:**
+- Confirmed no `not-found.tsx` existed. Installed `lottie-react@2.4.1`.
+- Created `public/lottie/persian-cat.json` (minimal valid empty Lottie — placeholder).
+- Created `components/NotFound.tsx`: four blob divs with radial gradients, GSAP yoyo breathing, Lottie dynamic import with `LOTTIE_PLACEHOLDER` const, text, `PillCta href="/"`.
+- Created `app/not-found.tsx`: imports `NotFound`, exports metadata.
+- Appended `.mr-nf` CSS block to `app/v2.css`.
+- Fixed TypeScript error: `lottie-react` doesn't accept `animationData: null` — replaced with valid empty Lottie object.
+- Build verified clean. Committed `02074fc`.
+
+---
+
+## 2026-06-24 — Phase 2: works index fixed-slot crossfade preview
+
+**Prompt summary:** Multi-phase session. Phase 2: replace cursor-following floating image preview on the Tier 2 works list with a fixed-position GSAP opacity crossfade between per-series image slots.
+
+**Actions taken:**
+- Removed `previewImgRef`, cursor-follow logic (`quickTo x/y`, `pointermove`, scroll-hide), per-row pointerleave hide.
+- Added `slotRefs` array; each series pre-renders an `<img>` stacked in the preview panel at `opacity: 0`.
+- `pointerenter` → crossfade in/out active slots. `pointerleave` on `.mr-windex__list` → hide panel.
+- Updated `.mr-windex__preview` CSS: fixed right panel (`right: clamp(2rem,5vw,6rem); top:50%; transform:translateY(-50%)`), added `.mr-windex__preview-img` for stacked positioning.
+- Build verified clean. Committed `cd5b34a`.
+
+---
+
+## 2026-06-24 — Phase 1: dark theme removal
+
+**Prompt summary:** Multi-phase session. Phase 1: remove the dark/light theme toggle system entirely. Collapse to a single cream stage. Preserve V1 route isolation — `body:not(.mr2-mode)` cursor rule must keep working.
+
+**Actions taken:**
+- Diagnosed V1 isolation conflict before acting: `mr2-mode` serves two roles (theme gating + V1 discriminator). Resolved by keeping `mr2-mode` as V1 guard only, stripping theme logic.
+- Pruned `ThemeV2.tsx` to V1 guard only (no localStorage, no `mr2-light`).
+- Removed `THEME_KEY`, `toggleTheme`, `light` state, and toggle button from `Navigation.tsx`.
+- Promoted light-canonical values to `:root` in `v2.css`; deleted `body.mr2-mode.mr2-light` block; fixed logo to always show cacao; removed theme-toggle CSS; fixed `mr2-works__meta` blend mode.
+- Deleted `.menu-overlay__theme*` CSS from `globals.css`.
+- Stripped `body.mr2-mode.` prefix from all page-wash selectors in `pages.css` and `about.css`.
+- Build verified clean. Committed `e39580e`.
+
+---
+
 ## 2026-06-23 — Schema audit + restructure (Phase 3)
 
 **Prompt summary:** Update all Sanity schemas to a new audited structure. Schema-only change — do not touch front-end components or GROQ consumers. Diagnose first, report, then implement. Do not commit or push.

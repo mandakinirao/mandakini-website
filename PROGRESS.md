@@ -1,5 +1,37 @@
 # Progress Log
 
+## Phase 3 — 404 page: breathing gradient + Lottie slot (June 2026)
+- **Date:** 2026-06-24
+- **Commit:** `02074fc`
+- **Task:** Create the missing 404 page at `app/not-found.tsx` with a GSAP breathing gradient and a Lottie Persian cat placeholder.
+- **Breathing gradient:** Four `position: absolute` radial-gradient blob divs in terracotta (`rgba(184,87,42,0.28)`), amber (`rgba(200,152,57,0.24)`), rosehip (`rgba(121,35,24,0.22)`), moss (`rgba(91,100,62,0.2)`). Each breathes via `mandaGsap.to({ scale: 1.22, yoyo, repeat: -1, ease: EASE_SINE })` at staggered 0.85s delays. Reduced motion: no animation.
+- **Lottie:** `lottie-react` installed (v2.4.1). `LOTTIE_PLACEHOLDER` const holds a minimal empty Lottie JSON (renders nothing). Swap for actual Persian cat animation JSON when ready. Mounted `dynamic(() => import('lottie-react'), { ssr: false })` to avoid SSR.
+- **Layout:** Full-viewport centered column — Lottie slot → "404" eyebrow → display heading → sub copy → PillCta home. Background uses `var(--v2-bg)` (cream). Page is outside `(site)` layout so no nav/footer — intentional for 404.
+- **CSS:** `.mr-nf` block appended to `app/v2.css`.
+- **Build result:** ✓ zero errors. 17 routes (new `/_not-found` static route).
+
+## Phase 2 — Works index fixed-slot crossfade preview (June 2026)
+- **Date:** 2026-06-24
+- **Commit:** `cd5b34a`
+- **Task:** Replace the cursor-following floating image on the Tier 2 works list with a fixed-position right panel that crossfades between per-series images on hover.
+- **Removed:** `previewImgRef`, `quickTo x/y`, `pointermove`, `EASE_OUT` import, per-row pointerleave hide, scroll-event hide, single `<img>` with swapped `src`.
+- **Added:** `slotRefs` array (one img ref per series), all stacked `position: absolute` in the preview panel. `pointerenter` on row i: fade out previous slot (0.2s), fade in new slot (0.35s), show panel on first hover. `pointerleave` on `.mr-windex__list`: fade all out (0.3s) — no flicker between adjacent rows.
+- **Preview CSS:** Changed from `top: 0; left: 0` (cursor-positioned) to `right: clamp(2rem, 5vw, 6rem); top: 50%; transform: translateY(-50%)` (fixed right, vertically centred). Shadow lightened for cream stage.
+- **Build result:** ✓ zero errors. 16 routes.
+
+## Phase 1 — Dark theme removal (June 2026)
+- **Date:** 2026-06-24
+- **Commit:** `e39580e`
+- **Task:** Collapse the dual dark/light theme system to a single permanent cream stage. Remove the theme toggle button and all dark-mode CSS.
+- **ThemeV2.tsx:** Stripped to V1 guard only — sets `mr2-mode` on non-V1/non-Studio routes, removes stale `mr2-light` class. No localStorage, no toggling.
+- **Navigation.tsx:** Removed `THEME_KEY`, `light` state, localStorage `useEffect`, `toggleTheme()`, and the `menu-overlay__theme` button JSX.
+- **app/v2.css:** `:root` now holds cream-canonical token values (`--v2-bg: #f2ead9`, `--v2-fg: #221408`, etc.). Deleted `body.mr2-mode.mr2-light` block. Logo always shows cacao variant. Removed theme-toggle CSS blocks. `mr2-works__meta` changed from `mix-blend-mode: difference` + cream to `normal` + `var(--v2-fg)`.
+- **app/globals.css:** Deleted `.menu-overlay__theme`, `.menu-overlay__theme:hover`, `.menu-overlay__theme-dot` CSS blocks. `body:not(.mr2-mode) .mrx-cursor` rule left untouched (V1 isolation).
+- **styles/pages.css:** Stripped `body.mr2-mode.` prefix from all 9 page-wash selectors — they now apply unconditionally.
+- **styles/about.css:** Stripped `body.mr2-mode.` prefix from 3 selectors (logo swap, amber override).
+- **V1 isolation:** `mr2-mode` is still conditionally absent on `/?v=1` — `body:not(.mr2-mode)` cursor rule continues to fire correctly. No V1 selector was touched.
+- **Build result:** ✓ zero errors. 16 routes. Pre-existing warnings unchanged.
+
 ## Schema audit + restructure — Phase 3 (June 2026)
 - **Date:** 2026-06-23
 - **Scope:** Schema-only change. No front-end components or GROQ queries touched. Build verified clean after all changes.
