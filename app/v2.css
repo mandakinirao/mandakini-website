@@ -1770,9 +1770,11 @@ body.mr2-mode .mr-detail__sale:hover {
 }
 
 .mr-nf__lottie {
+  position: relative;
   width: clamp(160px, 22vw, 260px);
   aspect-ratio: 1;
 }
+
 
 .mr-nf__code {
   font-family: var(--font-label);

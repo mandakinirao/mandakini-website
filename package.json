@@ -10,6 +10,7 @@
     "deploy": "git push origin main && sh deploy.sh"
   },
   "dependencies": {
+    "@lottiefiles/dotlottie-react": "^0.19.5",
     "@sanity/image-url": "^2.1.1",
     "@sanity/vision": "3.99.0",
     "framer-motion": "^12.40.0",

@@ -5,11 +5,12 @@ import { useEffect, useRef } from 'react'
 import PillCta from '@/components/ui/PillCta'
 import { EASE_SINE, mandaGsap, prefersReducedMotion } from '@/lib/motion'
 
-const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
+const DotLottieReact = dynamic(
+  () => import('@lottiefiles/dotlottie-react').then((m) => m.DotLottieReact),
+  { ssr: false }
+)
 
-// Placeholder until the actual Persian cat animation is supplied.
-// Replace with: import persianCat from '@/components/lottie/persian-cat.json'
-const LOTTIE_PLACEHOLDER = { v: '5.9.0', fr: 24, ip: 0, op: 72, w: 400, h: 400, nm: 'persian-cat', ddd: 0, assets: [] as unknown[], layers: [] as unknown[] }
+const CAT_LOTTIE = 'https://lottie.host/8cf4ba71-e5fb-44f3-8134-178c4d389417/0CCsdcgNIP.json'
 
 export default function NotFound() {
   const b1 = useRef<HTMLDivElement>(null)
@@ -44,14 +45,8 @@ export default function NotFound() {
       <div ref={b4} className="mr-nf__blob mr-nf__blob--4" aria-hidden="true" />
 
       <div className="mr-nf__body">
-        {/* TODO: swap LOTTIE_PLACEHOLDER for the actual Persian cat animation JSON */}
         <div className="mr-nf__lottie" aria-hidden="true">
-          <Lottie
-            animationData={LOTTIE_PLACEHOLDER}
-            loop
-            autoplay
-            style={{ width: '100%', height: '100%' }}
-          />
+          <DotLottieReact src={CAT_LOTTIE} loop autoplay style={{ width: '100%', height: '100%' }} />
         </div>
 
         <p className="mr-nf__code">404</p>
