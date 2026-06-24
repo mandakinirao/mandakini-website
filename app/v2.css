@@ -543,29 +543,34 @@ html.mr-intro-seen .mr2-loader {
   }
 }
 
-/* ── Hero Scene — ink-reveal cursor interaction ──────────────────────── */
+/* ── Hero Scene — clip-path panel + ink-reveal ───────────────────────── */
 
 .mr2-hscene {
-  position: sticky;
-  top: 0;
+  position: relative;         /* GSAP pin inserts its own spacer */
   z-index: 1;
   height: 100vh;
   overflow: hidden;
-  background: #2C1A0E; /* cacao — shows behind both image layers */
+  background: var(--v2-bg);   /* cream mat visible outside the clip panel */
   isolation: isolate;
-  transform-origin: center top;
 }
 
-/* Content panel that slides up over the sticky hero */
+/* The clipped panel — GSAP animates clip-path on this element */
+.mr2-hscene__clip {
+  position: absolute;
+  inset: 0;
+  will-change: clip-path;
+}
+
+/* Content panel with rounded top corners as it scrolls over the hero */
 .mr2-home__content {
   position: relative;
   z-index: 2;
   border-radius: clamp(12px, 2vw, 24px) clamp(12px, 2vw, 24px) 0 0;
   background: var(--v2-bg);
-  overflow: clip; /* rounds the top corners without a scroll container */
+  overflow: clip;
 }
 
-/* Ink-reveal canvas mount — fills the hero */
+/* Ink-reveal canvas mount — fills the clip panel */
 .mr2-ink {
   position: absolute;
   inset: 0;
@@ -596,12 +601,12 @@ html.mr-intro-seen .mr2-loader {
   );
 }
 
-/* Text — static, lower-centre, no animation */
+/* Text — anchored at lower-centre; GSAP shifts it up to clip-centre at start */
 .mr2-hscene__text {
   position: absolute;
-  bottom: clamp(4rem, 10vh, 7rem);
+  top: 72%;
   left: 50%;
-  transform: translateX(-50%);
+  transform: translate(-50%, -50%); /* fallback / reduced-motion centering */
   z-index: 10;
   text-align: center;
   pointer-events: none;
