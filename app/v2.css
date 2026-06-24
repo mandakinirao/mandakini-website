@@ -1702,3 +1702,100 @@ body.mr2-mode .mr-detail__sale:hover {
     grid-template-columns: 1fr;
   }
 }
+
+
+/* ── 404 Not Found ─────────────────────────────────────────────────── */
+
+.mr-nf {
+  position: relative;
+  min-height: 100svh;
+  background: var(--v2-bg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+/* Breathing radial blobs — terracotta / amber / rosehip / moss */
+.mr-nf__blob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(clamp(40px, 8vw, 90px));
+  pointer-events: none;
+  will-change: transform;
+}
+
+.mr-nf__blob--1 {
+  width: clamp(260px, 36vw, 480px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(184, 87, 42, 0.28) 0%, transparent 70%);
+  top: 10%;
+  left: 12%;
+}
+
+.mr-nf__blob--2 {
+  width: clamp(200px, 28vw, 380px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(200, 152, 57, 0.24) 0%, transparent 70%);
+  top: 55%;
+  right: 8%;
+}
+
+.mr-nf__blob--3 {
+  width: clamp(180px, 22vw, 320px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(121, 35, 24, 0.22) 0%, transparent 70%);
+  bottom: 12%;
+  left: 22%;
+}
+
+.mr-nf__blob--4 {
+  width: clamp(160px, 20vw, 280px);
+  aspect-ratio: 1;
+  background: radial-gradient(circle, rgba(91, 100, 62, 0.2) 0%, transparent 70%);
+  top: 20%;
+  right: 20%;
+}
+
+/* Content column */
+.mr-nf__body {
+  position: relative;
+  z-index: 2;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: clamp(1rem, 2.5vh, 1.75rem);
+  text-align: center;
+  padding: clamp(3rem, 8vh, 6rem) clamp(1.5rem, 6vw, 4rem);
+}
+
+.mr-nf__lottie {
+  width: clamp(160px, 22vw, 260px);
+  aspect-ratio: 1;
+}
+
+.mr-nf__code {
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--accent-terracotta);
+}
+
+.mr-nf__heading {
+  font-family: var(--font-display);
+  font-size: clamp(2.4rem, 5vw, 5rem);
+  font-weight: 400;
+  line-height: 1.05;
+  letter-spacing: -0.02em;
+  color: var(--v2-fg);
+  margin: 0;
+}
+
+.mr-nf__sub {
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.1vw, 1.1rem);
+  color: var(--v2-fg-dim);
+  max-width: 34ch;
+  line-height: 1.65;
+}
