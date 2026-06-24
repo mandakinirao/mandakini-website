@@ -8,7 +8,6 @@ import type { HomeSeries } from '@/lib/home-data'
 import {
   DUR,
   EASE,
-  EASE_OUT,
   isTouch,
   mandaGsap,
   prefersReducedMotion,
@@ -42,7 +41,7 @@ export default function WorksIndex({
 }: WorksIndexProps) {
   const rootRef = useRef<HTMLElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
-  const previewImgRef = useRef<HTMLImageElement>(null)
+  const slotRefs = useRef<(HTMLImageElement | null)[]>([])
   const tierOne = (featured.length ? featured : series).slice(0, FEATURED_COUNT)
 
   useEffect(() => {
@@ -100,66 +99,37 @@ export default function WorksIndex({
       }
 
       const preview = previewRef.current
-      const previewImg = previewImgRef.current
-      if (!reduced && !touch && preview && previewImg) {
-        mandaGsap.set(preview, { xPercent: -50, yPercent: -112, scale: 0.92 })
-        const toX = mandaGsap.quickTo(preview, 'x', {
-          duration: 0.4,
-          ease: EASE_OUT,
-        })
-        const toY = mandaGsap.quickTo(preview, 'y', {
-          duration: 0.4,
-          ease: EASE_OUT,
-        })
-        const move = (e: PointerEvent) => {
-          toX(e.clientX)
-          toY(e.clientY)
-        }
+      const slots = slotRefs.current.filter(Boolean) as HTMLImageElement[]
+      if (!reduced && !touch && preview && slots.length) {
+        mandaGsap.set(preview, { autoAlpha: 0 })
+        mandaGsap.set(slots, { autoAlpha: 0 })
 
-        // pointerleave does NOT fire when the page scrolls under a
-        // stationary cursor — force-hide on any scroll event instead.
-        const hidePreview = () =>
-          mandaGsap.to(preview, {
-            autoAlpha: 0,
-            scale: 0.92,
-            duration: 0.25,
-            ease: EASE,
-          })
-        window.addEventListener('scroll', hidePreview, { passive: true })
-        // Tie scroll-listener cleanup to the AbortController so a single
-        // aborter.abort() in the useEffect return tears down everything.
-        signal.addEventListener('abort', () =>
-          window.removeEventListener('scroll', hidePreview)
-        )
+        let activeIdx = -1
 
-        root.querySelectorAll<HTMLElement>('.mr-windex__row').forEach((row) => {
-          row.addEventListener(
-            'pointerenter',
-            (e) => {
-              previewImg.src = row.dataset.cover ?? ''
-              mandaGsap.set(preview, { x: e.clientX, y: e.clientY })
-              mandaGsap.to(preview, {
-                autoAlpha: 1,
-                scale: 1,
-                duration: 0.35,
-                ease: EASE,
-              })
-            },
-            { signal }
-          )
-          row.addEventListener(
-            'pointerleave',
-            () =>
-              mandaGsap.to(preview, {
-                autoAlpha: 0,
-                scale: 0.92,
-                duration: 0.25,
-                ease: EASE,
-              }),
-            { signal }
-          )
-          row.addEventListener('pointermove', move, { signal })
+        root.querySelectorAll<HTMLElement>('.mr-windex__row').forEach((row, i) => {
+          row.addEventListener('pointerenter', () => {
+            if (activeIdx === i) return
+            if (activeIdx === -1) {
+              mandaGsap.to(preview, { autoAlpha: 1, duration: 0.3, ease: EASE })
+            }
+            if (activeIdx >= 0 && slots[activeIdx]) {
+              mandaGsap.to(slots[activeIdx], { autoAlpha: 0, duration: 0.2, ease: EASE })
+            }
+            if (slots[i]) {
+              mandaGsap.to(slots[i], { autoAlpha: 1, duration: 0.35, ease: EASE })
+            }
+            activeIdx = i
+          }, { signal })
         })
+
+        const list = root.querySelector<HTMLElement>('.mr-windex__list')
+        list?.addEventListener('pointerleave', () => {
+          if (activeIdx >= 0 && slots[activeIdx]) {
+            mandaGsap.to(slots[activeIdx], { autoAlpha: 0, duration: 0.2, ease: EASE })
+          }
+          mandaGsap.to(preview, { autoAlpha: 0, duration: 0.3, ease: EASE })
+          activeIdx = -1
+        }, { signal })
       }
     }, root)
 
@@ -256,10 +226,18 @@ export default function WorksIndex({
         </div>
       </div>
 
-      {/* floating cover preview (desktop hover) */}
+      {/* fixed cover preview — crossfade between per-series slots (desktop hover) */}
       <div ref={previewRef} className="mr-windex__preview" aria-hidden="true">
-        {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img ref={previewImgRef} alt="" />
+        {series.map((item, i) => (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img
+            key={item.slug}
+            ref={(el) => { slotRefs.current[i] = el }}
+            src={item.images[0]}
+            alt=""
+            className="mr-windex__preview-img"
+          />
+        ))}
       </div>
     </section>
   )
