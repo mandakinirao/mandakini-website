@@ -5,13 +5,12 @@
 body.about-page .site-nav {
   color: var(--ink-cacao);
 }
-body.mr2-mode.about-page .site-logo__img--cream { display: none; }
-body.mr2-mode.about-page .site-logo__img--cacao { display: block; }
+body.about-page .site-logo__img--cream { display: none; }
+body.about-page .site-logo__img--cacao { display: block; }
 
 /* Amber body override: re-roots --ink-current to cacao so every V2
-   component (nav links, PillCta, menu overlay) inherits dark ink
-   automatically, regardless of the user's saved dark/light preference. */
-body.mr2-mode.about-amber {
+   component (nav links, PillCta, menu overlay) inherits dark ink. */
+body.about-amber {
   background: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
   --ink-current: var(--ink-cacao);
   --ink-muted-current: rgba(61, 31, 13, 0.52);

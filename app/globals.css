@@ -1767,38 +1767,6 @@ body.home-intro-active .site-nav {
   transform: translateX(8px);
 }
 
-.menu-overlay__theme {
-  margin-top: 2.5rem;
-  display: inline-flex;
-  align-items: center;
-  gap: 0.55rem;
-  padding: 0.55rem 1.2rem;
-  border: 1px solid rgba(61, 31, 13, 0.25);
-  border-radius: 999px;
-  background: transparent;
-  color: rgba(61, 31, 13, 0.55);
-  cursor: pointer;
-  font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.28em;
-  text-transform: uppercase;
-  transition: color 200ms var(--ease-manda), border-color 200ms var(--ease-manda);
-}
-
-.menu-overlay__theme:hover {
-  color: var(--ink-cacao);
-  border-color: rgba(61, 31, 13, 0.45);
-}
-
-.menu-overlay__theme-dot {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #efa72e;
-  flex-shrink: 0;
-}
-
 /* ── Responsive ────────────────────────────────────────────────────── */
 
 @media (max-width: 900px) {

@@ -1,7 +1,6 @@
 /* ═══════════════════════════════════════════════════════════════════
-   V2 — "The Gallery Poster" pitch (/?v=2)
-   Theme-token driven: dark stage by default, cream stage via
-   body.mr2-light. Marigold/indigo come from the MS Subbulakshmi
+   V2 — "The Gallery Poster"
+   Single cream stage. Marigold/indigo come from the MS Subbulakshmi
    duotones and are reserved for surfaces, never body text.
    ═══════════════════════════════════════════════════════════════════ */
 
@@ -10,29 +9,25 @@
   --v2-indigo: #4e5180;
   --v2-ink-on-marigold: #1a1206;
 
-  /* dark theme defaults live on :root so V2 components (footer,
-     cursor) hold together even before the body class lands */
-  --v2-bg: #0d0a07;
-  --v2-bg-deep: #060606;
-  --v2-fg: #f5efe4;
-  --v2-fg-dim: rgba(245, 239, 228, 0.6);
-  --v2-fg-faint: rgba(245, 239, 228, 0.16);
-  --v2-card: #11100c;
+  /* cream stage — canonical palette */
+  --v2-bg: #f2ead9;
+  --v2-bg-deep: #ece2cd;
+  --v2-fg: #221408;
+  --v2-fg-dim: rgba(34, 20, 8, 0.6);
+  --v2-fg-faint: rgba(34, 20, 8, 0.16);
+  --v2-card: #faf4e8;
 
-  /* fixed values — surfaces that never theme-switch (loader,
-     card stock, night-surface ink) */
+  /* fixed values — surfaces that never change (loader, card stock) */
   --v2-cream: #f5efe4;
   --v2-night: #0d0a07;
   --v2-void: #060606;
   --v2-rosehip: #792318;
 
-  /* Accent system (Phase 1, June 2026) — semantic, theme-aware.
-     Raw palette values live in globals.css :root; these resolve per
-     stage so every accent holds WCAG AA (lifted dark-stage variants
-     documented in PROJECT.md §6 Color usage). */
-  --accent-index: var(--accent-amber); /* numerals — amber, 7.5:1 on dark */
-  --accent-eyebrow: #9daa7e; /* moss, lifted for the dark stage — 8:1 */
-  --accent-link: #c4685a; /* rosehip, lifted for the dark stage — 5.2:1 */
+  /* Accent system (Phase 1, June 2026) — semantic.
+     Raw palette values live in globals.css :root. */
+  --accent-index: #8a6312; /* amber deepened — 4.6:1 on cream */
+  --accent-eyebrow: var(--accent-moss);
+  --accent-link: var(--accent-rosehip);
 }
 
 body.mr2-mode {
@@ -41,21 +36,6 @@ body.mr2-mode {
   --ink-current: var(--v2-fg);
   --ink-muted-current: var(--v2-fg-dim);
   --rule-current: var(--v2-fg-faint);
-}
-
-body.mr2-mode.mr2-light {
-  --v2-bg: #f2ead9;
-  --v2-bg-deep: #ece2cd;
-  --v2-fg: #221408;
-  --v2-fg-dim: rgba(34, 20, 8, 0.6);
-  --v2-fg-faint: rgba(34, 20, 8, 0.16);
-  --v2-card: #faf4e8;
-
-  /* accents resolve to the raw palette on cream (AA holds unlifted);
-     amber deepens — raw amber reads 2.2:1 on cream */
-  --accent-index: #8a6312;
-  --accent-eyebrow: var(--accent-moss);
-  --accent-link: var(--accent-rosehip);
 }
 
 body.mr2-mode .mr-cursor {
@@ -74,13 +54,9 @@ body.mr2-mode::-webkit-scrollbar-thumb { background: var(--v2-fg-faint); }
 body.mr2-mode .site-logo__text { display: none; }
 body.mr2-mode .site-logo__mark { display: flex; }
 
-/* Dark mode: cream logo on dark bg */
-body.mr2-mode .site-logo__img--cream { display: block; }
-body.mr2-mode .site-logo__img--cacao { display: none; }
-
-/* Light mode: cacao logo on cream bg */
-body.mr2-mode.mr2-light .site-logo__img--cream { display: none; }
-body.mr2-mode.mr2-light .site-logo__img--cacao { display: block; }
+/* Cream stage: cacao logo on cream bg */
+body.mr2-mode .site-logo__img--cream { display: none; }
+body.mr2-mode .site-logo__img--cacao { display: block; }
 
 /* ── Menu overlay — theme-aware colours ────────────────────────────
    The overlay background and text must follow --v2-bg / --v2-fg so
@@ -96,16 +72,6 @@ body.mr2-mode .menu-overlay__inner > p {
 
 body.mr2-mode .menu-overlay__links a {
   color: var(--v2-fg);
-}
-
-body.mr2-mode .menu-overlay__theme {
-  border-color: var(--v2-fg-faint);
-  color: var(--v2-fg-dim);
-}
-
-body.mr2-mode .menu-overlay__theme:hover {
-  color: var(--v2-fg);
-  border-color: var(--v2-fg-faint);
 }
 
 /* Loader logo — large centered PNG shown after field turns dark */
@@ -157,8 +123,6 @@ body.mr2-mode .menu-overlay__theme:hover {
   height: 8px;
   background: #b8572a; /* terracotta — fixed, visible on both stages */
 }
-
-/* ── Theme toggle ──────────────────────────────────────────────────── */
 
 /* ── Keyboard focus — visible in both themes ───────────────────────── */
 
@@ -582,11 +546,23 @@ html.mr-intro-seen .mr2-loader {
 /* ── Hero Scene — ink-reveal cursor interaction ──────────────────────── */
 
 .mr2-hscene {
-  position: relative;
+  position: sticky;
+  top: 0;
+  z-index: 1;
   height: 100vh;
   overflow: hidden;
   background: #2C1A0E; /* cacao — shows behind both image layers */
   isolation: isolate;
+  transform-origin: center top;
+}
+
+/* Content panel that slides up over the sticky hero */
+.mr2-home__content {
+  position: relative;
+  z-index: 2;
+  border-radius: clamp(12px, 2vw, 24px) clamp(12px, 2vw, 24px) 0 0;
+  background: var(--v2-bg);
+  overflow: clip; /* rounds the top corners without a scroll container */
 }
 
 /* Ink-reveal canvas mount — fills the hero */
@@ -804,9 +780,6 @@ html.mr-intro-seen .mr2-loader {
   transform: rotate(10deg) translate(9%, -5%);
 }
 
-/* Dark theme: meta in difference — cream on the stage, flips dark over
-   the sun. Light theme: difference fails against cream, so it switches
-   to solid ink (readable on both cream and marigold). */
 .mr2-works__meta {
   position: absolute;
   right: 0;
@@ -816,14 +789,9 @@ html.mr-intro-seen .mr2-loader {
   display: grid;
   justify-items: center;
   row-gap: 0.8rem;
-  mix-blend-mode: difference;
-  color: var(--v2-cream);
-  pointer-events: none;
-}
-
-body.mr2-light .mr2-works__meta {
   mix-blend-mode: normal;
   color: var(--v2-fg);
+  pointer-events: none;
 }
 
 .mr2-works__counter {

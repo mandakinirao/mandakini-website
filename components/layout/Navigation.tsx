@@ -13,24 +13,10 @@ const menuLinks = [
   { label: 'Contact', href: '/contact' },
 ]
 
-const THEME_KEY = 'mr2-theme'
-
 export default function Navigation() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
-  const [light, setLight] = useState(false)
-
-  useEffect(() => {
-    setLight(localStorage.getItem(THEME_KEY) === 'light')
-  }, [])
-
-  const toggleTheme = () => {
-    const next = !light
-    setLight(next)
-    document.body.classList.toggle('mr2-light', next)
-    localStorage.setItem(THEME_KEY, next ? 'light' : 'dark')
-  }
 
   useEffect(() => {
     setMenuOpen(false)
@@ -120,15 +106,6 @@ export default function Navigation() {
               </Link>
             ))}
           </div>
-          <button
-            type="button"
-            className="menu-overlay__theme"
-            onClick={toggleTheme}
-            aria-pressed={light}
-          >
-            <span className="menu-overlay__theme-dot" aria-hidden="true" />
-            {light ? 'Dark mode' : 'Light mode'}
-          </button>
         </div>
       </div>
     </>
