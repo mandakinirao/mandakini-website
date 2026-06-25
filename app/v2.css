@@ -546,28 +546,30 @@ html.mr-intro-seen .mr2-loader {
 /* ── Hero Scene — clip-path panel + ink-reveal ───────────────────────── */
 
 .mr2-hscene {
-  position: relative;         /* GSAP pin inserts its own spacer */
+  position: sticky;
+  top: 0;
   z-index: 1;
   height: 100vh;
   overflow: hidden;
-  background: var(--v2-bg);   /* cream mat visible outside the clip panel */
-  isolation: isolate;
+  background: var(--v2-bg); /* cream mat visible around the framed image */
 }
 
-/* The clipped panel — GSAP animates clip-path on this element */
+/* Static framed clip — cream mat on all sides, no animation */
 .mr2-hscene__clip {
   position: absolute;
   inset: 0;
-  will-change: clip-path;
+  clip-path: inset(14% 8% 12% 8% round clamp(16px, 2vw, 28px));
 }
 
-/* Content panel with rounded top corners as it scrolls over the hero */
+/* Content panel — rises over the hero on scroll; rounded top edge is the curtain lip */
 .mr2-home__content {
   position: relative;
   z-index: 2;
-  border-radius: clamp(12px, 2vw, 24px) clamp(12px, 2vw, 24px) 0 0;
+  border-radius: clamp(16px, 2vw, 28px) clamp(16px, 2vw, 28px) 0 0;
   background: var(--v2-bg);
   overflow: clip;
+  /* pull the content up slightly so the rounded lip overlaps the hero bottom */
+  margin-top: -clamp(16px, 2vw, 28px);
 }
 
 /* Ink-reveal canvas mount — fills the clip panel */
@@ -601,12 +603,11 @@ html.mr-intro-seen .mr2-loader {
   );
 }
 
-/* Text — anchored at lower-centre; GSAP shifts it up to clip-centre at start */
 .mr2-hscene__text {
   position: absolute;
-  top: 72%;
+  top: 62%;
   left: 50%;
-  transform: translate(-50%, -50%); /* fallback / reduced-motion centering */
+  transform: translate(-50%, -50%);
   z-index: 10;
   text-align: center;
   pointer-events: none;

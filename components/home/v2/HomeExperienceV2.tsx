@@ -1,8 +1,8 @@
 'use client'
 
 import { useEffect, useRef, useState } from 'react'
-import ContactStage from '@/components/home/v2/ContactStage'
 import EditionShop from '@/components/home/v2/EditionShop'
+import PrivateCollection from '@/components/shop/PrivateCollection'
 import HeroScene, { type HeroSceneHandle } from '@/components/home/v2/HeroScene'
 import LoadingScreenStripes from '@/components/home/v2/LoadingScreenStripes'
 import MarqueePress from '@/components/home/v2/MarqueePress'
@@ -44,7 +44,7 @@ export default function HomeExperienceV2(props: HomeData) {
         <StripeBand />
         <RisingSunWorks series={series} />
         <EditionShop prints={prints} />
-        <ContactStage />
+        <PrivateCollection />
         <Testimonials items={testimonials} />
         <MarqueePress items={press} />
       </div>

@@ -12,14 +12,15 @@ const HEAL_PER_SEC    = 0.75  // fraction of erase healed per second
 const HARD_CLEAR_MS   = 2800  // ms of no new strokes → force eraseCanvas to zero
 // ─────────────────────────────────────────────────────────────────────────
 
-/** Canvas equivalent of object-fit: cover; object-position: center */
+/** Canvas equivalent of object-fit: cover; object-position: center 20% */
 function coverRect(
   iw: number, ih: number,
   cw: number, ch: number,
 ): [number, number, number, number] {
   const scale = Math.max(cw / iw, ch / ih)
   const sw = iw * scale, sh = ih * scale
-  return [(cw - sw) / 2, (ch - sh) / 2, sw, sh]
+  // anchor toward top-centre so the subject's face stays in frame
+  return [(cw - sw) / 2, (ch - sh) * 0.15, sw, sh]
 }
 
 export default function InkReveal({
