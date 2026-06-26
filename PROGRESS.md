@@ -1,5 +1,39 @@
 # Progress Log
 
+## Revalidation audit + webhook wiring (2026-06-26)
+- **Date:** 2026-06-26
+- **Commit:** docs-only (this entry)
+- **Task:** Confirm `revalidatePath('/', 'layout')` coverage and document the on-demand revalidation architecture.
+
+### Coverage confirmed
+`app/api/revalidate/route.ts` calls `revalidatePath('/', 'layout')`. This purges the cache for every page that passes through `app/layout.tsx` (the root layout). All content pages are covered:
+
+| Page | Route |
+|------|-------|
+| Homepage | `/` |
+| Works listing | `/works` |
+| Works detail | `/works/[slug]` (all slugs) |
+| Shop listing | `/shop` |
+| Shop detail | `/shop/[slug]` (all slugs) |
+| Press | `/press` |
+| About | `/about` |
+| Contact | `/contact` |
+| Thank-you | `/thank-you` |
+
+`/studio/*` and `/admin` are excluded by design — they are not statically cached content pages.
+
+The `(site)` route group is transparent to layout inheritance; all pages inside it still flow through the root layout. A single `revalidatePath('/', 'layout')` call is sufficient.
+
+### Revalidation architecture
+- **On-demand (primary):** Sanity webhook → POST `https://<domain>/api/revalidate` with `x-revalidate-secret` header matching `SANITY_REVALIDATE_SECRET` Vercel Production env var → `revalidatePath('/', 'layout')` → instant cache purge on every publish.
+- **ISR fallback:** `export const revalidate = 60` on all content pages (press: 3600). Pages regenerate in the background within 60 s of the next visit even if the webhook misses.
+- **CDN:** `useCdn: false` in `sanity/lib/client.ts` — no Sanity CDN staleness on top of ISR.
+
+### ⚠️ Open item — domain switch action required
+When the site moves from `*.vercel.app` to `mandakinirao.com`, the Sanity webhook URL in `sanity.io/manage → API → Webhooks` **must be updated** to the new domain. If the webhook URL is not updated, Sanity publishes will silently stop triggering revalidation and the site will fall back to ISR-only (60 s staleness). This is a manual step — it is not handled by Vercel domain assignment.
+
+---
+
 ## Phase 3 — 404 page: breathing gradient + Lottie slot (June 2026)
 - **Date:** 2026-06-24
 - **Commit:** `02074fc`

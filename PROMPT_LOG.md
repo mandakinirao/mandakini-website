@@ -2,6 +2,29 @@
 
 ---
 
+## 2026-06-26 — Revalidation audit + webhook documentation
+
+**Prompt summary:** Diagnose why Sanity publishes don't appear on the live Vercel site. Confirm `revalidatePath('/', 'layout')` coverage. Update docs only — no code changes.
+
+**Diagnosis:**
+- All content pages use `export const revalidate = 60` (ISR). `press` uses 3600.
+- `useCdn: false` in `sanity/lib/client.ts` — no Sanity CDN staleness.
+- `app/api/revalidate/route.ts` exists and is correct. It calls `revalidatePath('/', 'layout')` after verifying `SANITY_REVALIDATE_SECRET`.
+- Root cause: Sanity webhook was not configured in `sanity.io/manage`, so the route was never called. Site was relying on ISR-only.
+
+**Coverage confirmed:**
+`revalidatePath('/', 'layout')` targets `app/layout.tsx` (root layout). All content pages pass through it — homepage, /works, /works/[slug], /shop, /shop/[slug], /press, /about, /contact, /thank-you. The `(site)` route group is URL-transparent and does not create a separate layout scope. `/studio/*` and `/admin` excluded by design.
+
+**Architecture documented in PROGRESS.md:**
+- On-demand revalidation: Sanity webhook → `/api/revalidate` → `revalidatePath('/', 'layout')`
+- Auth: `x-revalidate-secret` header matched against `SANITY_REVALIDATE_SECRET` Vercel env var
+- ISR fallback: `revalidate = 60` remains as safety net
+- Open item recorded: webhook URL must be manually updated when domain switches to `mandakinirao.com`
+
+**Actions taken:** PROGRESS.md and PROMPT_LOG.md updated. No code changed.
+
+---
+
 ## 2026-06-24 — Phase 3: 404 page
 
 **Prompt summary:** Multi-phase session. Phase 3: create the 404 not-found page with breathing GSAP radial gradient (terracotta/amber/rosehip/moss), Lottie Persian cat placeholder, and pill CTA home.
