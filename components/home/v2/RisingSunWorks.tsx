@@ -32,7 +32,8 @@ interface RisingSunWorksProps {
 const HOME_CAP = 4
 
 export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProps) {
-  const series = allSeries.slice(0, HOME_CAP)
+  // Only render series that have at least one resolved gallery image
+  const series = allSeries.filter((s) => s.images.length > 0).slice(0, HOME_CAP)
   const rootRef = useRef<HTMLElement>(null)
   const stageRef = useRef<HTMLDivElement>(null)
 

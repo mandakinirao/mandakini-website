@@ -230,7 +230,7 @@ interface SanitySeriesLite {
   seriesName?: string
   slug?: string
   description?: string
-  images?: SanityImageType[]
+  gallery?: SanityImageType[]
   year?: number
 }
 
@@ -332,11 +332,9 @@ function mapSeriesDoc(
   urlForImage: UrlFor
 ): HomeSeries {
   const slug = d.slug ?? `series-${i + 1}`
-  const imgUrls = (d.images ?? [])
-    .filter((img): img is SanityImageType => Boolean(img))
+  const images = (d.gallery ?? [])
+    .filter((img): img is SanityImageType => Boolean(img?.asset))
     .map((img) => urlForImage(img).width(1600).url())
-  const fallback = PLACEHOLDER_SERIES[i % PLACEHOLDER_SERIES.length]
-  const images = imgUrls.length ? imgUrls : fallback.images
   const pieces: SeriesPiece[] = images.map((src) => ({ src, title: '' }))
   return {
     index: String(i + 1).padStart(2, '0'),

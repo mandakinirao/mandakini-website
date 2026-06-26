@@ -142,7 +142,7 @@ export const allSeriesQuery = groq`
     seriesName,
     "slug": slug.current,
     description,
-    images,
+    gallery,
     year
   }
 `
@@ -168,7 +168,7 @@ export const featuredSeriesQuery = groq`
       seriesName,
       "slug": slug.current,
       description,
-      images,
+      gallery,
       year
     },
     *[_type == "project"]
@@ -177,7 +177,7 @@ export const featuredSeriesQuery = groq`
         seriesName,
         "slug": slug.current,
         description,
-        images,
+        gallery,
         year
       }
   )[0...4]
