@@ -3,6 +3,18 @@ import { stripeEnabled } from '@/lib/commerce'
 import { getPurchasableItems } from '@/lib/home-data'
 import { createCheckoutSession } from '@/lib/stripe'
 
+const RATE_LIMIT = 10
+const RATE_WINDOW_MS = 60 * 1000
+const hits = new Map<string, number[]>()
+
+function rateLimited(ip: string): boolean {
+  const now = Date.now()
+  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS)
+  recent.push(now)
+  hits.set(ip, recent)
+  return recent.length > RATE_LIMIT
+}
+
 /**
  * Creates a Stripe Checkout Session from cart line items (or a single
  * item for Buy Now). Amounts are validated server-side from Sanity —
@@ -11,6 +23,10 @@ import { createCheckoutSession } from '@/lib/stripe'
  * could call it is never rendered anyway.
  */
 export async function POST(req: NextRequest) {
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  if (rateLimited(ip)) {
+    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
+  }
   if (!stripeEnabled()) {
     return NextResponse.json(
       { error: 'The shop is not taking orders yet.' },

@@ -5,6 +5,15 @@
  * ALL COPY IS PLACEHOLDER — pending client approval.
  */
 
+function esc(s: string): string {
+  return s
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#x27;')
+}
+
 export interface OrderEmailPayload {
   orderRef: string
   customerName: string
@@ -28,7 +37,7 @@ const itemRows = (items: OrderEmailPayload['items']) =>
     .map(
       (i) =>
         `<tr>
-          <td style="padding:6px 0;font-size:15px;">${i.slug.replace(/-/g, ' ')}</td>
+          <td style="padding:6px 0;font-size:15px;">${esc(i.slug.replace(/-/g, ' '))}</td>
           <td style="padding:6px 0 6px 16px;font-size:15px;">× ${i.qty}</td>
           <td style="padding:6px 0 6px 16px;font-size:15px;text-align:right;">₹${(i.amount * i.qty).toLocaleString('en-IN')}</td>
         </tr>`
@@ -40,7 +49,7 @@ export function orderConfirmation(o: OrderEmailPayload) {
   return {
     subject: 'Your order is confirmed — Mandakini Rao',
     html: wrap(`
-      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">Thank you${o.customerName ? `, ${o.customerName.split(' ')[0]}` : ''}.</h1>
+      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">Thank you${o.customerName ? `, ${esc(o.customerName.split(' ')[0])}` : ''}.</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
         Your order <strong>${o.orderRef}</strong> is confirmed. Each print is
         signed and numbered by hand in the Hyderabad studio — a shipping
@@ -57,9 +66,9 @@ export function orderNotification(o: OrderEmailPayload) {
   return {
     subject: 'New order received',
     html: wrap(`
-      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">New order ${o.orderRef}</h1>
+      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">New order ${esc(o.orderRef)}</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
-        ${o.customerName || 'A collector'} just placed an order. Full details
+        ${esc(o.customerName) || 'A collector'} just placed an order. Full details
         (shipping address, items) are on the order document in the Studio.
       </p>
       <table style="width:100%;border-collapse:collapse;margin:0 0 22px;">${itemRows(o.items)}</table>

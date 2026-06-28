@@ -4,17 +4,18 @@ import { NextRequest, NextResponse } from 'next/server'
 /**
  * Sanity publish webhook → instant content refresh (IA §4).
  *
- * Studio → API → Webhooks: POST to
- *   https://<site>/api/revalidate?secret=<SANITY_REVALIDATE_SECRET>
+ * Studio → API → Webhooks: POST to https://<site>/api/revalidate
+ * with header  x-revalidate-secret: <SANITY_REVALIDATE_SECRET>
  * on create/update/delete of project, shopItem, pressItem,
  * siteSettings. Combined with `export const revalidate = 60` on the
  * content pages, the site is static-fast and never more than seconds
  * stale after a publish.
+ *
+ * Secret is header-only (never a query param) so it never appears in
+ * server logs, CDN access logs, or Vercel function logs.
  */
 export async function POST(req: NextRequest) {
-  const secret =
-    req.nextUrl.searchParams.get('secret') ??
-    req.headers.get('x-revalidate-secret')
+  const secret = req.headers.get('x-revalidate-secret')
 
   if (
     !process.env.SANITY_REVALIDATE_SECRET ||
