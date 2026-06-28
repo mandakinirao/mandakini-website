@@ -38,7 +38,6 @@ export default function MotionProvider() {
   useEffect(() => {
     if (isStudio) return
     lenisRef.current?.scrollTo(0, { immediate: true, force: true })
-    window.scrollTo(0, 0)
     const cleanupSkew = initVelocitySkew()
     let raf2 = 0
     const raf1 = requestAnimationFrame(() => {

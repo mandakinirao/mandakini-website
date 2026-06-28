@@ -12,7 +12,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
         <ThemeV2 />
       </Suspense>
       <Navigation />
-      <main>{children}</main>
+      <main id="main-content">{children}</main>
       <FooterV2 />
     </>
   )

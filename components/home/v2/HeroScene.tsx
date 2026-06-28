@@ -2,7 +2,7 @@
 
 import { forwardRef, useEffect, useImperativeHandle, useRef } from 'react'
 import InkReveal from './InkReveal'
-import { DUR, EASE, mandaGsap } from '@/lib/motion'
+import { DUR, EASE, mandaGsap, prefersReducedMotion } from '@/lib/motion'
 
 export interface HeroSceneHandle {
   playEntrance: () => void
@@ -16,8 +16,13 @@ const HeroScene = forwardRef<HeroSceneHandle, { tagline?: string }>(
       playEntrance() {
         const text = textRef.current
         if (!text) return
+        const els = text.querySelectorAll('[data-hero-name], .mr2-hscene__sub')
+        if (prefersReducedMotion()) {
+          mandaGsap.set(els, { autoAlpha: 1, y: 0 })
+          return
+        }
         mandaGsap.fromTo(
-          text.querySelectorAll('[data-hero-name], .mr2-hscene__sub'),
+          els,
           { autoAlpha: 0, y: 20 },
           { autoAlpha: 1, y: 0, duration: DUR.grand, ease: EASE, stagger: 0.15 }
         )

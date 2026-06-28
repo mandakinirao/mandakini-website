@@ -1,13 +1,12 @@
-import HomeExperience from '@/components/home/HomeExperience'
+import dynamic from 'next/dynamic'
 import HomeExperienceV2 from '@/components/home/v2/HomeExperienceV2'
 import { getHomeData } from '@/lib/home-data'
 
+// V1 is flag-gated (/?v=1) — lazy-loaded so it never enters the V2 bundle
+const HomeExperience = dynamic(() => import('@/components/home/HomeExperience'))
+
 export const revalidate = 60
 
-/**
- * V2 ("the poster") is the site. The earlier V1 direction is kept at
- * /?v=1 for reference only and will be deleted once sign-off is final.
- */
 export default async function HomePage({
   searchParams,
 }: {

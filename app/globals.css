@@ -145,6 +145,29 @@ button:focus-visible {
   outline-offset: 3px;
 }
 
+/* Skip-to-content — visually hidden until focused (WCAG 2.4.1) */
+.mr-skip-link {
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 9999;
+  padding: 0.75rem 1.5rem;
+  background: var(--v2-fg, #221408);
+  color: var(--v2-bg, #f2ead9);
+  font-family: var(--font-label);
+  font-size: 0.875rem;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  text-decoration: none;
+  transform: translateY(-100%);
+  transition: transform 0.15s ease;
+}
+.mr-skip-link:focus-visible {
+  transform: translateY(0);
+  outline: 2px solid var(--accent-rosehip);
+  outline-offset: 2px;
+}
+
 /* ── Shared editorial primitives ───────────────────────────────────── */
 
 .mr-section {
@@ -986,8 +1009,8 @@ body:not(.mr2-mode) .mrx-cursor {
 .mr-pc__field textarea:focus-visible,
 .mr-pc__field select:focus-visible {
   outline: none;
-  border-color: var(--accent-rosehip); /* rosehip focus */
-  box-shadow: 0 0 0 1px var(--accent-rosehip);
+  border-color: var(--accent-rosehip);
+  box-shadow: 0 0 0 2px var(--accent-rosehip);
 }
 
 /* gentle rosehip errors — never harsh red */
@@ -2034,6 +2057,8 @@ body.home-intro-active .site-nav {
 .mr-cart__qty button {
   width: 1.75rem;
   height: 1.75rem;
+  min-width: 44px;
+  min-height: 44px;
   border: 1px solid rgba(245, 239, 228, 0.3);
   border-radius: 999px;
   background: none;

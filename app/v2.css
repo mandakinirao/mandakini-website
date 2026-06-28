@@ -1502,7 +1502,7 @@ body.mr2-mode .mr-detail__sale:hover {
 /* Photo card — spans 2 rows */
 .mr2-press-card--img {
   grid-row: span 2;
-  background: #111;
+  background: var(--v2-cacao);
 }
 
 /* Dark gradient so text reads over any image */
@@ -1684,9 +1684,11 @@ body.mr2-mode .mr-detail__sale:hover {
   resize: vertical;
 }
 
-.mr2-contact__field input:focus,
-.mr2-contact__field textarea:focus {
+.mr2-contact__field input:focus-visible,
+.mr2-contact__field textarea:focus-visible {
+  outline: none;
   border-color: var(--v2-fg);
+  box-shadow: 0 0 0 2px var(--v2-fg);
 }
 
 .mr2-contact__field em[role="alert"] {
@@ -1723,44 +1725,62 @@ body.mr2-mode .mr-detail__sale:hover {
 }
 
 /* Breathing radial blobs — terracotta / amber / rosehip / moss */
+/* Blob outer: GSAP scale target — no filter so transform is compositor-only */
 .mr-nf__blob {
   position: absolute;
   border-radius: 50%;
-  filter: blur(clamp(40px, 8vw, 90px));
   pointer-events: none;
   will-change: transform;
+}
+
+/* Blur lives on ::before so it is pre-composited and never re-run per frame */
+.mr-nf__blob::before {
+  content: '';
+  display: block;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  filter: blur(clamp(40px, 8vw, 90px));
 }
 
 .mr-nf__blob--1 {
   width: clamp(260px, 36vw, 480px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(184, 87, 42, 0.28) 0%, transparent 70%);
   top: 10%;
   left: 12%;
+}
+.mr-nf__blob--1::before {
+  background: radial-gradient(circle, rgba(184, 87, 42, 0.28) 0%, transparent 70%);
 }
 
 .mr-nf__blob--2 {
   width: clamp(200px, 28vw, 380px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(200, 152, 57, 0.24) 0%, transparent 70%);
   top: 55%;
   right: 8%;
+}
+.mr-nf__blob--2::before {
+  background: radial-gradient(circle, rgba(200, 152, 57, 0.24) 0%, transparent 70%);
 }
 
 .mr-nf__blob--3 {
   width: clamp(180px, 22vw, 320px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(121, 35, 24, 0.22) 0%, transparent 70%);
   bottom: 12%;
   left: 22%;
+}
+.mr-nf__blob--3::before {
+  background: radial-gradient(circle, rgba(121, 35, 24, 0.22) 0%, transparent 70%);
 }
 
 .mr-nf__blob--4 {
   width: clamp(160px, 20vw, 280px);
   aspect-ratio: 1;
-  background: radial-gradient(circle, rgba(91, 100, 62, 0.2) 0%, transparent 70%);
   top: 20%;
   right: 20%;
+}
+.mr-nf__blob--4::before {
+  background: radial-gradient(circle, rgba(91, 100, 62, 0.2) 0%, transparent 70%);
 }
 
 /* Content column */

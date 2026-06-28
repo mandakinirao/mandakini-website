@@ -24,6 +24,7 @@ export default function RootLayout({
               "try{if(sessionStorage.getItem('mr2-intro-seen'))document.documentElement.classList.add('mr-intro-seen')}catch(e){}",
           }}
         />
+        <a href="#main-content" className="mr-skip-link">Skip to content</a>
         <MotionProvider />
         {children}
       </body>
