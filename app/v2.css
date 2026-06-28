@@ -1474,52 +1474,63 @@ body.mr2-mode .mr-detail__sale:hover {
   margin-bottom: 6vh;
 }
 
+.mr2-press-empty {
+  text-align: center;
+  margin-top: 3rem;
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--v2-fg);
+  opacity: 0.4;
+}
+
 /* 4-col bento grid; photo cards span 2 rows, text cards span 1 */
 .mr2-press-bento {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   grid-auto-rows: 260px;
   grid-auto-flow: dense;
-  gap: 12px;
+  gap: 14px;
 }
 
 /* Base card */
 .mr2-press-card {
   position: relative;
-  display: block;
+  display: flex;
+  flex-direction: column;
   overflow: hidden;
-  border-radius: 16px;
+  border-radius: clamp(14px, 1.5vw, 20px);
   text-decoration: none;
-  color: var(--ink-cream);
-  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  transition: transform 0.35s var(--ease-soft-out, ease), box-shadow 0.35s var(--ease-soft-out, ease);
 }
 
 .mr2-press-card:hover {
-  transform: translateY(-4px);
-  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.18);
+  transform: translateY(-5px);
+  box-shadow: 0 20px 48px rgba(44, 26, 14, 0.16);
 }
 
-/* Photo card — spans 2 rows */
+/* ── Photo card (tall — spans 2 rows) ─────────────────────────────── */
+
 .mr2-press-card--img {
   grid-row: span 2;
   background: var(--v2-cacao);
+  color: var(--ink-cream);
 }
 
-/* Dark gradient so text reads over any image */
 .mr2-press-card--img::after {
   content: '';
   position: absolute;
   inset: 0;
   background: linear-gradient(
     to bottom,
-    transparent 30%,
-    rgba(10, 6, 4, 0.72) 70%,
-    rgba(10, 6, 4, 0.9) 100%
+    transparent 25%,
+    rgba(10, 6, 4, 0.65) 65%,
+    rgba(10, 6, 4, 0.88) 100%
   );
   z-index: 1;
 }
 
-/* Text overlay pinned to bottom of photo card */
 .mr2-press-card__overlay {
   position: absolute;
   bottom: 0;
@@ -1529,63 +1540,108 @@ body.mr2-mode .mr-detail__sale:hover {
   padding: 1.6rem 1.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.4rem;
+  gap: 0.35rem;
 }
 
-/* Text card — 1 row, coloured background */
+/* ── Text / publication card (short — 1 row) ───────────────────────── */
+
 .mr2-press-card--text {
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-end;
-  padding: 1.6rem 1.8rem;
-  gap: 0.4rem;
+  justify-content: space-between;
+  padding: 1.5rem 1.8rem;
+  background: var(--v2-bg);
+  border: 1.5px solid rgba(44, 26, 14, 0.12);
+  color: var(--v2-fg);
 }
 
-/* Source badge — small caps label */
-.mr2-press-card__source {
+/* ── Ghost placeholder cards ───────────────────────────────────────── */
+
+.mr2-press-card--ghost {
+  pointer-events: none;
+  cursor: default;
+}
+.mr2-press-card--ghost:hover {
+  transform: none;
+  box-shadow: none;
+}
+.mr2-press-card--ghost-img {
+  grid-row: span 2;
+  background: rgba(44, 26, 14, 0.06);
+  border: 1.5px solid rgba(44, 26, 14, 0.10);
+}
+.mr2-press-card--ghost-text {
+  background: rgba(44, 26, 14, 0.03);
+  border: 1.5px solid rgba(44, 26, 14, 0.08);
+}
+
+/* ── Card inner elements ───────────────────────────────────────────── */
+
+/* Type badge — ARTICLE / VIDEO / PODCAST */
+.mr2-press-card__label {
   font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.22em;
+  font-size: 10px;
+  letter-spacing: 0.28em;
   text-transform: uppercase;
-  color: rgba(245, 239, 228, 0.65);
+}
+.mr2-press-card--img .mr2-press-card__label {
+  color: rgba(245, 239, 228, 0.5);
+}
+.mr2-press-card--text .mr2-press-card__label {
+  color: rgba(44, 26, 14, 0.45);
 }
 
-/* Large publication name on text cards */
+/* Large publication name */
 .mr2-press-card__pub {
   font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2.4vw, 2.2rem);
+  font-size: clamp(1.4rem, 2.2vw, 2rem);
   font-weight: 400;
-  color: var(--ink-cream);
   line-height: 1.05;
   letter-spacing: 0.01em;
-  margin-top: auto;
+  color: var(--v2-fg);
+  margin: 0;
 }
 
-/* Article title */
+/* Source name (on photo cards) */
+.mr2-press-card__source {
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: rgba(245, 239, 228, 0.55);
+}
+
+/* Headline / title */
 .mr2-press-card__title {
   font-family: var(--font-display);
-  font-size: clamp(0.9rem, 1.2vw, 1.1rem);
+  font-size: clamp(0.88rem, 1.1vw, 1rem);
   font-weight: 400;
-  line-height: 1.3;
-  color: var(--ink-cream);
+  line-height: 1.35;
   margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  color: rgba(245, 239, 228, 0.9);
+}
+.mr2-press-card__title--dark {
+  color: rgba(44, 26, 14, 0.72);
+  font-size: clamp(0.82rem, 1vw, 0.92rem);
 }
 
 /* CTA arrow */
 .mr2-press-card__cta {
   font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.18em;
+  font-size: 10px;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
-  color: rgba(245, 239, 228, 0.5);
-  margin-top: 0.4rem;
+  color: rgba(245, 239, 228, 0.45);
+  margin-top: 0.2rem;
+}
+.mr2-press-card__cta--dark {
+  color: rgba(44, 26, 14, 0.4);
 }
 
-/* Tablet: 2 columns */
+/* ── Responsive ─────────────────────────────────────────────────────── */
+
 @media (max-width: 900px) {
   .mr2-press-bento {
     grid-template-columns: repeat(2, 1fr);
@@ -1593,14 +1649,14 @@ body.mr2-mode .mr-detail__sale:hover {
   }
 }
 
-/* Mobile: 1 column, photo cards don't need to span */
 @media (max-width: 560px) {
   .mr2-press-bento {
     grid-template-columns: 1fr;
     grid-auto-rows: 280px;
+    gap: 10px;
   }
-
-  .mr2-press-card--img {
+  .mr2-press-card--img,
+  .mr2-press-card--ghost-img {
     grid-row: span 1;
   }
 }
