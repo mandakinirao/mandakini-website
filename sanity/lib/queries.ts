@@ -158,6 +158,12 @@ export const aboutPageQuery = groq`
   }
 `
 
+// Homepage-only about fields — separate from the full aboutPageQuery so
+// getHomeData() fetches only what the homepage needs.
+export const aboutHomeDataQuery = groq`
+  *[_type == "aboutPage"][0] { homeSnippet, aboutTeaserLine }
+`
+
 // Curated featured series (Site Settings → Featured Projects), falling
 // back to the first four published. Drives the homepage Projects stage
 // and /works Tier 1.

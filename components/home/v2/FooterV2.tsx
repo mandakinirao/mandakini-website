@@ -31,8 +31,6 @@ export default function FooterV2() {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
 
-  const socials: Social[] = SOCIALS
-
   useEffect(() => {
     const root = rootRef.current
     if (!root) return
@@ -69,7 +67,7 @@ export default function FooterV2() {
         </div>
         <div className="mr2-footer__col">
           <h4>Social Links</h4>
-          <AnimatedSocialLinks socials={socials} className="-ml-5" />
+          <AnimatedSocialLinks socials={SOCIALS} className="-ml-5" />
         </div>
         <PillCta href="/contact" className="mr2-footer__stamp">
           Say hello <span aria-hidden="true">→</span>

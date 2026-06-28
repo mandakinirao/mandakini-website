@@ -2,9 +2,8 @@ import type { Image as SanityImageType } from 'sanity'
 import type { RawPressItem } from '@/lib/press'
 
 /**
- * Homepage data with hard fallbacks. No `.env.local` exists in this
- * workspace and the Sanity dataset has no artwork yet (Block 13 pending),
- * so every loader degrades to placeholder content with zero errors.
+ * Homepage data loaders. Every async function falls back to placeholder
+ * content when Sanity returns nothing — zero errors, always renderable.
  */
 
 export interface HomePrint {
@@ -31,11 +30,6 @@ export interface HomePress {
   url?: string
 }
 
-/** A project — a named series of works (e.g. a charcoal series),
- *  represented on the homepage by its name and a few images.
- *  Backed by the Sanity `project` document type: Mandakini can add a
- *  new series or change its images in the Studio and it flows through
- *  the homepage, /works, and /works/[slug] automatically. */
 /** One painting/photo inside a series — its own title, an optional
  *  note, and (when an edition exists in the shop) a sale link. */
 export interface SeriesPiece {
@@ -45,6 +39,9 @@ export interface SeriesPiece {
   sale?: { href: string; label: string }
 }
 
+/** A named series of works. Backed by the Sanity `project` type —
+ *  Mandakini adds a series in the Studio and it flows through the
+ *  homepage, /works, and /works/[slug] automatically. */
 export interface HomeSeries {
   index: string
   name: string
@@ -79,8 +76,7 @@ export interface HomeData {
   aboutTeaserLine: string
 }
 
-// TODO(AP): placeholder series — replace with Mandakini's real project
-// series (names, blurbs, and 3-4 images each) when she supplies them.
+// Placeholder series — shown until Mandakini adds real projects in Sanity Studio.
 const PLACEHOLDER_SERIES: HomeSeries[] = [
   {
     index: '01',
@@ -159,7 +155,7 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
   },
 ]
 
-// TODO(AP): placeholder voices — collect real testimonial quotes.
+// Placeholder testimonials — shown until real quotes are entered in Studio.
 const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
   {
     quote: 'Mandakini sees warmth where the rest of us see walls.',
@@ -175,7 +171,7 @@ const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
   },
 ]
 
-// TODO(AP): placeholder prints — replace with real shop items (Block 10).
+// Placeholder prints — shown until real shop items are added in Studio.
 const PLACEHOLDER_PRINTS: HomePrint[] = [
   {
     title: 'Subbulakshmi, Singing — Print',
@@ -212,19 +208,13 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
   },
 ]
 
-// TODO(AP): real press items + article URLs pending.
+// Placeholder press items — shown until real press records are added in Studio.
 const PLACEHOLDER_PRESS: HomePress[] = [
   { source: 'The Hindu', title: 'A studio where music becomes paint', year: '2025' },
   { source: 'Deccan Chronicle', title: 'Hyderabad artists to watch', year: '2024' },
   { source: 'Telangana Today', title: 'Portraits of a voice — the Subbulakshmi series', year: '2024' },
   { source: 'Paint & Process', title: 'Podcast — episode 41', year: '2023' },
 ]
-
-function hasSanityEnv(): boolean {
-  // client.ts and image.ts now have hardcoded projectId/dataset fallbacks,
-  // so the Sanity client always initialises correctly even without env vars.
-  return true
-}
 
 interface SanitySeriesLite {
   seriesName?: string
@@ -247,6 +237,47 @@ function printAvailable(s: {
   return true
 }
 
+type UrlFor = (img: SanityImageType) => { width: (w: number) => { url: () => string } }
+
+const SHOP_IMAGE_FALLBACK = '/art/subbulakshmi/ms-sq-3.jpg'
+
+interface ShopDoc {
+  _id: string
+  title?: string
+  slug?: string
+  desc?: string
+  basePrice?: number
+  images?: SanityImageType[]
+  availabilityStatus?: string
+  editionSize?: number
+  sold?: number
+  stock?: number
+}
+
+function resolveShopImage(images: SanityImageType[] | undefined, urlForImage: UrlFor): string {
+  try {
+    return images?.[0] ? urlForImage(images[0]).width(1200).url() : SHOP_IMAGE_FALLBACK
+  } catch {
+    return SHOP_IMAGE_FALLBACK
+  }
+}
+
+function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
+  return {
+    title: s.title ?? 'Untitled print',
+    slug: s.slug ?? `print-${i + 1}`,
+    price: s.editionSize
+      ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
+      : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
+    image: resolveShopImage(s.images, urlForImage),
+    href: s.slug ? `/shop/${s.slug}` : '/shop',
+    desc: s.desc ?? '',
+    available: printAvailable(s),
+    amount: s.basePrice ?? 0,
+    stock: s.stock ?? 0,
+  }
+}
+
 /** Checkout line item, validated server-side — amounts come from Sanity
  *  (or the placeholder list while the dataset is empty), never the client. */
 export interface PurchasableItem {
@@ -263,42 +294,32 @@ export interface PurchasableItem {
 export async function getPurchasableItems(
   slugs: string[]
 ): Promise<PurchasableItem[]> {
-  if (!hasSanityEnv()) {
-    return PLACEHOLDER_PRINTS.filter(
-      (p) => slugs.includes(p.slug) && p.stock > 0
-    ).map((p) => ({
-      id: p.slug,
-      slug: p.slug,
-      title: p.title,
-      amount: p.amount,
-      stock: p.stock,
-    }))
+  const fallback = PLACEHOLDER_PRINTS.filter(
+    (p) => slugs.includes(p.slug) && p.stock > 0
+  ).map((p) => ({ id: p.slug, slug: p.slug, title: p.title, amount: p.amount, stock: p.stock }))
+
+  try {
+    const [{ client }, queries] = await Promise.all([
+      import('@/sanity/lib/client'),
+      import('@/sanity/lib/queries'),
+    ])
+    const docs = await client.fetch<
+      | { _id: string; title?: string; slug?: string; basePrice?: number; stock?: number; stripePriceId?: string }[]
+      | null
+    >(queries.shopItemsBySlugsQuery, { slugs })
+    return (docs ?? [])
+      .filter((d) => d.slug && typeof d.basePrice === 'number')
+      .map((d) => ({
+        id: d._id,
+        slug: d.slug as string,
+        title: d.title ?? 'Untitled print',
+        amount: d.basePrice as number,
+        stock: d.stock ?? 0,
+        stripePriceId: d.stripePriceId || undefined,
+      }))
+  } catch {
+    return fallback
   }
-  const [{ client }, queries] = await Promise.all([
-    import('@/sanity/lib/client'),
-    import('@/sanity/lib/queries'),
-  ])
-  const docs = await client.fetch<
-    | {
-        _id: string
-        title?: string
-        slug?: string
-        basePrice?: number
-        stock?: number
-        stripePriceId?: string
-      }[]
-    | null
-  >(queries.shopItemsBySlugsQuery, { slugs })
-  return (docs ?? [])
-    .filter((d) => d.slug && typeof d.basePrice === 'number')
-    .map((d) => ({
-      id: d._id,
-      slug: d.slug as string,
-      title: d.title ?? 'Untitled print',
-      amount: d.basePrice as number,
-      stock: d.stock ?? 0,
-      stripePriceId: d.stripePriceId || undefined,
-    }))
 }
 
 /**
@@ -307,7 +328,6 @@ export async function getPurchasableItems(
  * homepage, /works, and gets its own /works/[slug] page.
  */
 export async function getAllSeries(): Promise<HomeSeries[]> {
-  if (!hasSanityEnv()) return PLACEHOLDER_SERIES
   try {
     const [{ client }, { urlForImage }, queries] = await Promise.all([
       import('@/sanity/lib/client'),
@@ -323,8 +343,6 @@ export async function getAllSeries(): Promise<HomeSeries[]> {
     return PLACEHOLDER_SERIES
   }
 }
-
-type UrlFor = (img: SanityImageType) => { width: (w: number) => { url: () => string } }
 
 function mapSeriesDoc(
   d: SanitySeriesLite,
@@ -353,7 +371,6 @@ function mapSeriesDoc(
  * and /works Tier 1.
  */
 export async function getFeaturedSeries(): Promise<HomeSeries[]> {
-  if (!hasSanityEnv()) return PLACEHOLDER_SERIES.slice(0, 4)
   try {
     const [{ client }, { urlForImage }, queries] = await Promise.all([
       import('@/sanity/lib/client'),
@@ -399,74 +416,22 @@ export async function getShopItemBySlug(slug: string): Promise<HomePrint | null>
  * The homepage EditionShop uses getHomeData() which intentionally caps at 3.
  */
 export async function getAllShopItems(): Promise<HomePrint[]> {
-  if (!hasSanityEnv()) return PLACEHOLDER_PRINTS
-
   try {
     const [{ client }, { urlForImage }, { allShopItemsQuery }] = await Promise.all([
       import('@/sanity/lib/client'),
       import('@/sanity/lib/image'),
       import('@/sanity/lib/queries'),
     ])
-    const docs = await client.fetch<
-      | {
-          _id: string
-          title?: string
-          slug?: string
-          desc?: string
-          basePrice?: number
-          images?: SanityImageType[]
-          availabilityStatus?: string
-          editionSize?: number
-          sold?: number
-          stock?: number
-        }[]
-      | null
-    >(allShopItemsQuery)
-
-    if (!docs || !docs.length) return PLACEHOLDER_PRINTS
-
-    return docs.map((s, i) => {
-      let image = '/art/subbulakshmi/ms-sq-3.jpg'
-      try {
-        if (s.images?.[0]) image = urlForImage(s.images[0]).width(1200).url()
-      } catch {}
-      return {
-        title: s.title ?? 'Untitled print',
-        slug: s.slug ?? `print-${i + 1}`,
-        price: s.editionSize
-          ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
-          : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
-        image,
-        href: s.slug ? `/shop/${s.slug}` : '/shop',
-        desc: s.desc ?? '',
-        available: printAvailable(s),
-        amount: s.basePrice ?? 0,
-        stock: s.stock ?? 0,
-      }
-    })
+    const docs = await client.fetch<ShopDoc[] | null>(allShopItemsQuery)
+    if (!docs?.length) return PLACEHOLDER_PRINTS
+    return docs.map((s, i) => mapShopDoc(s, i, urlForImage))
   } catch {
     return PLACEHOLDER_PRINTS
   }
 }
 
 export async function getHomeData(): Promise<HomeData> {
-  // The homepage gets the curated featured set (capped at 4 in the
-  // component); /works fetches the full list via getAllSeries itself.
   const series = await getFeaturedSeries()
-
-  if (!hasSanityEnv()) {
-    return {
-      series,
-      prints: PLACEHOLDER_PRINTS,
-      press: PLACEHOLDER_PRESS,
-      testimonials: PLACEHOLDER_TESTIMONIALS,
-      heroImages: [],
-      tagline: 'Painter · Educator · Storyteller',
-      aboutBio: '',
-      aboutPortrait: '/art/loader/portrait-studio-seated-wide.jpg',
-      aboutTeaserLine: '',
-    }
-  }
 
   const [{ client }, { urlForImage }, queries] = await Promise.all([
     import('@/sanity/lib/client'),
@@ -477,110 +442,47 @@ export async function getHomeData(): Promise<HomeData> {
   const ok = <T>(r: PromiseSettledResult<T>): T | null =>
     r.status === 'fulfilled' ? r.value : null
 
-  const [shopRes, pressRes, heroRes, basicRes, testiRes, snippetRes, teaserRes] = await Promise.allSettled([
-    client.fetch<
-      | {
-          title?: string
-          slug?: string
-          desc?: string
-          basePrice?: number
-          images?: SanityImageType[]
-          availabilityStatus?: string
-          editionSize?: number
-          sold?: number
-          stock?: number
-        }[]
-      | null
-    >(queries.featuredShopItemsQuery),
+  const [shopRes, pressRes, heroRes, basicRes, testiRes, aboutRes] = await Promise.allSettled([
+    client.fetch<ShopDoc[] | null>(queries.featuredShopItemsQuery),
     client.fetch<RawPressItem[] | null>(queries.pressItemsQuery),
     client.fetch<string[] | null>(queries.heroImagesQuery),
-    client.fetch<{ tagline?: string; aboutBio?: string; aboutPortrait?: SanityImageType } | null>(
-      queries.siteSettingsBasicQuery
-    ),
+    client.fetch<{ tagline?: string } | null>(queries.siteSettingsBasicQuery),
     client.fetch<{ _id: string; quote: string; author: string; role?: string }[] | null>(queries.testimonialsQuery),
-    client.fetch<string | null>('*[_type == "aboutPage"][0].homeSnippet'),
-    client.fetch<string | null>('*[_type == "aboutPage"][0].aboutTeaserLine'),
+    client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string } | null>(queries.aboutHomeDataQuery),
   ])
 
   const shopItems = ok(shopRes)
   const rawPressItems = ok(pressRes)
   const rawHeroImages = ok(heroRes)
   const siteBasic = ok(basicRes)
+  const rawTestimonials = ok(testiRes)
+  const aboutData = ok(aboutRes)
+
   const { enrichPressItems } = await import('@/lib/press')
   const enrichedPress = rawPressItems?.length
     ? await enrichPressItems(rawPressItems).catch(() => null)
     : null
 
-  const rawTestimonials = ok(testiRes)
-  const homeSnippet = ok(snippetRes)
-  const teaserLine = ok(teaserRes)
+  const prints: HomePrint[] = shopItems?.length
+    ? shopItems.slice(0, 3).map((s, i) => mapShopDoc(s, i, urlForImage))
+    : PLACEHOLDER_PRINTS
 
-  const prints: HomePrint[] =
-    shopItems && shopItems.length
-      ? shopItems.slice(0, 3).map((s, i) => {
-          let image = '/art/subbulakshmi/ms-sq-3.jpg'
-          try {
-            if (s.images?.[0]) image = urlForImage(s.images[0]).width(1200).url()
-          } catch {}
-          return {
-            title: s.title ?? 'Untitled print',
-            slug: s.slug ?? `print-${i + 1}`,
-            price: s.editionSize
-              ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
-              : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
-            image,
-            href: s.slug ? `/shop/${s.slug}` : '/shop',
-            desc: s.desc ?? '',
-            available: printAvailable(s),
-            amount: s.basePrice ?? 0,
-            stock: s.stock ?? 0,
-          }
-        })
-      : PLACEHOLDER_PRINTS
+  const press: HomePress[] = enrichedPress?.length
+    ? enrichedPress.map((p) => ({ source: p.source, title: p.title, year: '', url: p.url }))
+    : PLACEHOLDER_PRESS
 
-  const press: HomePress[] =
-    enrichedPress?.length
-      ? enrichedPress.map((p) => ({
-          source: p.source,
-          title: p.title,
-          year: '',
-          url: p.url,
-        }))
-      : PLACEHOLDER_PRESS
-
-  const heroImages =
-    rawHeroImages && rawHeroImages.length === 7 ? rawHeroImages : []
-
-  const tagline = siteBasic?.tagline ?? 'Painter · Educator · Storyteller'
-  const aboutBio = homeSnippet ?? ''
-  // Local portrait (IMG_9003) takes precedence until a colour photo is
-  // uploaded to Sanity Studio (siteSettings → aboutPortrait).
-  // To restore Sanity control: upload a colour portrait to Studio,
-  // then flip the condition below back to the original.
-  const aboutPortrait = '/art/about-portrait.jpg'
-  try {
-    // Sanity portrait intentionally bypassed — current upload is B&W.
-    // Re-enable after uploading colour photo:
-    // if (siteBasic?.aboutPortrait) {
-    //   aboutPortrait = urlForImage(siteBasic.aboutPortrait).width(1600).url()
-    // }
-    void siteBasic
-  } catch {}
-
-  const testimonials =
-    rawTestimonials && rawTestimonials.length
-      ? rawTestimonials
-      : PLACEHOLDER_TESTIMONIALS
+  const homeSnippet = aboutData?.homeSnippet ?? ''
 
   return {
     series,
     prints,
     press,
-    testimonials,
-    heroImages,
-    tagline,
-    aboutBio,
-    aboutPortrait,
-    aboutTeaserLine: teaserLine ?? homeSnippet ?? '',
+    testimonials: rawTestimonials?.length ? rawTestimonials : PLACEHOLDER_TESTIMONIALS,
+    heroImages: rawHeroImages?.length === 7 ? rawHeroImages : [],
+    tagline: siteBasic?.tagline ?? 'Painter · Educator · Storyteller',
+    aboutBio: homeSnippet,
+    // Hardcoded until a colour portrait is uploaded to Studio (current upload is B&W).
+    aboutPortrait: '/art/about-portrait.jpg',
+    aboutTeaserLine: aboutData?.aboutTeaserLine ?? homeSnippet,
   }
 }

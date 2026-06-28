@@ -105,7 +105,7 @@ export default function CartDrawer() {
                 type="button"
                 className="mr-cart__close"
                 onClick={() => setOpen(false)}
-                             >
+              >
                 Close
               </button>
             </div>
