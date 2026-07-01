@@ -1,37 +1,25 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { enquiryConfirmation, enquiryNotification } from '@/emails/enquiryEmails'
-
-/**
- * Private Collection enquiry endpoint.
- * Validates → writes the Sanity `enquiry` document → sends two Resend
- * emails. Email failure after a successful write still returns success
- * (logged); the visitor is never shown an error they can't act on.
- * Spam: honeypot + minimum-time-to-submit; modest per-IP rate limit.
- */
+import { checkRateLimit } from '@/lib/rate-limit'
+import { originAllowed } from '@/lib/csrf'
 
 const MIN_FILL_MS = 3000
-const RATE_LIMIT = 5 // submissions
-const RATE_WINDOW_MS = 10 * 60 * 1000 // per 10 minutes
-// In-memory: fine for a single low-traffic instance; revisit if scaled.
-const hits = new Map<string, number[]>()
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now()
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS)
-  recent.push(now)
-  hits.set(ip, recent)
-  return recent.length > RATE_LIMIT
-}
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 
 export async function POST(req: NextRequest) {
-  const ip =
-    req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (rateLimited(ip)) {
+  // CSRF — reject requests from other origins
+  if (!originAllowed(req)) {
+    return NextResponse.json({ ok: false, error: 'Forbidden.' }, { status: 403 })
+  }
+
+  // Brute-force: 5 submissions per IP per 10 minutes
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const rl = checkRateLimit(`enquiry:${ip}`, 5, 10 * 60_000)
+  if (rl.limited) {
     return NextResponse.json(
       { ok: false, error: 'Too many requests — please try again later.' },
-      { status: 429 }
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
     )
   }
 

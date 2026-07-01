@@ -2,18 +2,8 @@ import { NextRequest, NextResponse } from 'next/server'
 import { razorpayEnabled } from '@/lib/commerce'
 import { getPurchasableItems } from '@/lib/home-data'
 import { createRazorpayOrder } from '@/lib/razorpay'
-
-const RATE_LIMIT = 10
-const RATE_WINDOW_MS = 60 * 1000
-const hits = new Map<string, number[]>()
-
-function rateLimited(ip: string): boolean {
-  const now = Date.now()
-  const recent = (hits.get(ip) ?? []).filter((t) => now - t < RATE_WINDOW_MS)
-  recent.push(now)
-  hits.set(ip, recent)
-  return recent.length > RATE_LIMIT
-}
+import { checkRateLimit } from '@/lib/rate-limit'
+import { originAllowed } from '@/lib/csrf'
 
 /**
  * Creates a Razorpay order from cart line items (or a single item for
@@ -22,10 +12,21 @@ function rateLimited(ip: string): boolean {
  * Returns { orderId, amount (paise), currency, keyId } to the client.
  */
 export async function POST(req: NextRequest) {
-  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
-  if (rateLimited(ip)) {
-    return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
+  // CSRF — reject requests from other origins
+  if (!originAllowed(req)) {
+    return NextResponse.json({ error: 'Forbidden.' }, { status: 403 })
   }
+
+  // Brute-force: 5 checkout attempts per IP per minute
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const rl = checkRateLimit(`checkout:${ip}`, 5, 60_000)
+  if (rl.limited) {
+    return NextResponse.json(
+      { error: 'Too many requests. Please wait a moment.' },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
+    )
+  }
+
   if (!razorpayEnabled()) {
     return NextResponse.json(
       { error: 'The shop is not taking orders yet.' },

@@ -1,5 +1,6 @@
 import { revalidatePath } from 'next/cache'
 import { NextRequest, NextResponse } from 'next/server'
+import { checkRateLimit } from '@/lib/rate-limit'
 
 /**
  * Sanity publish webhook → instant content refresh (IA §4).
@@ -15,8 +16,17 @@ import { NextRequest, NextResponse } from 'next/server'
  * server logs, CDN access logs, or Vercel function logs.
  */
 export async function POST(req: NextRequest) {
-  const secret = req.headers.get('x-revalidate-secret')
+  // 20 attempts per IP per hour — limits secret-guessing
+  const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
+  const rl = checkRateLimit(`revalidate:${ip}`, 20, 60 * 60_000)
+  if (rl.limited) {
+    return NextResponse.json(
+      { revalidated: false },
+      { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
+    )
+  }
 
+  const secret = req.headers.get('x-revalidate-secret')
   if (
     !process.env.SANITY_REVALIDATE_SECRET ||
     secret !== process.env.SANITY_REVALIDATE_SECRET
