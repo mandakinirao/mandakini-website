@@ -31,6 +31,7 @@ export default async function ShopPage() {
       <PrivateCollection
         title={settings.privateCollectionTitle}
         line={settings.privateCollectionLine}
+        contactEmail={settings.contactEmail}
       />
     </>
   )

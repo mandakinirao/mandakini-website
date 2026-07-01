@@ -14,6 +14,7 @@ import {
 interface PrivateCollectionProps {
   title?: string
   line?: string
+  contactEmail?: string
 }
 
 /**
@@ -25,6 +26,7 @@ interface PrivateCollectionProps {
 export default function PrivateCollection({
   title = 'The Private Collection',
   line = 'A selection of original works shared personally with collectors. Enquire to receive the collection.',
+  contactEmail,
 }: PrivateCollectionProps) {
   const rootRef = useRef<HTMLElement>(null)
   const [open, setOpen] = useState(false)
@@ -103,7 +105,7 @@ export default function PrivateCollection({
                 Close
               </button>
             </div>
-            <EnquiryForm />
+            <EnquiryForm contactEmail={contactEmail} />
           </div>
         </div>
       )}
