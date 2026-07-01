@@ -9,6 +9,7 @@ const menuLinks = [
   { label: 'Home', href: '/' },
   { label: 'Works / Projects', href: '/works' },
   { label: 'Shop', href: '/shop' },
+  { label: 'Press', href: '/press' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
@@ -17,6 +18,7 @@ export default function Navigation() {
   const pathname = usePathname()
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
+  const [navHidden, setNavHidden] = useState(false)
 
   useEffect(() => {
     setMenuOpen(false)
@@ -43,6 +45,33 @@ export default function Navigation() {
     }
   }, [pathname])
 
+  // Hide on scroll-down, reveal on scroll-up — driven by direction, not position.
+  // Dead zone of 6px prevents jitter from micro-bounces.
+  useEffect(() => {
+    let lastY = window.scrollY
+    const DEAD = 6
+
+    const onScroll = () => {
+      const y = window.scrollY
+      if (y < 80) {
+        setNavHidden(false)
+      } else if (y > lastY + DEAD) {
+        setNavHidden(true)
+      } else if (y < lastY - DEAD) {
+        setNavHidden(false)
+      }
+      lastY = y
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  // Always reveal nav while the menu overlay is open.
+  useEffect(() => {
+    if (menuOpen) setNavHidden(false)
+  }, [menuOpen])
+
   // Use menuLock (body overflow, not html) so the fixed overlay can scroll internally.
   useEffect(() => {
     if (!menuOpen) return
@@ -52,7 +81,7 @@ export default function Navigation() {
 
   return (
     <>
-      <nav className={`site-nav ${scrolled ? 'scrolled' : ''}`} aria-label="Primary navigation">
+      <nav className={`site-nav ${scrolled ? 'scrolled' : ''} ${navHidden ? 'site-nav--hidden' : ''}`} aria-label="Primary navigation">
         <Link href="/" className="site-logo" onClick={() => setMenuOpen(false)}>
           {/* Text fallback — shown on non-v2 pages (e.g. /?v=1) */}
           <span className="site-logo__text">

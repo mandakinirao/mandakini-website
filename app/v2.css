@@ -52,9 +52,8 @@ body.mr2-mode::-webkit-scrollbar-thumb { background: var(--v2-fg-faint); }
    Light stage: cacao-ink logo visible on cream bg. */
 
 body.mr2-mode .site-logo__text { display: none; }
-body.mr2-mode .site-logo__mark { display: flex; }
 
-/* Cream stage: cacao logo on cream bg */
+body.mr2-mode .site-logo__mark { display: flex; }
 body.mr2-mode .site-logo__img--cream { display: none; }
 body.mr2-mode .site-logo__img--cacao { display: block; }
 
@@ -543,7 +542,7 @@ html.mr-intro-seen .mr2-loader {
   }
 }
 
-/* ── Hero Scene — clip-path panel + ink-reveal ───────────────────────── */
+/* ── Hero Scene — full-bleed ink-reveal ─────────────────────────────── */
 
 .mr2-hscene {
   position: sticky;
@@ -551,14 +550,13 @@ html.mr-intro-seen .mr2-loader {
   z-index: 1;
   height: 100vh;
   overflow: hidden;
-  background: var(--v2-bg); /* cream mat visible around the framed image */
+  background: #2C1A0E; /* cacao fallback while images load; no cream mat */
 }
 
-/* Static framed clip — cream mat on all sides, no animation */
+/* Full-bleed clip container — no inset, hero is edge-to-edge */
 .mr2-hscene__clip {
   position: absolute;
   inset: 0;
-  clip-path: inset(14% 8% 12% 8% round clamp(16px, 2vw, 28px));
 }
 
 /* Content panel — rises over the hero on scroll; rounded top edge is the curtain lip */
@@ -597,9 +595,9 @@ html.mr-intro-seen .mr2-loader {
   background: linear-gradient(
     to bottom,
     rgba(0, 0, 0, 0.00)  0%,
-    rgba(0, 0, 0, 0.00) 45%,
-    rgba(0, 0, 0, 0.45) 72%,
-    rgba(0, 0, 0, 0.72) 100%
+    rgba(0, 0, 0, 0.00) 38%,
+    rgba(0, 0, 0, 0.50) 66%,
+    rgba(0, 0, 0, 0.80) 100%
   );
 }
 
@@ -623,6 +621,9 @@ html.mr-intro-seen .mr2-loader {
   text-transform: uppercase;
   color: var(--v2-cream);
   margin: 0 0 0.7rem;
+  text-shadow:
+    0 2px 32px rgba(0, 0, 0, 0.60),
+    0 1px  8px rgba(0, 0, 0, 0.40);
 }
 
 .mr2-hscene__sub {
@@ -633,6 +634,7 @@ html.mr-intro-seen .mr2-loader {
   color: var(--v2-cream);
   opacity: 0.65;
   margin: 0;
+  text-shadow: 0 1px 14px rgba(0, 0, 0, 0.55);
 }
 
 .mr2-hscene__cue {

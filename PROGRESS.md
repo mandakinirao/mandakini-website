@@ -1,5 +1,57 @@
 # Progress Log
 
+## Hero full-bleed + loading morph + nav update (2026-07-01)
+- **Date:** 2026-07-01
+- **Branch:** `hero-nav-update` — not yet merged. Awaiting localhost review + oval pick.
+- **Commit:** none yet — STOP point after Parts 1–5
+
+### Part 1 — Full-screen ink-reveal hero
+- Removed `clip-path: inset(14% 8% 12% 8% round ...)` from `.mr2-hscene__clip` in `app/v2.css`. Hero is full-bleed, edge to edge.
+- `.mr2-hscene` background changed from `var(--v2-bg)` to `#2C1A0E` (warm cacao fallback, no cream mat).
+- `.mr2-home__content` rounded-top-edge overlay pattern retained.
+- `InkReveal.tsx` brush constants: `BRUSH_R` 130→190, `BRUSH_VARY` 50→70 for full-viewport feel.
+
+### Part 2a — Logo oval at top centre (3 options for review)
+- `HeroScene.tsx`: `.mr2-hero-ovals` container with three labelled variants (A/B/C) at top centre, z-index 20.
+- All three are solid `#F5EFE4` cream fill — logo always legible over the reveal image.
+- `data-hero-oval` on the primary oval (A) — the loading-screen morph targets this element.
+- **Option A — Pendant:** `1px solid #2C1A0E`, padding `18–28/28–44px`, logo `40–60px`.
+- **Option B — Coin:** `2px solid #2C1A0E`, padding `12–18/18–28px`, logo `34–50px`.
+- **Option C — Seal:** no border, `box-shadow: 0 2px 18px rgba(44,26,14,0.22)`, padding `24–36/40–58px`, logo `46–70px`.
+- A/B/C labels shown in cream for comparison; remove unused options after pick.
+
+### Part 2b — Artist name centered + warm gradient scrim
+- `HeroScene.tsx`: `.mr2-hscene__scrim` element added as sibling to `.mr2-hscene__text` (at z-index 5, between vignette z-2 and text z-10).
+- `v2.css`: Scrim is a radial gradient centered at the same `top: 62%` position as the text — `rgba(44,26,14,...)` cacao tones, 4-stop falloff, no hard edge.
+- Vignette updated from pure-black `rgba(0,0,0,...)` to warm cacao `rgba(44,26,14,...)` to match.
+- Name is horizontally centered (`left:50%; transform:translate(-50%,-50%); text-align:center`) throughout.
+
+### Part 3 — Loading screen morphs into hero
+- `LoadingScreenStripes.tsx` rewritten: dark `#1A0D06` field, logo oval (`.mr2-hero-oval--a` classes), artist name, Enter pill.
+- Entrance: staggered fade-in of oval → name → button (delay 0.35s, DUR.base, EASE).
+- On Enter (GSAP timeline, no Framer Motion):
+  1. Enter button fades up and out (0.32s)
+  2. Loader field lifts to `transparent` (DUR.grand) — hero reveals beneath
+  3. **Oval travel:** measures loader oval rect + `[data-hero-oval]` rect; loader oval translates+scales to hero position; crossfade at end of travel
+  4. **Name travel:** HERO name element (`[data-hero-name]`) is placed at loader name's rect via GSAP set, then travels to its natural position (x:0, y:0, scale:1). Travel is primarily vertical since both are horizontally centred. Loader name fades in place.
+- `HeroSceneHandle` extended: `playEntranceAfterMorph()` — animates only the tagline (name already placed by morph).
+- `HomeExperienceV2.handleComplete` calls `playEntranceAfterMorph()` instead of `playEntrance()`.
+- Returning visitors (sessionStorage flag): `playEntrance()` still animates name + tagline normally.
+- `prefers-reduced-motion`: simple fade, no travel.
+
+### Part 4 — Header hides on scroll-down, reveals on scroll-up
+- `Navigation.tsx`: `navHidden` state, 6px dead zone, resets at `scrollY < 80` and when menu opens. Class `site-nav--hidden` applied.
+- `globals.css`: `transform: translateY(-100%)` with `0.48s` transition. Reduced-motion: `opacity:0; visibility:hidden` (no transform).
+- Logo oval is in the hero → belongs to the hero and disappears naturally as content scrolls over it.
+
+### Part 5 — Press in hamburger menu
+- `Navigation.tsx`: `{ label: 'Press', href: '/press' }` added between Shop and About.
+
+### Build
+- `✓ Compiled successfully — 15 routes, zero errors`
+
+---
+
 ## Revalidation audit + webhook wiring (2026-06-26)
 - **Date:** 2026-06-26
 - **Commit:** docs-only (this entry)

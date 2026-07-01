@@ -1656,11 +1656,27 @@ body:not(.mr2-mode) .mrx-cursor {
   justify-content: space-between;
   padding: 28px clamp(20px, 4vw, 52px);
   color: var(--cream-on-dark);
-  transition: color 0.4s var(--ease-manda);
+  transition: color 0.4s var(--ease-manda),
+              transform 0.48s var(--ease-manda);
 }
 
 .site-nav.scrolled {
   color: var(--ink-current);
+}
+
+.site-nav--hidden {
+  transform: translateY(-100%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .site-nav {
+    transition: color 0.4s var(--ease-manda);
+  }
+  .site-nav--hidden {
+    transform: none;
+    opacity: 0;
+    visibility: hidden;
+  }
 }
 
 body.home-intro-active .site-nav {

@@ -144,11 +144,8 @@ export default function LoadingScreenStripes({
     if (!root || exitingRef.current) return
     exitingRef.current = true
     sessionStorage.setItem('mr2-intro-seen', '1')
-    // NOTE: do NOT add 'mr-intro-seen' to <html> here.
-    // The CSS rule `html.mr-intro-seen .mr2-loader { display:none }` would fire
-    // instantly and kill every GSAP tween before they can play.
-    // The class is added by onComplete (in HomeExperienceV2.handleComplete)
-    // after all animations have finished.
+
+    mandaGsap.set(root, { pointerEvents: 'none' })
 
     // Reduced-motion fallback: simple fade
     if (prefersReducedMotion()) {
@@ -156,96 +153,29 @@ export default function LoadingScreenStripes({
       return
     }
 
-    // ── Measure shared element positions before any transform ─────────
-    const loaderLogoEl = loaderLogoRef.current
-    const loaderWordEl = wordRef.current
-    const navLogoEl    = document.querySelector<HTMLElement>('[data-nav-logo]')
-    const heroNameEl   = document.querySelector<HTMLElement>('[data-hero-name]')
-
-    // Disable pointer events so the transparent loader doesn't block the site
-    mandaGsap.set(root, { pointerEvents: 'none' })
-
     const tl = mandaGsap.timeline({ onComplete })
 
-    const TRAVEL_START = 0.15
-
-    // ── Fade out elements that don't travel ───────────────────────────
+    // Identity (logo, name, subline, enter) fades out quickly
     tl.to(
-      [subRef.current, enterRef.current],
-      { autoAlpha: 0, duration: 0.5, ease: EASE },
+      [loaderLogoRef.current, wordRef.current, subRef.current, enterRef.current],
+      { autoAlpha: 0, duration: 0.4, ease: EASE },
       0
     )
 
-    // ── Dissolve the stripe bars + loader background ──────────────────
-    tl.to('.mr2-loader__bars', { opacity: 0, duration: 1.2, ease: EASE }, 0)
-    tl.to(root, { backgroundColor: 'transparent', duration: 1.5, ease: EASE }, 0)
+    // Bars retract from full width back to slits — shutter opening in reverse
+    tl.to(
+      '.mr2-loader__bar',
+      {
+        scaleX: 0.055,
+        duration: 1.6,
+        ease: EASE_SOFT_INOUT,
+        stagger: { each: 0.012, from: 'center' },
+      },
+      0.1
+    )
 
-    // ── Logo: loader center → nav corner ─────────────────────────────
-    if (loaderLogoEl && navLogoEl) {
-      const src = loaderLogoEl.getBoundingClientRect()
-      const dst = navLogoEl.getBoundingClientRect()
-
-      // Guard: if nav logo is display:none its rect will be 0×0 — fall back to fade
-      if (src.width > 0 && dst.width > 0) {
-        const scale = Math.min(dst.width / src.width, dst.height / src.height)
-        const dx = (dst.left + dst.width  / 2) - (src.left + src.width  / 2)
-        const dy = (dst.top  + dst.height / 2) - (src.top  + src.height / 2)
-
-        mandaGsap.set(navLogoEl, { autoAlpha: 0 })
-
-        tl.to(
-          loaderLogoEl,
-          { x: dx, y: dy, scale, transformOrigin: 'center center', duration: DUR.grand, ease: EASE },
-          TRAVEL_START
-        )
-
-        // Crossfade near end of travel — PNG scales cleanly, no font rasterisation issue
-        tl.to(loaderLogoEl, { autoAlpha: 0, duration: 0.28, ease: 'none' }, TRAVEL_START + DUR.grand - 0.28)
-        tl.fromTo(navLogoEl, { autoAlpha: 0 }, { autoAlpha: 1, duration: 0.28, ease: 'none' }, TRAVEL_START + DUR.grand - 0.2)
-      } else {
-        tl.to(loaderLogoEl, { autoAlpha: 0, duration: DUR.base, ease: EASE }, 0)
-      }
-    } else if (loaderLogoEl) {
-      tl.to(loaderLogoEl, { autoAlpha: 0, duration: DUR.base, ease: EASE }, 0)
-    }
-
-    // ── Name: hero name travels FROM loader position → its natural home ──
-    // We animate the HERO element (not the loader word) so it always renders
-    // at its own native font-size.  It starts scaled/offset to sit on top of
-    // the loader word, then eases to scale:1 — perfectly sharp at the end.
-    // The loader word simply fades out; no scaling on it at all.
-    if (loaderWordEl && heroNameEl) {
-      const src = loaderWordEl.getBoundingClientRect()
-      const dst = heroNameEl.getBoundingClientRect()
-
-      if (src.width > 0 && dst.width > 0) {
-        const scaleFrom = src.height / dst.height
-        const dx = (src.left + src.width  / 2) - (dst.left + dst.width  / 2)
-        const dy = (src.top  + src.height / 2) - (dst.top  + dst.height / 2)
-
-        // Place hero name over the loader word, invisible
-        mandaGsap.set(heroNameEl, {
-          x: dx, y: dy, scale: scaleFrom,
-          transformOrigin: 'center center',
-          autoAlpha: 0,
-        })
-
-        // Fade loader word out in place — no position/scale change on it
-        tl.to(loaderWordEl, { autoAlpha: 0, duration: 0.5, ease: 'power2.inOut' }, TRAVEL_START)
-
-        // Hero name fades in and travels to x:0 y:0 scale:1
-        // Starting slightly after the loader word begins to fade so they don't fully overlap
-        tl.to(heroNameEl, {
-          x: 0, y: 0, scale: 1, autoAlpha: 1,
-          transformOrigin: 'center center',
-          duration: DUR.grand, ease: EASE,
-        }, TRAVEL_START + 0.18)
-      } else {
-        tl.to(loaderWordEl, { autoAlpha: 0, duration: DUR.base, ease: EASE }, 0)
-      }
-    } else if (loaderWordEl) {
-      tl.to(loaderWordEl, { autoAlpha: 0, duration: DUR.base, ease: EASE }, 0)
-    }
+    // Field lifts to transparent as bars retract
+    tl.to(root, { backgroundColor: 'transparent', duration: 1.4, ease: EASE }, 0.3)
   }
 
   return (
