@@ -50,9 +50,57 @@ export const shopItemSchema = defineType({
       options: { layout: 'grid' },
     }),
     defineField({
-      name: 'price',
-      title: 'Price (INR)',
+      name: 'basePrice',
+      title: 'Base Price (INR)',
       type: 'number',
+      description: 'Starting / lowest price for this edition.',
+    }),
+    defineField({
+      name: 'availabilityStatus',
+      title: 'Availability',
+      type: 'string',
+      options: {
+        list: [
+          { title: '✅ Available — listed & purchasable', value: 'available' },
+          { title: '🔴 Sold Out — visible but not purchasable', value: 'soldOut' },
+          { title: '📦 Hidden / Delisted — removed from all listings', value: 'hidden' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'available',
+      validation: (Rule) => Rule.required(),
+    }),
+    defineField({
+      name: 'editionSize',
+      title: 'Edition Size',
+      type: 'number',
+      description: 'Total prints in this edition (e.g. 30, 50).',
+    }),
+    defineField({
+      name: 'stock',
+      title: 'Stock Remaining',
+      type: 'number',
+      description: 'How many are still available to purchase. Set to 0 to mark sold out automatically.',
+    }),
+    defineField({
+      name: 'sold',
+      title: 'Units Sold',
+      type: 'number',
+      description: 'Running count of sold units (for your records).',
+      initialValue: 0,
+    }),
+    defineField({
+      name: 'purchaseType',
+      title: 'Purchase Type',
+      type: 'string',
+      options: {
+        list: [
+          { title: 'Buy (public shop)', value: 'buy' },
+          { title: 'Private Collection (enquiry only)', value: 'privateCollection' },
+        ],
+        layout: 'radio',
+      },
+      initialValue: 'buy',
     }),
     defineField({
       name: 'description',

@@ -66,30 +66,32 @@ export const pressItemsQuery = groq`
 export const featuredShopItemsQuery = groq`
   coalesce(
     *[_type == "siteSettings"][0].featuredShopItems[]->
-      [coalesce(purchaseType, "buy") != "privateCollection"] {
+      [coalesce(purchaseType, "buy") != "privateCollection"
+       && coalesce(availabilityStatus, "available") != "hidden"] {
       _id,
       title,
       "slug": slug.current,
       desc,
-      basePrice,
+      "basePrice": coalesce(basePrice, price),
       images,
-      availabilityStatus,
+      "availabilityStatus": coalesce(availabilityStatus, "available"),
       editionSize,
       sold,
       stock,
       "purchaseType": coalesce(purchaseType, "buy"),
       stripePriceId
     },
-    *[_type == "shopItem" && availabilityStatus == "available"
+    *[_type == "shopItem"
+        && coalesce(availabilityStatus, "available") != "hidden"
         && coalesce(purchaseType, "buy") != "privateCollection"]
       | order(coalesce(displayOrder, 999) asc, _createdAt asc) [0...3] {
         _id,
         title,
         "slug": slug.current,
         desc,
-        basePrice,
+        "basePrice": coalesce(basePrice, price),
         images,
-        availabilityStatus,
+        "availabilityStatus": coalesce(availabilityStatus, "available"),
         editionSize,
         sold,
         stock,
@@ -102,16 +104,17 @@ export const featuredShopItemsQuery = groq`
 // Full shop listing — no slice, used by /shop page.
 // The homepage teaser (EditionShop) uses featuredShopItemsQuery which has [0...3].
 export const allShopItemsQuery = groq`
-  *[_type == "shopItem" && availabilityStatus != "hidden"
+  *[_type == "shopItem"
+      && coalesce(availabilityStatus, "available") != "hidden"
       && coalesce(purchaseType, "buy") != "privateCollection"]
     | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
       _id,
       title,
       "slug": slug.current,
       desc,
-      basePrice,
+      "basePrice": coalesce(basePrice, price),
       images,
-      availabilityStatus,
+      "availabilityStatus": coalesce(availabilityStatus, "available"),
       editionSize,
       sold,
       stock,
@@ -128,7 +131,7 @@ export const shopItemsBySlugsQuery = groq`
     _id,
     title,
     "slug": slug.current,
-    basePrice,
+    "basePrice": coalesce(basePrice, price),
     stock,
     stripePriceId
   }

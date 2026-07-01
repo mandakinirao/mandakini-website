@@ -2,7 +2,6 @@
 
 import Image from 'next/image'
 import Link from 'next/link'
-import PillCta from '@/components/ui/PillCta'
 import { useEffect, useRef } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import {
@@ -17,21 +16,20 @@ import BuyControls from '@/components/shop/BuyControls'
 interface ProductDetailProps {
   print: HomePrint
   others: HomePrint[]
-  commerceEnabled: boolean
+  commerceEnabled: boolean  // kept for API compat, no longer gates CTAs
   paperSpec?: string
   signatureSpec?: string
   shippingSpec?: string
 }
 
 /**
- * /shop/[slug] — the product page (after 1924.us): image on the left,
- * the facts on the right. No cart yet — purchases run through an
- * enquiry, which suits small signed editions.
+ * /shop/[slug] — the product page: image on the left, the facts on the right.
+ * Always shows price + Buy Now / Add to Cart when available.
+ * Falls back to sold-out state or private-collection enquiry as needed.
  */
 export default function ProductDetail({
   print,
   others,
-  commerceEnabled,
   paperSpec = '308gsm cotton rag, archival',
   signatureSpec = 'Signed & numbered by hand',
   shippingSpec = 'Rolled, worldwide from Hyderabad',
@@ -86,24 +84,7 @@ export default function ProductDetail({
             <div><dt>Shipping</dt><dd>{shippingSpec}</dd></div>
           </dl>
 
-          {commerceEnabled ? (
-            <BuyControls print={print} variant="full" />
-          ) : print.available ? (
-            <>
-              <PillCta href="/contact">Enquire to purchase</PillCta>
-              <p className="mr-pdp__hint">
-                Replies within a few days — include the print name and your city.
-              </p>
-            </>
-          ) : (
-            <>
-              <p className="mr-pdp__soldout">Sold out</p>
-              <p className="mr-pdp__hint">
-                This edition is complete. Ask about other works —{' '}
-                <Link href="/contact">get in touch</Link>.
-              </p>
-            </>
-          )}
+          <BuyControls print={print} variant="full" />
         </div>
       </div>
 

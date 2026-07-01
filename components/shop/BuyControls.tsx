@@ -25,10 +25,14 @@ export default function BuyControls({
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
 
-  if (print.stock <= 0 || !print.available) {
+  if (!print.available || print.stock === 0) {
     return (
       <div className={`mr-buy mr-buy--${variant}`}>
-        <p className="mr-buy__sold">Sold</p>
+        <p className="mr-buy__sold">Sold out</p>
+        <p className="mr-buy__hint">
+          This edition is complete —{' '}
+          <a href="/contact">get in touch</a> about other works.
+        </p>
       </div>
     )
   }

@@ -274,7 +274,8 @@ function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
     desc: s.desc ?? '',
     available: printAvailable(s),
     amount: s.basePrice ?? 0,
-    stock: s.stock ?? 0,
+    // null stock = not tracked yet; treat as plentiful so buy buttons show
+    stock: s.stock != null ? s.stock : (printAvailable(s) ? 999 : 0),
   }
 }
 
