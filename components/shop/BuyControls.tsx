@@ -4,23 +4,14 @@ import { useState } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import { useCart } from '@/lib/cart'
 import PillCta from '@/components/ui/PillCta'
+import { openRazorpayCheckout } from '@/lib/razorpay-checkout'
 
 interface BuyControlsProps {
   print: HomePrint
-  /** compact: card footer on the shop grid; full: product page block */
   variant?: 'compact' | 'full'
 }
 
-/**
- * Price + purchase CTAs for a buyable print (Phase 2, commerce flag
- * only — pages render this solely when commerce is enabled). Stock 0
- * shows the quiet rosehip "Sold" state with no CTA. Buy Now goes
- * straight to checkout with a single line item.
- */
-export default function BuyControls({
-  print,
-  variant = 'compact',
-}: BuyControlsProps) {
+export default function BuyControls({ print, variant = 'compact' }: BuyControlsProps) {
   const { add } = useCart()
   const [busy, setBusy] = useState(false)
   const [error, setError] = useState('')
@@ -47,12 +38,20 @@ export default function BuyControls({
         body: JSON.stringify({ items: [{ slug: print.slug, qty: 1 }] }),
       })
       const data = await res.json()
-      if (!res.ok || !data.url) {
+      if (!res.ok || !data.orderId) {
         setError(data.error ?? 'Checkout is unavailable right now.')
         setBusy(false)
         return
       }
-      window.location.assign(data.url)
+      openRazorpayCheckout({
+        orderId: data.orderId,
+        amount: data.amount,
+        currency: data.currency,
+        keyId: data.keyId,
+        name: print.title,
+        onDismiss: () => setBusy(false),
+        onError: (msg) => { setError(msg); setBusy(false) },
+      })
     } catch {
       setError('Checkout is unavailable right now.')
       setBusy(false)

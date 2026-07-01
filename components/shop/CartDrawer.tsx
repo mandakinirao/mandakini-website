@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react'
 import PillCta from '@/components/ui/PillCta'
 import { useCart } from '@/lib/cart'
+import { openRazorpayCheckout } from '@/lib/razorpay-checkout'
 import {
   EASE,
   lockScroll,
@@ -60,12 +61,20 @@ export default function CartDrawer() {
         }),
       })
       const data = await res.json()
-      if (!res.ok || !data.url) {
+      if (!res.ok || !data.orderId) {
         setError(data.error ?? 'Checkout is unavailable right now.')
         setBusy(false)
         return
       }
-      window.location.assign(data.url)
+      openRazorpayCheckout({
+        orderId: data.orderId,
+        amount: data.amount,
+        currency: data.currency,
+        keyId: data.keyId,
+        name: items.length === 1 ? items[0].title : `${items.length} prints`,
+        onDismiss: () => setBusy(false),
+        onError: (msg) => { setError(msg); setBusy(false) },
+      })
     } catch {
       setError('Checkout is unavailable right now.')
       setBusy(false)

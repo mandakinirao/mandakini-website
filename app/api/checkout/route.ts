@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { stripeEnabled } from '@/lib/commerce'
+import { razorpayEnabled } from '@/lib/commerce'
 import { getPurchasableItems } from '@/lib/home-data'
-import { createCheckoutSession } from '@/lib/stripe'
+import { createRazorpayOrder } from '@/lib/razorpay'
 
 const RATE_LIMIT = 10
 const RATE_WINDOW_MS = 60 * 1000
@@ -16,18 +16,17 @@ function rateLimited(ip: string): boolean {
 }
 
 /**
- * Creates a Stripe Checkout Session from cart line items (or a single
- * item for Buy Now). Amounts are validated server-side from Sanity —
- * the client sends only slugs and quantities, never prices. Guarded:
- * with commerce off or keys absent this returns 503 and the UI that
- * could call it is never rendered anyway.
+ * Creates a Razorpay order from cart line items (or a single item for
+ * Buy Now). Amounts are validated server-side from Sanity — the client
+ * sends only slugs and quantities, never prices.
+ * Returns { orderId, amount (paise), currency, keyId } to the client.
  */
 export async function POST(req: NextRequest) {
   const ip = req.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ?? 'unknown'
   if (rateLimited(ip)) {
     return NextResponse.json({ error: 'Too many requests.' }, { status: 429 })
   }
-  if (!stripeEnabled()) {
+  if (!razorpayEnabled()) {
     return NextResponse.json(
       { error: 'The shop is not taking orders yet.' },
       { status: 503 }
@@ -52,7 +51,6 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Your cart looks empty.' }, { status: 400 })
   }
 
-  // Source of truth: Sanity (placeholder list while the dataset is empty).
   const items = await getPurchasableItems(requested.map((i) => i.slug))
 
   const lines = []
@@ -66,7 +64,7 @@ export async function POST(req: NextRequest) {
     }
     if (item.stock < qty) {
       return NextResponse.json(
-        { error: `Only ${item.stock} of “${item.title}” remain.` },
+        { error: `Only ${item.stock} of "${item.title}" remain.` },
         { status: 409 }
       )
     }
@@ -74,16 +72,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const session = await createCheckoutSession(lines)
-    if (!session) {
+    const order = await createRazorpayOrder(lines)
+    if (!order) {
       return NextResponse.json(
         { error: 'Checkout is unavailable right now.' },
         { status: 503 }
       )
     }
-    return NextResponse.json({ url: session.url })
+    return NextResponse.json(order)
   } catch (err) {
-    console.error('[checkout] session creation failed:', err)
+    console.error('[checkout] Razorpay order creation failed:', err)
     return NextResponse.json(
       { error: 'Checkout is unavailable right now.' },
       { status: 502 }

@@ -1,4 +1,5 @@
 import { Suspense } from 'react'
+import Script from 'next/script'
 import Navigation from '@/components/layout/Navigation'
 import ThemeV2 from '@/components/layout/ThemeV2'
 import FooterV2 from '@/components/home/v2/FooterV2'
@@ -21,6 +22,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
 
   return (
     <CartProvider>
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="lazyOnload" />
       {inner}
       <CartDrawer />
     </CartProvider>
