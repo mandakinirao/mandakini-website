@@ -1439,6 +1439,24 @@ body:not(.mr2-mode) .mrx-cursor {
   text-transform: uppercase;
 }
 
+.mr-series__cta {
+  display: inline-block;
+  margin-top: 1.2rem;
+  font-family: var(--font-ui);
+  font-size: clamp(11px, 0.85vw, 13px);
+  font-weight: 400;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ink-current);
+  border-bottom: 1px solid currentColor;
+  padding-bottom: 1px;
+  transition: opacity 0.2s;
+}
+
+.mr-series:hover .mr-series__cta {
+  opacity: 0.6;
+}
+
 .mr-series__row {
   display: grid;
   grid-template-columns: repeat(3, 1fr);

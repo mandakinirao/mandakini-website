@@ -177,6 +177,9 @@ export default function WorksIndex({
               <p className="mr-series__meta">
                 {item.desc}
               </p>
+              <span className="mr-series__cta" aria-hidden="true">
+                View series →
+              </span>
             </div>
             <div className="mr-series__row">
               {item.images.slice(0, 3).map((src, i) => (
