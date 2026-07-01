@@ -1,7 +1,7 @@
 'use client'
 
-import Image from 'next/image'
 import Link from 'next/link'
+import Image from 'next/image'
 import { useEffect, useRef } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import {
@@ -12,6 +12,7 @@ import {
   revealLines,
 } from '@/lib/motion'
 import BuyControls from '@/components/shop/BuyControls'
+import ImageCarousel from '@/components/shop/ImageCarousel'
 
 interface ProductDetailProps {
   print: HomePrint
@@ -62,16 +63,10 @@ export default function ProductDetail({
       </Link>
 
       <div className="mr-pdp__layout">
-        <span className="mr-pdp__image mr-mask">
-          <Image
-            src={print.image || '/art/subbulakshmi/ms-sq-3.jpg'}
-            alt={print.title || 'Print'}
-            fill
-            sizes="(max-width: 900px) 92vw, 46vw"
-            data-reveal-img
-            priority
-          />
-        </span>
+        <ImageCarousel
+          images={print.images?.length ? print.images : [print.image || '/art/subbulakshmi/ms-sq-3.jpg']}
+          title={print.title || 'Print'}
+        />
 
         <div className="mr-pdp__info">
           <h1>{print.title || 'Untitled print'}</h1>

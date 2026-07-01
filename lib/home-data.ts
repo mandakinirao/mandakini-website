@@ -11,6 +11,8 @@ export interface HomePrint {
   slug: string
   price: string
   image: string
+  /** All product images; first entry matches `image`. */
+  images: string[]
   href: string
   desc: string
   /** false ⇒ sold out / withdrawn: badge shows, purchase CTA disabled.
@@ -178,6 +180,7 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
     slug: 'subbulakshmi-singing-print',
     price: 'Edition of 50 — from ₹4,800',
     image: '/art/subbulakshmi/ms-sq-3.jpg',
+    images: ['/art/subbulakshmi/ms-sq-3.jpg'],
     href: '/shop/subbulakshmi-singing-print',
     desc: 'Archival giclée print of the duotone portrait, on 308gsm cotton rag. Signed and numbered by hand in the Hyderabad studio, shipped rolled with a certificate of authenticity.',
     available: true,
@@ -189,6 +192,7 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
     slug: 'palette-no-9-print',
     price: 'Edition of 50 — from ₹3,600',
     image: '/art/studio/palette-earthy.jpg',
+    images: ['/art/studio/palette-earthy.jpg'],
     href: '/shop/palette-no-9-print',
     desc: 'A study in earth and ochre from the palette series. Archival print on cotton rag, signed and numbered, shipped rolled from Hyderabad.',
     available: true,
@@ -200,6 +204,7 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
     slug: 'raga-in-ochre-print',
     price: 'Edition of 30 — from ₹5,200',
     image: '/art/subbulakshmi/ms-sq-1.jpg',
+    images: ['/art/subbulakshmi/ms-sq-1.jpg'],
     href: '/shop/raga-in-ochre-print',
     desc: 'From the Subbulakshmi series — a small edition of thirty. Archival giclée on cotton rag, signed and numbered, with certificate.',
     available: true,
@@ -254,22 +259,27 @@ interface ShopDoc {
   stock?: number
 }
 
-function resolveShopImage(images: SanityImageType[] | undefined, urlForImage: UrlFor): string {
-  try {
-    return images?.[0] ? urlForImage(images[0]).width(1200).url() : SHOP_IMAGE_FALLBACK
-  } catch {
-    return SHOP_IMAGE_FALLBACK
-  }
+function resolveShopImages(sanityImages: SanityImageType[] | undefined, urlForImage: UrlFor): string[] {
+  if (!sanityImages?.length) return [SHOP_IMAGE_FALLBACK]
+  return sanityImages.map((img) => {
+    try {
+      return img?.asset ? urlForImage(img).width(1200).url() : SHOP_IMAGE_FALLBACK
+    } catch {
+      return SHOP_IMAGE_FALLBACK
+    }
+  })
 }
 
 function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
+  const allImages = resolveShopImages(s.images, urlForImage)
   return {
     title: s.title ?? 'Untitled print',
     slug: s.slug ?? `print-${i + 1}`,
     price: s.editionSize
       ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
       : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
-    image: resolveShopImage(s.images, urlForImage),
+    image: allImages[0],
+    images: allImages,
     href: s.slug ? `/shop/${s.slug}` : '/shop',
     desc: s.desc ?? '',
     available: printAvailable(s),

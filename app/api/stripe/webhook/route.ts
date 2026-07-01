@@ -106,13 +106,20 @@ export async function POST(req: NextRequest) {
       orderDate: new Date().toISOString(),
     })
 
-    // Stock decrement — once, only on first processing of this session.
+    // Stock decrement + sold increment — once, only on first processing of this session.
     for (const i of items) {
       if (!i.id || i.id === i.slug) continue // placeholder data has no document
       try {
-        await client.patch(i.id).dec({ stock: i.qty }).commit()
+        const updated = await client
+          .patch(i.id)
+          .dec({ stock: i.qty })
+          .inc({ sold: i.qty })
+          .commit<{ stock?: number }>()
+        if (typeof updated.stock === 'number' && updated.stock <= 0) {
+          await client.patch(i.id).set({ availabilityStatus: 'soldOut' }).commit()
+        }
       } catch (err) {
-        console.error('[webhook] stock decrement failed for', i.slug, err)
+        console.error('[webhook] stock update failed for', i.slug, err)
       }
     }
 

@@ -1224,6 +1224,74 @@ body:not(.mr2-mode) .mrx-cursor {
   object-fit: cover;
 }
 
+/* ── Image carousel ─────────────────────────────────────────────────── */
+.mr-carousel {
+  position: relative;
+}
+
+.mr-carousel__stage {
+  display: block;
+}
+
+.mr-carousel__slide {
+  object-fit: cover;
+  opacity: 0;
+  transition: opacity 0.45s ease;
+}
+
+.mr-carousel__slide--active {
+  opacity: 1;
+}
+
+.mr-carousel__btn {
+  position: absolute;
+  top: 50%;
+  translate: 0 -50%;
+  background: rgba(44, 26, 14, 0.55);
+  color: var(--bg-cream);
+  border: none;
+  width: 2.6rem;
+  height: 2.6rem;
+  border-radius: 50%;
+  font-size: 1.4rem;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  z-index: 2;
+}
+
+.mr-carousel__btn:hover {
+  background: rgba(44, 26, 14, 0.85);
+}
+
+.mr-carousel__btn--prev { left: 0.75rem; }
+.mr-carousel__btn--next { right: 0.75rem; }
+
+.mr-carousel__dots {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+}
+
+.mr-carousel__dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  border: none;
+  background: rgba(44, 26, 14, 0.25);
+  cursor: pointer;
+  padding: 0;
+  transition: background 0.2s;
+}
+
+.mr-carousel__dot--active {
+  background: var(--ink-cacao, #2C1A0E);
+}
+
 .mr-pdp__info {
   display: grid;
   row-gap: 1.6rem;
