@@ -3,7 +3,7 @@ import { urlForImage } from '@/sanity/lib/image'
 
 export interface RawPressItem {
   _id: string
-  link: string
+  link?: string
   type: string
   headlineOverride?: string
   thumbnailOverride?: SanityImage & { alt?: string }
@@ -14,14 +14,19 @@ export interface RawPressItem {
 
 export interface EnrichedPressItem {
   _id: string
-  url: string
+  /** null when there is no destination — a photographed/scanned print
+   *  clipping with nothing to link out to. The card opens a lightbox
+   *  instead of navigating. */
+  url: string | null
   type: string
   headline: string | null
   thumbnail: string | null
   source: string | null
   displayOrder: number
-  /** 'photo' — image fills the card. 'logo' — clean card, no photo overlay. */
-  mode: 'photo' | 'logo'
+  /** 'photo' — image fills the card, links out. 'logo' — clean card, no
+   *  photo overlay, links out. 'clipping' — full image + caption, no link,
+   *  opens a lightbox on click. */
+  mode: 'photo' | 'logo' | 'clipping'
 }
 
 function isYouTube(url: string): boolean {
@@ -104,14 +109,20 @@ async function fetchFromOg(url: string): Promise<Fetched> {
 }
 
 export async function enrichPressItem(raw: RawPressItem): Promise<EnrichedPressItem> {
-  const fetched = isYouTube(raw.link)
-    ? await fetchFromYoutubeOembed(raw.link)
-    : await fetchFromOg(raw.link)
+  // No link, nothing to fetch — this is a print clipping (or an incomplete
+  // draft). Skip the network call entirely rather than fetching an empty URL.
+  const fetched = !raw.link
+    ? {}
+    : isYouTube(raw.link)
+      ? await fetchFromYoutubeOembed(raw.link)
+      : await fetchFromOg(raw.link)
 
   let overrideThumbnail: string | undefined
   if (raw.thumbnailOverride?.asset) {
     try {
-      overrideThumbnail = urlForImage(raw.thumbnailOverride).width(800).url()
+      // 2000px cap so the lightbox (near full-viewport for clipping scans)
+      // has enough real detail to read comfortably, not just the grid thumb.
+      overrideThumbnail = urlForImage(raw.thumbnailOverride).width(2000).url()
     } catch {
       overrideThumbnail = undefined
     }
@@ -121,11 +132,18 @@ export async function enrichPressItem(raw: RawPressItem): Promise<EnrichedPressI
   const thumbnail = overrideThumbnail ?? fetched.thumbnail ?? null
   const source = raw.source ?? fetched.source ?? null
 
-  const mode: EnrichedPressItem['mode'] = raw.logoCard || !thumbnail ? 'logo' : 'photo'
+  let mode: EnrichedPressItem['mode']
+  if (!raw.link && thumbnail) {
+    mode = 'clipping'
+  } else if (raw.logoCard || !thumbnail) {
+    mode = 'logo'
+  } else {
+    mode = 'photo'
+  }
 
   return {
     _id: raw._id,
-    url: raw.link,
+    url: raw.link ?? null,
     type: raw.type,
     headline,
     thumbnail,

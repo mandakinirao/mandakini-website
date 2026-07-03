@@ -480,7 +480,7 @@ export async function getHomeData(): Promise<HomeData> {
 
   const tickerItems = enrichedPress?.filter((p) => p.headline && p.source) ?? []
   const press: HomePress[] = tickerItems.length
-    ? tickerItems.map((p) => ({ source: p.source as string, title: p.headline as string, year: '', url: p.url }))
+    ? tickerItems.map((p) => ({ source: p.source as string, title: p.headline as string, year: '', url: p.url ?? undefined }))
     : PLACEHOLDER_PRESS
 
   const homeSnippet = aboutData?.homeSnippet ?? ''
