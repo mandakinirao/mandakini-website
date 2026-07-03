@@ -1524,13 +1524,17 @@ body.mr2-mode .mr-detail__sale:hover {
   content: '';
   position: absolute;
   inset: 0;
-  /* Warm cacao scrim, bottom-up, soft falloff — no hard edge. */
+  /* Warm cacao scrim, bottom-up, soft falloff — no hard edge. Stronger
+     near-solid band at the bottom (where the text overlay sits) so headline
+     text lifts cleanly off busy/pale photo areas; upper two-thirds of the
+     card stay untouched. */
   background: linear-gradient(
     to top,
-    rgba(44, 26, 14, 0.92) 0%,
-    rgba(44, 26, 14, 0.66) 32%,
-    rgba(44, 26, 14, 0.28) 58%,
-    rgba(44, 26, 14, 0) 82%
+    rgba(44, 26, 14, 0.97) 0%,
+    rgba(44, 26, 14, 0.88) 24%,
+    rgba(44, 26, 14, 0.56) 44%,
+    rgba(44, 26, 14, 0.18) 66%,
+    rgba(44, 26, 14, 0) 85%
   );
   z-index: 1;
 }
@@ -1544,7 +1548,7 @@ body.mr2-mode .mr-detail__sale:hover {
   padding: 1.6rem 1.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.5rem;
 }
 
 /* ── Logo card (short — 1 row): print features, paywalls, no photo ──── */
@@ -1637,7 +1641,9 @@ body.mr2-mode .mr-detail__sale:hover {
   text-transform: uppercase;
 }
 .mr2-press-card--img .mr2-press-card__label {
-  color: rgba(245, 239, 228, 0.5);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(245, 239, 228, 0.78);
 }
 
 /* Publication name (logo card) */
@@ -1654,10 +1660,10 @@ body.mr2-mode .mr-detail__sale:hover {
 /* Source name (on photo cards) */
 .mr2-press-card__source {
   font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 12px;
+  letter-spacing: 0.1em;
   text-transform: uppercase;
-  color: rgba(245, 239, 228, 0.55);
+  color: rgba(245, 239, 228, 0.85);
 }
 
 /* Headline / title */
@@ -1673,6 +1679,14 @@ body.mr2-mode .mr-detail__sale:hover {
   overflow: hidden;
   color: rgba(245, 239, 228, 0.9);
 }
+/* Photo-mode headline is the card's focal text — substantially larger,
+   near-full-opacity cream, tracking untouched (title was never tracked
+   out). Logo-mode headline (--dark) is untouched below. */
+.mr2-press-card--img .mr2-press-card__title {
+  font-size: clamp(1.2rem, 2vw, 1.5rem);
+  line-height: 1.28;
+  color: rgba(245, 239, 228, 0.97);
+}
 .mr2-press-card__title--dark {
   color: rgba(44, 26, 14, 0.72);
   font-size: clamp(0.82rem, 1vw, 0.92rem);
@@ -1686,6 +1700,12 @@ body.mr2-mode .mr-detail__sale:hover {
   text-transform: uppercase;
   color: rgba(245, 239, 228, 0.45);
   margin-top: 0.2rem;
+}
+.mr2-press-card--img .mr2-press-card__cta {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  color: rgba(245, 239, 228, 0.8);
+  margin-top: 0.1rem;
 }
 .mr2-press-card__cta--dark {
   color: rgba(44, 26, 14, 0.4);

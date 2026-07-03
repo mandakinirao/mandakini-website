@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-07-03 (ii) — Press card legibility fix (photo mode only)
+
+**Prompt summary:** Live `/press` photo-mode card text (headline, ARTICLE label, source, READ) too small/faint/tracked-out to read over the image — Telangana First card given as the example, text "nearly dissolves into the photo." Fix only: bigger headline as focal text, subtler tracking, stronger scrim under the text specifically (not the whole card), cream text confirmed against the scrim not the raw image. Do not touch logo-mode unless values are shared (verify if so). No redesign, no GSAP/motion changes, palette locked. STOP for localhost review before commit.
+
+**Context noticed on read:** the screenshot showed telanganafirst.in now rendering in photo mode with no headline — checked Sanity directly and found the client had since added a `thumbnailOverride` image and manual `source: "Telangana First"` via Studio (my two review-only demo items from the previous session were also gone — client had cleaned them up). Real data now: thumbnail present, headline still null. Confirms the fix needs to look right both with and without a headline.
+
+**Fix — CSS only, scoped to `.mr2-press-card--img`:**
+- Headline: `clamp(0.88rem,1.1vw,1rem)` → `clamp(1.2rem,2vw,1.5rem)`, opacity 0.9→0.97 — now unambiguously the card's focal text.
+- Label/source/CTA: 10px→11–12px, letter-spacing 0.2–0.28em → 0.1em (kept subtle tracking, not zero), opacity 0.45–0.55 → 0.78–0.85.
+- Scrim: rebuilt from a 3-stop to a 5-stop gradient, near-solid (~0.9+) for roughly the bottom quarter where text sits, fading out by ~85% up the card — stronger locally without darkening the whole photo.
+- Deliberately did NOT reorder the source above the headline (considered it, reverted) — that would have been a layout change, out of scope for "legibility only."
+- Headline/CTA overrides scoped via `.mr2-press-card--img` ancestor selector specifically so logo-mode (`.mr2-press-card--logo`, `--dark` variants) can't inherit anything — verified by temporarily flipping a demo item's `logoCard` boolean and comparing side by side; logo card unchanged.
+
+**Verification:**
+- The one real press item currently has no headline, so headline-specific sizing couldn't be checked against real data. Temporarily published a demo item (Wikipedia, has a headline) to verify, then unpublished + discarded the draft immediately after confirming — production Sanity now shows only the real `telanganafirst.in` item, matching what's live before this change (thumbnail + source, no headline).
+- Hit the same dev-mode persisted-fetch-cache issue as the previous session (publishing new Sanity content after an existing `.next` build meant the page kept serving the pre-publish snapshot) — same fix, `rm -rf .next` before each server restart.
+- Confirmed via `npm run build && npm start` + Chrome automation (forcing `img.loading = 'eager'` to work around this browser tool's lazy-load screenshot timing quirk, same as last session): Telangana First card text is now clearly legible at a glance; a headline-bearing demo card showed the headline as clear focal text; logo-mode card confirmed unchanged.
+- Build clean, zero errors.
+
+
 ## 2026-07-03 — Press build-time auto-fetch + masonry card design
 
 **Prompt summary:** Build the build-time auto-fetch for press items and the masonry card design (Function Health reference), in order. GSAP+Lenis+ScrollTrigger only, palette locked (no blue/grain, pill/rounded/circular only), GROQ only in `sanity/lib/queries.ts`. Context given up front: fields already existed on the schema but the fetch was never implemented (live `/press` showed empty "ARTICLE"/"READ" cards), and auto-fetch will fail often for this site's real press (regional outlets, old archive URLs, print, paywalls) — override is a normal input, not a rare rescue. STOP for localhost review before commit.

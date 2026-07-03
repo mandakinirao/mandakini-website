@@ -1,5 +1,20 @@
 # Progress Log
 
+## Press card legibility fix — photo mode only (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` (same branch as the card build — localhost-reviewed, approved).
+- **Problem:** on the live `telanganafirst.in` card, the overlay text (ARTICLE label, source, READ) was nearly illegible over the photo — 10px uppercase text at 0.2–0.28em letter-spacing, and a scrim that maxed out at 0.92 opacity right at the card edge, disintegrated against a busy/pale image.
+- **Fix, scoped to photo-mode (`.mr2-press-card--img`) only — no JSX changes, CSS only:**
+  - Headline (`.mr2-press-card--img .mr2-press-card__title`): `clamp(0.88rem,1.1vw,1rem)` → `clamp(1.2rem,2vw,1.5rem)`, now the card's clear focal text; color pushed to near-full-opacity cream (0.9 → 0.97).
+  - Label/source/CTA: font-size bumped (10px→11–12px), letter-spacing cut roughly in half (0.2–0.28em → 0.1em, "subtle" not "heavily tracked-out"), opacity raised (0.45–0.55 → 0.78–0.85).
+  - Scrim (`.mr2-press-card--img::after`): re-tuned from a 3-stop `0.92→0.66→0.28→0` gradient to a 5-stop `0.97→0.88→0.56→0.18→0` gradient — a near-solid warm-cacao band under the text block, fading out by ~85% up the card. Still bottom-up, no hard edge, doesn't darken the whole photo (top ~15% untouched).
+  - Overlay gap `0.35rem → 0.5rem` to give the now-larger text room to breathe.
+- **Logo-mode untouched by construction:** headline/CTA scoping uses `.mr2-press-card--img` ancestor selectors specifically so `.mr2-press-card--logo` (and the `--dark` title/CTA variants it uses) can't inherit the change. Verified visually by temporarily toggling a demo item's `logoCard` flag — logo card renders identically to before.
+- **Contrast:** cream text (~#F5EFE4) sits on an effectively near-solid cacao (~#2C1A0E) scrim band at the bottom of the card — comfortably exceeds WCAG AA even at the smaller label/source sizes.
+- **Verification:** temporarily published a demo `pressItem` (Wikipedia, with a headline) to confirm the headline-specific sizing, since the one real press item currently has no headline set (client added a `thumbnailOverride` + manual `source` since the last session, still no `headlineOverride`). Confirmed on `npm run build && npm start` via Chrome automation, then unpublished + discarded the demo draft — only the real `telanganafirst.in` item remains live.
+- **No GSAP/motion/palette changes** — pure CSS sizing/spacing/color, same warm-cacao family already in use.
+- **Build result:** ✓ zero errors, `/press` still static (○), 16 routes.
+
 ## Press build-time auto-fetch + masonry card design (2026-07-03)
 - **Date:** 2026-07-03
 - **Branch:** `press-autofetch-masonry` — localhost-reviewed, approved, ready to push.
