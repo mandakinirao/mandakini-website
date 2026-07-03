@@ -2,6 +2,34 @@
 
 ---
 
+## 2026-07-03 — Press build-time auto-fetch + masonry card design
+
+**Prompt summary:** Build the build-time auto-fetch for press items and the masonry card design (Function Health reference), in order. GSAP+Lenis+ScrollTrigger only, palette locked (no blue/grain, pill/rounded/circular only), GROQ only in `sanity/lib/queries.ts`. Context given up front: fields already existed on the schema but the fetch was never implemented (live `/press` showed empty "ARTICLE"/"READ" cards), and auto-fetch will fail often for this site's real press (regional outlets, old archive URLs, print, paywalls) — override is a normal input, not a rare rescue. STOP for localhost review before commit.
+
+**Diagnosis before writing code:**
+- Read `sanity/lib/queries.ts`, `lib/press.ts`, `components/press/PressPage.tsx`, `app/(site)/press/page.tsx`. Found `lib/press.ts` and `pressItemsQuery` already existed but used field names from *before* the 2026-06-23 schema restructure (`url`, `titleOverride`, `imageOverride`, `sourceOverride`, `order`) — the restructure renamed these (`link`, `headlineOverride`, `thumbnailOverride`, `source`, `displayOrder`) but the query/lib layer was never updated. That mismatch, not a missing feature, was the actual root cause of the empty cards.
+- Queried Sanity directly (`mcp__Sanity__query_documents`): only one real `pressItem` document exists (`telanganafirst.in`, all override fields null) — confirmed this is the "poor OG" real-world case named in the prompt.
+
+**Part 1 — build-time fetch:**
+- Confirmed and kept the existing architecture: fetch runs server-side in the async Server Component `app/(site)/press/page.tsx` (ISR, revalidate 3600) and in `getHomeData()` — never client-side.
+- Rewrote `lib/press.ts`: renamed all fields to match current schema, implemented exact `?? ` precedence per spec (no more falling back to the raw URL as a fake headline), oEmbed-first for YouTube, OG-tag scrape otherwise, both under a 5s timeout + try/catch that returns `{}` on any failure — matches "missing OG tags is expected, not an error."
+- Fixed `sanity/lib/queries.ts` `pressItemsQuery` field list and ordering field.
+- Updated `lib/home-data.ts` ticker mapping; filtered items with no headline/source out of the ticker only (grid still shows them via logo mode) so the homepage marquee never renders blank text.
+
+**Part 2 — masonry card, two modes:**
+- Added one schema field, `pressItem.logoCard` (boolean) — needed because "has a thumbnail" alone can't distinguish a real photo from an uploaded publication logo; asked the editor to flag it explicitly rather than guessing from image aspect ratio.
+- Rewrote `components/press/PressPage.tsx`: `PhotoCard` (full-bleed image, warm cacao bottom-up scrim, no hard edge) and `LogoCard` (cream card, circular mark — uploaded logo image or a generic circular seal when there's truly no image — headline/source as text). Circular mark chosen to satisfy the "pill/rounded/circular only" constraint.
+- `app/v2.css`: scrim recolored from near-black to warm cacao (`rgba(44,26,14,...)`) per the locked palette; added the logo-card CSS block. Existing bento/masonry grid (photo cards span 2 rows) kept.
+- Part 3 (Studio hints): updated `link`, `headlineOverride`, `thumbnailOverride`, `source` field descriptions on `pressItem` to say overrides are normal/expected, not just "leave blank to auto-fill."
+
+**Unplanned but necessary fix surfaced mid-task:** auto-fetched thumbnails come from arbitrary outlet domains, which the recent CSP-hardening commit's `img-src 'self' data: https://cdn.sanity.io` and `next.config.js` `remotePatterns` (Sanity-only) would both block/throw on. Widened both to any `https:` host for images only — flagged explicitly rather than silently loosening security config, since it touches a recent hardening commit.
+
+**Verification:**
+- Added two demo `pressItem` documents via Sanity MCP for the review only: a plain-auto-fill Wikipedia article (no overrides) and a text-override-only item (headline+source set by hand, no thumbnail). Left the real `telanganafirst.in` item untouched as the "graceful no-data" case.
+- `npm run build` clean, zero errors. Verified all three states visually via `npm run build && npm start` (not `next dev` — dev mode's CSP blocks React Fast Refresh's eval-based HMR, a pre-existing unrelated issue, not a regression from this task) using Chrome automation: auto-filled photo card, override-driven logo card, and the graceful empty-state logo card with generic seal all render correctly and distinctly.
+- User completed their own localhost review and approved; proceeding to commit per their instruction. Demo Sanity documents intentionally left in place unless told to remove them.
+
+
 ## 2026-07-01 — Hero full-bleed + loading morph + nav update (Parts 1–5, session 2)
 
 **Prompt summary:** Supersedes session 1. Full-bleed hero, centered artist name with warm scrim, loading screen that morphs into hero as one continuous GSAP timeline (FLIP-style — oval + name travel from screen-centre to hero positions). No Framer Motion, palette locked, prefers-reduced-motion respected.

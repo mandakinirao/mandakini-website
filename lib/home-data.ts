@@ -478,8 +478,9 @@ export async function getHomeData(): Promise<HomeData> {
     ? shopItems.slice(0, 3).map((s, i) => mapShopDoc(s, i, urlForImage))
     : PLACEHOLDER_PRINTS
 
-  const press: HomePress[] = enrichedPress?.length
-    ? enrichedPress.map((p) => ({ source: p.source, title: p.title, year: '', url: p.url }))
+  const tickerItems = enrichedPress?.filter((p) => p.headline && p.source) ?? []
+  const press: HomePress[] = tickerItems.length
+    ? tickerItems.map((p) => ({ source: p.source as string, title: p.headline as string, year: '', url: p.url }))
     : PLACEHOLDER_PRESS
 
   const homeSnippet = aboutData?.homeSnippet ?? ''

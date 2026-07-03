@@ -1,5 +1,35 @@
 # Progress Log
 
+## Press build-time auto-fetch + masonry card design (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` — localhost-reviewed, approved, ready to push.
+
+### Part 1 — Build-time metadata fetch (fixed a stale-field bug, not a from-scratch build)
+- **Root cause of the empty-card bug:** the 2026-06-23 schema restructure renamed `pressItem` fields (`url`→`link`, `titleOverride`→`headlineOverride`, `imageOverride`→`thumbnailOverride`, `sourceOverride`→`source`, `order`→`displayOrder`) but `sanity/lib/queries.ts` (`pressItemsQuery`) and `lib/press.ts` were never updated. The GROQ query was pulling fields that no longer exist, so every press item resolved to blank headline/thumbnail/source — hence the live-site card showing only "ARTICLE"/"READ".
+- **Where it runs:** server-side only, in the async Server Component `app/(site)/press/page.tsx` (ISR, `revalidate = 3600`) and in `getHomeData()` for the homepage ticker. No client-side fetch.
+- **`lib/press.ts` rewritten:** `RawPressItem`/`EnrichedPressItem` fields renamed to match the current schema. Precedence implemented exactly as specified: `headline = headlineOverride ?? fetched ?? null`, `thumbnail = thumbnailOverride ?? fetched ?? null`, `source = source ?? fetched(site_name ?? hostname) ?? null`. YouTube/video links use oEmbed first (`fetchFromYoutubeOembed`); everything else uses OG tag scraping (`fetchFromOg`). Both wrapped in `fetchWithTimeout` (5s) + try/catch — any failure returns `{}`, never throws, never blocks the build.
+- **`sanity/lib/queries.ts`:** `pressItemsQuery` field list and `order by` fixed to current schema names.
+- **`lib/home-data.ts`:** ticker mapping updated to `p.headline`/`p.url`; items missing a headline or source are filtered out of the ticker only (the /press grid still renders them via logo-mode).
+
+### Part 2 — Masonry press card (two render modes)
+- **Schema addition:** `pressItem.logoCard` (boolean, default off) — lets an editor explicitly flag a print/paywalled item whose uploaded image is a publication mark, not a photo. Mode is computed as `mode = logoCard || !thumbnail ? 'logo' : 'photo'` — avoids fragile image-shape heuristics.
+- **`components/press/PressPage.tsx` rewritten:** `PhotoCard` (image fills the card, warm cacao bottom-up gradient scrim, headline + source overlaid, whole card links out) and `LogoCard` (cream card, circular mark — the uploaded logo image if present, otherwise a plain circular seal — headline + source as text, first-class layout not a broken-image fallback).
+- **`app/v2.css`:** photo-card scrim changed from near-black `rgba(10,6,4,...)` to warm cacao `rgba(44,26,14,...)`, bottom-up, soft falloff. New logo-card block: `.mr2-press-card--logo`, `.mr2-press-card__mark` (circular per the site's pill/circle rule), `.mr2-press-card__mark--seal` (generic fallback when there's truly no image). Existing bento/masonry grid (photo cards span 2 rows, logo cards 1 row) retained.
+- **Homepage ticker (`MarqueePress`) untouched** — same component, same behaviour; it now just receives correctly-populated data.
+
+### Necessary security-config widening (flagged, not silent)
+- Press thumbnails are auto-fetched from arbitrary outlet domains (regional news sites, `i.ytimg.com`, etc.) — impossible to enumerate in advance. Two configs from the 2026-06-26 CSP-hardening commit had to widen:
+  - `next.config.js` `images.remotePatterns`: added a `https: **` wildcard entry alongside the existing `cdn.sanity.io` one (Next's Image component throws for unconfigured hostnames).
+  - CSP `img-src`: `'self' data: https://cdn.sanity.io` → `'self' data: https:`.
+- Everything else in the CSP (script-src, connect-src, etc.) is untouched.
+
+### Demo content added for localhost review
+- Two `pressItem` documents added directly via Sanity MCP for the review (not part of the code change): one plain auto-fill (Wikipedia — Madhubani art, no overrides) and one text-override-only (headline + source set by hand, no thumbnail → logo mode). The pre-existing `telanganafirst.in` item was left untouched as the natural "auto-fetch failed gracefully" case. All three states confirmed working on localhost (`npm run build && npm start`) — the /press bento grid shows: (a) auto-filled photo card, (b) override-driven logo card, (c) graceful no-data logo card with generic seal.
+- **Note:** dev mode (`next dev`) has a pre-existing, unrelated issue — the CSP `script-src` (no `unsafe-eval`) blocks React Fast Refresh's HMR runtime, throwing console `EvalError`s on every hot reload. Doesn't affect production builds (no eval in prod React) or this feature; not fixed here as it's outside this task's scope. Worth a dedicated follow-up.
+
+### Build result
+- ✓ `npm run build` — zero errors, `/press` still prerenders static (○), 16 routes.
+
 ## Hero full-bleed + loading morph + nav update (2026-07-01)
 - **Date:** 2026-07-01
 - **Branch:** `hero-nav-update` — not yet merged. Awaiting localhost review + oval pick.

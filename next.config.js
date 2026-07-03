@@ -30,7 +30,10 @@ const securityHeaders = [
     value: [
       "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
       "style-src 'self' 'unsafe-inline'",
-      "img-src 'self' data: https://cdn.sanity.io",
+      // https: (not a fixed allowlist) is required because press thumbnails are
+      // auto-fetched OG/oEmbed images from arbitrary outlet domains (news sites,
+      // i.ytimg.com, etc.) — the source list can't be known in advance.
+      "img-src 'self' data: https:",
       "font-src 'self'",
       "frame-src https://api.razorpay.com",
       "connect-src 'self' https://i4t9kzxg.api.sanity.io https://api.razorpay.com https://lumberjack.razorpay.com",
@@ -57,6 +60,13 @@ const nextConfig = {
         protocol: 'https',
         hostname: 'cdn.sanity.io',
         pathname: '/images/**',
+      },
+      // Press thumbnails are auto-fetched from arbitrary outlet domains at
+      // build time (OG image / YouTube oEmbed) — the hostname can't be
+      // known ahead of time, so any https host is allowed for images only.
+      {
+        protocol: 'https',
+        hostname: '**',
       },
     ],
   },
