@@ -1487,13 +1487,27 @@ body.mr2-mode .mr-detail__sale:hover {
   opacity: 0.4;
 }
 
-/* 4-col bento grid; photo cards span 2 rows, text cards span 1 */
+/* 4-col bento grid. Each column is a pair of stacked cards (see
+   .mr2-press-col below) — mirrors the Function Health reference: one tall
+   photo card + one short logo card per column, alternating which sits on
+   top from column to column. */
 .mr2-press-bento {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 260px;
-  grid-auto-flow: dense;
+  align-items: start;
   gap: 14px;
+}
+
+.mr2-press-col {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* Alternates the stacking order per column: even columns are image-top/
+   text-bottom (source order), odd columns flip to text-top/image-bottom. */
+.mr2-press-col--reverse {
+  flex-direction: column-reverse;
 }
 
 /* Base card */
@@ -1512,10 +1526,10 @@ body.mr2-mode .mr-detail__sale:hover {
   box-shadow: 0 20px 48px rgba(44, 26, 14, 0.16);
 }
 
-/* ── Photo card (tall — spans 2 rows) ─────────────────────────────── */
+/* ── Photo card (tall, portrait) ────────────────────────────────────── */
 
 .mr2-press-card--img {
-  grid-row: span 2;
+  aspect-ratio: 3 / 4;
   background: var(--v2-cacao);
   color: var(--ink-cream);
 }
@@ -1524,11 +1538,17 @@ body.mr2-mode .mr-detail__sale:hover {
   content: '';
   position: absolute;
   inset: 0;
+  /* Warm cacao scrim, bottom-up, soft falloff — no hard edge. Stronger
+     near-solid band at the bottom (where the text overlay sits) so headline
+     text lifts cleanly off busy/pale photo areas; upper two-thirds of the
+     card stay untouched. */
   background: linear-gradient(
-    to bottom,
-    transparent 25%,
-    rgba(10, 6, 4, 0.65) 65%,
-    rgba(10, 6, 4, 0.88) 100%
+    to top,
+    rgba(44, 26, 14, 0.97) 0%,
+    rgba(44, 26, 14, 0.88) 24%,
+    rgba(44, 26, 14, 0.56) 44%,
+    rgba(44, 26, 14, 0.18) 66%,
+    rgba(44, 26, 14, 0) 85%
   );
   z-index: 1;
 }
@@ -1542,17 +1562,68 @@ body.mr2-mode .mr-detail__sale:hover {
   padding: 1.6rem 1.8rem;
   display: flex;
   flex-direction: column;
-  gap: 0.35rem;
+  gap: 0.6rem;
 }
 
-/* ── Text / publication card (short — 1 row) ───────────────────────── */
+/* ── Logo card (short): print features, paywalls, no photo ──────────── */
 
-.mr2-press-card--text {
-  justify-content: space-between;
-  padding: 1.5rem 1.8rem;
+.mr2-press-card--logo {
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  min-height: 240px;
+  padding: 1.8rem 1.6rem 1.5rem;
   background: var(--v2-bg);
   border: 1.5px solid rgba(44, 26, 14, 0.12);
   color: var(--v2-fg);
+  gap: 0.9rem;
+}
+
+.mr2-press-card__label--logo {
+  align-self: flex-start;
+  color: rgba(44, 26, 14, 0.45);
+}
+
+/* The logo/mark slot — always circular per the site's pill/circle rule. */
+.mr2-press-card__mark {
+  position: relative;
+  width: clamp(64px, 9vw, 92px);
+  height: clamp(64px, 9vw, 92px);
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.mr2-press-card__mark--image {
+  background: var(--v2-cream);
+  border: 1px solid rgba(44, 26, 14, 0.1);
+  padding: 14px;
+  overflow: hidden;
+}
+.mr2-press-card__mark--image img {
+  padding: 14px;
+}
+
+/* Generic seal — used only when there is truly no thumbnail at all. */
+.mr2-press-card__mark--seal {
+  border: 1.5px solid rgba(44, 26, 14, 0.22);
+  box-shadow: inset 0 0 0 5px rgba(44, 26, 14, 0.05);
+}
+.mr2-press-card__mark--seal::before {
+  content: '';
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: var(--accent-rosehip);
+}
+
+.mr2-press-card__logo-text {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
 }
 
 /* ── Ghost placeholder cards ───────────────────────────────────────── */
@@ -1566,11 +1637,12 @@ body.mr2-mode .mr-detail__sale:hover {
   box-shadow: none;
 }
 .mr2-press-card--ghost-img {
-  grid-row: span 2;
+  aspect-ratio: 3 / 4;
   background: rgba(44, 26, 14, 0.06);
   border: 1.5px solid rgba(44, 26, 14, 0.10);
 }
 .mr2-press-card--ghost-text {
+  min-height: 240px;
   background: rgba(44, 26, 14, 0.03);
   border: 1.5px solid rgba(44, 26, 14, 0.08);
 }
@@ -1585,30 +1657,29 @@ body.mr2-mode .mr-detail__sale:hover {
   text-transform: uppercase;
 }
 .mr2-press-card--img .mr2-press-card__label {
-  color: rgba(245, 239, 228, 0.5);
-}
-.mr2-press-card--text .mr2-press-card__label {
-  color: rgba(44, 26, 14, 0.45);
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: rgba(245, 239, 228, 0.82);
 }
 
-/* Large publication name */
+/* Publication name (logo card) */
 .mr2-press-card__pub {
-  font-family: var(--font-display);
-  font-size: clamp(1.4rem, 2.2vw, 2rem);
+  font-family: var(--font-label);
+  font-size: 10px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
   font-weight: 400;
-  line-height: 1.05;
-  letter-spacing: 0.01em;
-  color: var(--v2-fg);
+  color: rgba(44, 26, 14, 0.5);
   margin: 0;
 }
 
 /* Source name (on photo cards) */
 .mr2-press-card__source {
   font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.22em;
+  font-size: 16px;
+  letter-spacing: 0.06em;
   text-transform: uppercase;
-  color: rgba(245, 239, 228, 0.55);
+  color: rgba(245, 239, 228, 0.9);
 }
 
 /* Headline / title */
@@ -1624,6 +1695,14 @@ body.mr2-mode .mr-detail__sale:hover {
   overflow: hidden;
   color: rgba(245, 239, 228, 0.9);
 }
+/* Photo-mode headline is the card's focal text — substantially larger,
+   near-full-opacity cream, tracking untouched (title was never tracked
+   out). Logo-mode headline (--dark) is untouched below. */
+.mr2-press-card--img .mr2-press-card__title {
+  font-size: clamp(1.4rem, 2.6vw, 1.9rem);
+  line-height: 1.24;
+  color: rgba(245, 239, 228, 0.97);
+}
 .mr2-press-card__title--dark {
   color: rgba(44, 26, 14, 0.72);
   font-size: clamp(0.82rem, 1vw, 0.92rem);
@@ -1638,6 +1717,12 @@ body.mr2-mode .mr-detail__sale:hover {
   color: rgba(245, 239, 228, 0.45);
   margin-top: 0.2rem;
 }
+.mr2-press-card--img .mr2-press-card__cta {
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  color: rgba(245, 239, 228, 0.85);
+  margin-top: 0.2rem;
+}
 .mr2-press-card__cta--dark {
   color: rgba(44, 26, 14, 0.4);
 }
@@ -1647,19 +1732,16 @@ body.mr2-mode .mr-detail__sale:hover {
 @media (max-width: 900px) {
   .mr2-press-bento {
     grid-template-columns: repeat(2, 1fr);
-    grid-auto-rows: 220px;
   }
 }
 
 @media (max-width: 560px) {
   .mr2-press-bento {
     grid-template-columns: 1fr;
-    grid-auto-rows: 280px;
     gap: 10px;
   }
-  .mr2-press-card--img,
-  .mr2-press-card--ghost-img {
-    grid-row: span 1;
+  .mr2-press-col {
+    gap: 10px;
   }
 }
 

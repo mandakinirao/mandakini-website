@@ -51,14 +51,15 @@ export const siteSettingsShopQuery = groq`
 `
 
 export const pressItemsQuery = groq`
-  *[_type == "pressItem"] | order(coalesce(order, 99) asc) {
+  *[_type == "pressItem"] | order(coalesce(displayOrder, 99) asc) {
     _id,
-    url,
+    link,
     type,
-    titleOverride,
-    imageOverride { asset, alt },
-    sourceOverride,
-    order
+    headlineOverride,
+    thumbnailOverride { asset, alt },
+    logoCard,
+    source,
+    displayOrder
   }
 `
 

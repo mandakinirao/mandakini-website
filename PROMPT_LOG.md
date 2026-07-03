@@ -2,6 +2,76 @@
 
 ---
 
+## 2026-07-03 (iv) — Press grid: paired-column layout (Function Health reference)
+
+**Prompt summary:** User annotated a screenshot of the Function Health press grid: each column pairs one photo card + one logo/text card, and which sits on top alternates per column ("1 can be the text and 2 can be the image... next item top image bottom text, then top text bottom image"). Asked not to look like the dense-packed result the fix currently produced.
+
+**First pass rejected before commit:** grouped items into columns by raw sequential order (2 items at a time from the displayOrder-sorted list) with alternating `flex-direction: column-reverse` per column. Looked wrong with real+demo data — whenever two adjacent items happened to share a mode (e.g. two photo-mode Wikipedia fetches back to back), the column showed two stacked photos next to a column of two stacked logo cards. User caught this immediately from a screenshot ("i dont think you understood... it should not look like this") before I'd committed anything.
+
+**Fix:** `buildColumns()` in `components/press/PressPage.tsx` — split items into separate `photos` and `logos` arrays (mode-filtered, order preserved within each), then zip: column `i` = `[photos[i], logos[i]]`. This guarantees every column pairs one distinct photo item with one distinct logo item, exactly like the reference (each card in a pair is a different press mention, not an image+caption of the same one). Leftover items (unequal photo/logo counts) become solo single-card columns. The existing `i % 2 === 1 → column-reverse` alternation was kept — it now flips a true photo/logo pair instead of two same-mode cards.
+
+**CSS restructuring (`app/v2.css`):** the grid stopped being a `grid-auto-flow: dense` masonry (which placed cards by whatever fit, not by pairing) — now `.mr2-press-bento` is a plain 4-col grid of `.mr2-press-col` flex-column wrappers, each holding exactly the 2 (or 1) cards for that column. `.mr2-press-card--img` moved from `grid-row: span 2` to `aspect-ratio: 3/4` since it's no longer a row-spanning grid item.
+
+**Verification:** since only one real press item exists (no natural way to see multi-column pairing), published 4 temporary demo items (mixed photo/logo/podcast modes) via Sanity MCP, confirmed via Chrome automation (screenshots + DOM inspection of `.mr2-press-col` children) that columns correctly pair one photo + one logo item with alternating stack order, then fully removed the demo drafts (unpublish + discard) so only the real item remains. User reviewed on localhost and approved; committed and pushed directly to `main` per explicit instruction this time (not a feature-branch-only merge).
+
+---
+
+## 2026-07-03 (iii) — Press card: bigger text, still "barely readable"
+
+**Prompt summary:** After the first legibility pass (larger headline, lighter tracking, stronger scrim), user reported the text was still barely readable on the Vercel preview and asked to increase font size further — no other direction given.
+
+**Fix:** bumped photo-mode text sizes again, same scoped selectors as the first pass (`.mr2-press-card--img .mr2-press-card__{label,title,cta}`, `.mr2-press-card__source`): label 11px→13px, source 12px→16px, CTA 11px→13px, headline `clamp(1.2rem,2vw,1.5rem)` → `clamp(1.4rem,2.6vw,1.9rem)`. Letter-spacing tightened slightly further (0.1em → 0.06–0.08em) since larger uppercase text at the same tracking looks looser. Overlay `gap` 0.5rem→0.6rem for breathing room. Verified via zoomed screenshot on `npm run build && npm start` — did not commit yet, rolled into the same working-tree change as the column-layout fix below since the user moved straight to the next request before reviewing/approving this one in isolation.
+
+---
+
+## 2026-07-03 (ii) — Press card legibility fix (photo mode only)
+
+**Prompt summary:** Live `/press` photo-mode card text (headline, ARTICLE label, source, READ) too small/faint/tracked-out to read over the image — Telangana First card given as the example, text "nearly dissolves into the photo." Fix only: bigger headline as focal text, subtler tracking, stronger scrim under the text specifically (not the whole card), cream text confirmed against the scrim not the raw image. Do not touch logo-mode unless values are shared (verify if so). No redesign, no GSAP/motion changes, palette locked. STOP for localhost review before commit.
+
+**Context noticed on read:** the screenshot showed telanganafirst.in now rendering in photo mode with no headline — checked Sanity directly and found the client had since added a `thumbnailOverride` image and manual `source: "Telangana First"` via Studio (my two review-only demo items from the previous session were also gone — client had cleaned them up). Real data now: thumbnail present, headline still null. Confirms the fix needs to look right both with and without a headline.
+
+**Fix — CSS only, scoped to `.mr2-press-card--img`:**
+- Headline: `clamp(0.88rem,1.1vw,1rem)` → `clamp(1.2rem,2vw,1.5rem)`, opacity 0.9→0.97 — now unambiguously the card's focal text.
+- Label/source/CTA: 10px→11–12px, letter-spacing 0.2–0.28em → 0.1em (kept subtle tracking, not zero), opacity 0.45–0.55 → 0.78–0.85.
+- Scrim: rebuilt from a 3-stop to a 5-stop gradient, near-solid (~0.9+) for roughly the bottom quarter where text sits, fading out by ~85% up the card — stronger locally without darkening the whole photo.
+- Deliberately did NOT reorder the source above the headline (considered it, reverted) — that would have been a layout change, out of scope for "legibility only."
+- Headline/CTA overrides scoped via `.mr2-press-card--img` ancestor selector specifically so logo-mode (`.mr2-press-card--logo`, `--dark` variants) can't inherit anything — verified by temporarily flipping a demo item's `logoCard` boolean and comparing side by side; logo card unchanged.
+
+**Verification:**
+- The one real press item currently has no headline, so headline-specific sizing couldn't be checked against real data. Temporarily published a demo item (Wikipedia, has a headline) to verify, then unpublished + discarded the draft immediately after confirming — production Sanity now shows only the real `telanganafirst.in` item, matching what's live before this change (thumbnail + source, no headline).
+- Hit the same dev-mode persisted-fetch-cache issue as the previous session (publishing new Sanity content after an existing `.next` build meant the page kept serving the pre-publish snapshot) — same fix, `rm -rf .next` before each server restart.
+- Confirmed via `npm run build && npm start` + Chrome automation (forcing `img.loading = 'eager'` to work around this browser tool's lazy-load screenshot timing quirk, same as last session): Telangana First card text is now clearly legible at a glance; a headline-bearing demo card showed the headline as clear focal text; logo-mode card confirmed unchanged.
+- Build clean, zero errors.
+
+
+## 2026-07-03 — Press build-time auto-fetch + masonry card design
+
+**Prompt summary:** Build the build-time auto-fetch for press items and the masonry card design (Function Health reference), in order. GSAP+Lenis+ScrollTrigger only, palette locked (no blue/grain, pill/rounded/circular only), GROQ only in `sanity/lib/queries.ts`. Context given up front: fields already existed on the schema but the fetch was never implemented (live `/press` showed empty "ARTICLE"/"READ" cards), and auto-fetch will fail often for this site's real press (regional outlets, old archive URLs, print, paywalls) — override is a normal input, not a rare rescue. STOP for localhost review before commit.
+
+**Diagnosis before writing code:**
+- Read `sanity/lib/queries.ts`, `lib/press.ts`, `components/press/PressPage.tsx`, `app/(site)/press/page.tsx`. Found `lib/press.ts` and `pressItemsQuery` already existed but used field names from *before* the 2026-06-23 schema restructure (`url`, `titleOverride`, `imageOverride`, `sourceOverride`, `order`) — the restructure renamed these (`link`, `headlineOverride`, `thumbnailOverride`, `source`, `displayOrder`) but the query/lib layer was never updated. That mismatch, not a missing feature, was the actual root cause of the empty cards.
+- Queried Sanity directly (`mcp__Sanity__query_documents`): only one real `pressItem` document exists (`telanganafirst.in`, all override fields null) — confirmed this is the "poor OG" real-world case named in the prompt.
+
+**Part 1 — build-time fetch:**
+- Confirmed and kept the existing architecture: fetch runs server-side in the async Server Component `app/(site)/press/page.tsx` (ISR, revalidate 3600) and in `getHomeData()` — never client-side.
+- Rewrote `lib/press.ts`: renamed all fields to match current schema, implemented exact `?? ` precedence per spec (no more falling back to the raw URL as a fake headline), oEmbed-first for YouTube, OG-tag scrape otherwise, both under a 5s timeout + try/catch that returns `{}` on any failure — matches "missing OG tags is expected, not an error."
+- Fixed `sanity/lib/queries.ts` `pressItemsQuery` field list and ordering field.
+- Updated `lib/home-data.ts` ticker mapping; filtered items with no headline/source out of the ticker only (grid still shows them via logo mode) so the homepage marquee never renders blank text.
+
+**Part 2 — masonry card, two modes:**
+- Added one schema field, `pressItem.logoCard` (boolean) — needed because "has a thumbnail" alone can't distinguish a real photo from an uploaded publication logo; asked the editor to flag it explicitly rather than guessing from image aspect ratio.
+- Rewrote `components/press/PressPage.tsx`: `PhotoCard` (full-bleed image, warm cacao bottom-up scrim, no hard edge) and `LogoCard` (cream card, circular mark — uploaded logo image or a generic circular seal when there's truly no image — headline/source as text). Circular mark chosen to satisfy the "pill/rounded/circular only" constraint.
+- `app/v2.css`: scrim recolored from near-black to warm cacao (`rgba(44,26,14,...)`) per the locked palette; added the logo-card CSS block. Existing bento/masonry grid (photo cards span 2 rows) kept.
+- Part 3 (Studio hints): updated `link`, `headlineOverride`, `thumbnailOverride`, `source` field descriptions on `pressItem` to say overrides are normal/expected, not just "leave blank to auto-fill."
+
+**Unplanned but necessary fix surfaced mid-task:** auto-fetched thumbnails come from arbitrary outlet domains, which the recent CSP-hardening commit's `img-src 'self' data: https://cdn.sanity.io` and `next.config.js` `remotePatterns` (Sanity-only) would both block/throw on. Widened both to any `https:` host for images only — flagged explicitly rather than silently loosening security config, since it touches a recent hardening commit.
+
+**Verification:**
+- Added two demo `pressItem` documents via Sanity MCP for the review only: a plain-auto-fill Wikipedia article (no overrides) and a text-override-only item (headline+source set by hand, no thumbnail). Left the real `telanganafirst.in` item untouched as the "graceful no-data" case.
+- `npm run build` clean, zero errors. Verified all three states visually via `npm run build && npm start` (not `next dev` — dev mode's CSP blocks React Fast Refresh's eval-based HMR, a pre-existing unrelated issue, not a regression from this task) using Chrome automation: auto-filled photo card, override-driven logo card, and the graceful empty-state logo card with generic seal all render correctly and distinctly.
+- User completed their own localhost review and approved; proceeding to commit per their instruction. Demo Sanity documents intentionally left in place unless told to remove them.
+
+
 ## 2026-07-01 — Hero full-bleed + loading morph + nav update (Parts 1–5, session 2)
 
 **Prompt summary:** Supersedes session 1. Full-bleed hero, centered artist name with warm scrim, loading screen that morphs into hero as one continuous GSAP timeline (FLIP-style — oval + name travel from screen-centre to hero positions). No Framer Motion, palette locked, prefers-reduced-motion respected.

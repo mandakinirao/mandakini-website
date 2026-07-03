@@ -10,7 +10,7 @@ export const pressItemSchema = defineType({
       title: 'Link URL',
       type: 'url',
       description:
-        'Paste the article, video, or podcast link. Headline, thumbnail, and source are auto-filled at build time.',
+        'Paste the article, video, or podcast link. Headline, thumbnail, and source are auto-filled at build time when the site allows it. Many outlets (paywalls, regional sites, print archives) block this — filling in the overrides below by hand is normal, not a fallback.',
       validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }),
     }),
     defineField({
@@ -32,14 +32,16 @@ export const pressItemSchema = defineType({
       name: 'headlineOverride',
       title: 'Headline (override)',
       type: 'string',
-      description: 'Leave blank to auto-fill from the link.',
+      description:
+        'Leave blank to try auto-fill from the link. Used often — most regional and print outlets don’t expose a usable headline tag.',
     }),
     defineField({
       name: 'thumbnailOverride',
       title: 'Thumbnail (override)',
       type: 'image',
       options: { hotspot: true },
-      description: 'Leave blank to auto-fill. For print features, upload the publication logo here.',
+      description:
+        'Leave blank to try auto-fill. For print features, paywalled links, or any site with a poor preview image, upload the publication logo here and turn on "Logo card" below.',
       fields: [
         defineField({
           name: 'alt',
@@ -49,10 +51,18 @@ export const pressItemSchema = defineType({
       ],
     }),
     defineField({
+      name: 'logoCard',
+      title: 'Logo card',
+      type: 'boolean',
+      initialValue: false,
+      description:
+        'Turn on when the thumbnail above is a publication logo/mark rather than a photo (or when there is no usable thumbnail at all) — renders a clean logo card instead of a photo overlay.',
+    }),
+    defineField({
       name: 'source',
       title: 'Source / Publication',
       type: 'string',
-      description: 'e.g. "Telangana Today". Leave blank to auto-fill from the link.',
+      description: 'e.g. "Telangana Today". Leave blank to try auto-fill from the link.',
     }),
     defineField({
       name: 'displayOrder',

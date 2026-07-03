@@ -1,5 +1,61 @@
 # Progress Log
 
+## Press grid — paired column layout (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` (same branch as the press card work) — localhost-reviewed, approved, merged to `main`.
+- **Problem:** the dense-packed bento grid (`grid-auto-flow: dense`, photo cards `grid-row: span 2`) placed cards wherever there was room, with no relationship between which cards ended up adjacent. Client wanted the Function Health reference pattern instead: each column is a pair of two *distinct* press items — one photo card, one logo/text card — and which one sits on top alternates from column to column (col 1: image-top/text-bottom, col 2: text-top/image-bottom, ...).
+- **First attempt was wrong:** grouped items into column-pairs by raw sequence (`displayOrder`), which produced a column of two stacked photo cards next to a column of two stacked logo cards whenever adjacent items happened to share a mode — not the reference pattern. Caught via user screenshot comparison before committing.
+- **Fix — `components/press/PressPage.tsx`:** replaced sequential pairing with `buildColumns()` — splits items into `photos` and `logos` arrays (mode-filtered, `displayOrder` preserved within each), then zips one from each into every column (`[photos[i], logos[i]]`). Guarantees each column pairs one of each kind; any surplus (unequal photo/logo counts) falls back to solo single-card columns. `GhostGrid` empty-state updated to the same paired-column shape.
+- **CSS (`app/v2.css`):** `.mr2-press-bento` is now a plain 4-column grid of `.mr2-press-col` wrappers (flex column, `gap: 14px`), not a dense auto-flow grid — removed `grid-auto-flow: dense` / `grid-auto-rows`. `.mr2-press-col--reverse` (`flex-direction: column-reverse`) applied to every other column via `i % 2 === 1`, alternating which card is visually on top without touching DOM order. `.mr2-press-card--img` switched from `grid-row: span 2` to `aspect-ratio: 3/4` (now a standalone flex child, not a grid item spanning rows); `.mr2-press-card--logo` given `min-height: 240px` for a comparably "short" counterpart. Responsive breakpoints simplified to just column-count changes (900px→2 cols, 560px→1 col) — no more row-span overrides needed.
+- **Verification:** temporarily published 4 demo `pressItem` documents (mixed photo/logo/podcast) to see the multi-column pattern with only 1 real item live; confirmed columns correctly pair distinct photo+logo items with alternating stack order via Chrome automation, then unpublished + discarded all demo drafts — production Sanity has only the real `telanganafirst.in` item.
+- **No GSAP/motion or palette changes** — pure layout/CSS restructuring.
+- **Build result:** ✓ zero errors, `/press` still static (○), 16 routes.
+
+## Press card legibility fix — photo mode only (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` (same branch as the card build — localhost-reviewed, approved).
+- **Problem:** on the live `telanganafirst.in` card, the overlay text (ARTICLE label, source, READ) was nearly illegible over the photo — 10px uppercase text at 0.2–0.28em letter-spacing, and a scrim that maxed out at 0.92 opacity right at the card edge, disintegrated against a busy/pale image.
+- **Fix, scoped to photo-mode (`.mr2-press-card--img`) only — no JSX changes, CSS only:**
+  - Headline (`.mr2-press-card--img .mr2-press-card__title`): `clamp(0.88rem,1.1vw,1rem)` → `clamp(1.2rem,2vw,1.5rem)`, now the card's clear focal text; color pushed to near-full-opacity cream (0.9 → 0.97).
+  - Label/source/CTA: font-size bumped (10px→11–12px), letter-spacing cut roughly in half (0.2–0.28em → 0.1em, "subtle" not "heavily tracked-out"), opacity raised (0.45–0.55 → 0.78–0.85).
+  - Scrim (`.mr2-press-card--img::after`): re-tuned from a 3-stop `0.92→0.66→0.28→0` gradient to a 5-stop `0.97→0.88→0.56→0.18→0` gradient — a near-solid warm-cacao band under the text block, fading out by ~85% up the card. Still bottom-up, no hard edge, doesn't darken the whole photo (top ~15% untouched).
+  - Overlay gap `0.35rem → 0.5rem` to give the now-larger text room to breathe.
+- **Logo-mode untouched by construction:** headline/CTA scoping uses `.mr2-press-card--img` ancestor selectors specifically so `.mr2-press-card--logo` (and the `--dark` title/CTA variants it uses) can't inherit the change. Verified visually by temporarily toggling a demo item's `logoCard` flag — logo card renders identically to before.
+- **Contrast:** cream text (~#F5EFE4) sits on an effectively near-solid cacao (~#2C1A0E) scrim band at the bottom of the card — comfortably exceeds WCAG AA even at the smaller label/source sizes.
+- **Verification:** temporarily published a demo `pressItem` (Wikipedia, with a headline) to confirm the headline-specific sizing, since the one real press item currently has no headline set (client added a `thumbnailOverride` + manual `source` since the last session, still no `headlineOverride`). Confirmed on `npm run build && npm start` via Chrome automation, then unpublished + discarded the demo draft — only the real `telanganafirst.in` item remains live.
+- **No GSAP/motion/palette changes** — pure CSS sizing/spacing/color, same warm-cacao family already in use.
+- **Build result:** ✓ zero errors, `/press` still static (○), 16 routes.
+
+## Press build-time auto-fetch + masonry card design (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` — localhost-reviewed, approved, ready to push.
+
+### Part 1 — Build-time metadata fetch (fixed a stale-field bug, not a from-scratch build)
+- **Root cause of the empty-card bug:** the 2026-06-23 schema restructure renamed `pressItem` fields (`url`→`link`, `titleOverride`→`headlineOverride`, `imageOverride`→`thumbnailOverride`, `sourceOverride`→`source`, `order`→`displayOrder`) but `sanity/lib/queries.ts` (`pressItemsQuery`) and `lib/press.ts` were never updated. The GROQ query was pulling fields that no longer exist, so every press item resolved to blank headline/thumbnail/source — hence the live-site card showing only "ARTICLE"/"READ".
+- **Where it runs:** server-side only, in the async Server Component `app/(site)/press/page.tsx` (ISR, `revalidate = 3600`) and in `getHomeData()` for the homepage ticker. No client-side fetch.
+- **`lib/press.ts` rewritten:** `RawPressItem`/`EnrichedPressItem` fields renamed to match the current schema. Precedence implemented exactly as specified: `headline = headlineOverride ?? fetched ?? null`, `thumbnail = thumbnailOverride ?? fetched ?? null`, `source = source ?? fetched(site_name ?? hostname) ?? null`. YouTube/video links use oEmbed first (`fetchFromYoutubeOembed`); everything else uses OG tag scraping (`fetchFromOg`). Both wrapped in `fetchWithTimeout` (5s) + try/catch — any failure returns `{}`, never throws, never blocks the build.
+- **`sanity/lib/queries.ts`:** `pressItemsQuery` field list and `order by` fixed to current schema names.
+- **`lib/home-data.ts`:** ticker mapping updated to `p.headline`/`p.url`; items missing a headline or source are filtered out of the ticker only (the /press grid still renders them via logo-mode).
+
+### Part 2 — Masonry press card (two render modes)
+- **Schema addition:** `pressItem.logoCard` (boolean, default off) — lets an editor explicitly flag a print/paywalled item whose uploaded image is a publication mark, not a photo. Mode is computed as `mode = logoCard || !thumbnail ? 'logo' : 'photo'` — avoids fragile image-shape heuristics.
+- **`components/press/PressPage.tsx` rewritten:** `PhotoCard` (image fills the card, warm cacao bottom-up gradient scrim, headline + source overlaid, whole card links out) and `LogoCard` (cream card, circular mark — the uploaded logo image if present, otherwise a plain circular seal — headline + source as text, first-class layout not a broken-image fallback).
+- **`app/v2.css`:** photo-card scrim changed from near-black `rgba(10,6,4,...)` to warm cacao `rgba(44,26,14,...)`, bottom-up, soft falloff. New logo-card block: `.mr2-press-card--logo`, `.mr2-press-card__mark` (circular per the site's pill/circle rule), `.mr2-press-card__mark--seal` (generic fallback when there's truly no image). Existing bento/masonry grid (photo cards span 2 rows, logo cards 1 row) retained.
+- **Homepage ticker (`MarqueePress`) untouched** — same component, same behaviour; it now just receives correctly-populated data.
+
+### Necessary security-config widening (flagged, not silent)
+- Press thumbnails are auto-fetched from arbitrary outlet domains (regional news sites, `i.ytimg.com`, etc.) — impossible to enumerate in advance. Two configs from the 2026-06-26 CSP-hardening commit had to widen:
+  - `next.config.js` `images.remotePatterns`: added a `https: **` wildcard entry alongside the existing `cdn.sanity.io` one (Next's Image component throws for unconfigured hostnames).
+  - CSP `img-src`: `'self' data: https://cdn.sanity.io` → `'self' data: https:`.
+- Everything else in the CSP (script-src, connect-src, etc.) is untouched.
+
+### Demo content added for localhost review
+- Two `pressItem` documents added directly via Sanity MCP for the review (not part of the code change): one plain auto-fill (Wikipedia — Madhubani art, no overrides) and one text-override-only (headline + source set by hand, no thumbnail → logo mode). The pre-existing `telanganafirst.in` item was left untouched as the natural "auto-fetch failed gracefully" case. All three states confirmed working on localhost (`npm run build && npm start`) — the /press bento grid shows: (a) auto-filled photo card, (b) override-driven logo card, (c) graceful no-data logo card with generic seal.
+- **Note:** dev mode (`next dev`) has a pre-existing, unrelated issue — the CSP `script-src` (no `unsafe-eval`) blocks React Fast Refresh's HMR runtime, throwing console `EvalError`s on every hot reload. Doesn't affect production builds (no eval in prod React) or this feature; not fixed here as it's outside this task's scope. Worth a dedicated follow-up.
+
+### Build result
+- ✓ `npm run build` — zero errors, `/press` still prerenders static (○), 16 routes.
+
 ## Hero full-bleed + loading morph + nav update (2026-07-01)
 - **Date:** 2026-07-01
 - **Branch:** `hero-nav-update` — not yet merged. Awaiting localhost review + oval pick.

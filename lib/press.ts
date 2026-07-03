@@ -3,33 +3,36 @@ import { urlForImage } from '@/sanity/lib/image'
 
 export interface RawPressItem {
   _id: string
-  url: string
+  link: string
   type: string
-  titleOverride?: string
-  imageOverride?: SanityImage & { alt?: string }
-  sourceOverride?: string
-  order?: number
+  headlineOverride?: string
+  thumbnailOverride?: SanityImage & { alt?: string }
+  logoCard?: boolean
+  source?: string
+  displayOrder?: number
 }
 
 export interface EnrichedPressItem {
   _id: string
   url: string
   type: string
-  title: string
-  thumbnail?: string
-  source: string
-  order: number
+  headline: string | null
+  thumbnail: string | null
+  source: string | null
+  displayOrder: number
+  /** 'photo' — image fills the card. 'logo' — clean card, no photo overlay. */
+  mode: 'photo' | 'logo'
 }
 
 function isYouTube(url: string): boolean {
   return /youtube\.com|youtu\.be/.test(url)
 }
 
-function hostnameFrom(url: string): string {
+function hostnameFrom(url: string): string | undefined {
   try {
     return new URL(url).hostname.replace(/^www\./, '')
   } catch {
-    return url
+    return undefined
   }
 }
 
@@ -49,16 +52,23 @@ async function fetchWithTimeout(url: string, ms = 5000): Promise<Response> {
   }
 }
 
-async function enrichFromYouTube(
-  url: string
-): Promise<{ title?: string; thumbnail?: string; source?: string }> {
+interface Fetched {
+  headline?: string
+  thumbnail?: string
+  source?: string
+}
+
+/** oEmbed is preferred for video links — it's a stable, purpose-built API,
+ *  unlike OG tags which many video pages omit or gate behind consent walls. */
+async function fetchFromYoutubeOembed(url: string): Promise<Fetched> {
   try {
     const oembedUrl = `https://www.youtube.com/oembed?url=${encodeURIComponent(url)}&format=json`
     const res = await fetchWithTimeout(oembedUrl)
     if (!res.ok) return {}
     const data = (await res.json()) as { title?: string; thumbnail_url?: string }
-    return { title: data.title, thumbnail: data.thumbnail_url, source: 'YouTube' }
+    return { headline: data.title, thumbnail: data.thumbnail_url, source: 'YouTube' }
   } catch {
+    // Missing oEmbed data is an expected outcome (private/deleted video, rate limit) — never throw.
     return {}
   }
 }
@@ -75,17 +85,18 @@ function parseOgTag(html: string, property: string): string | undefined {
   return (re1.exec(html) ?? re2.exec(html))?.[1]
 }
 
-async function enrichFromOg(
-  url: string
-): Promise<{ title?: string; thumbnail?: string; source?: string }> {
+/** Missing/incomplete OG tags are the expected case for this site's press
+ *  (regional outlets, old archive pages, print-only features) — every field
+ *  here can legitimately come back undefined. */
+async function fetchFromOg(url: string): Promise<Fetched> {
   try {
     const res = await fetchWithTimeout(url)
     if (!res.ok) return {}
     const html = await res.text()
     return {
-      title: parseOgTag(html, 'title'),
+      headline: parseOgTag(html, 'title'),
       thumbnail: parseOgTag(html, 'image'),
-      source: parseOgTag(html, 'site_name'),
+      source: parseOgTag(html, 'site_name') ?? hostnameFrom(url),
     }
   } catch {
     return {}
@@ -93,29 +104,34 @@ async function enrichFromOg(
 }
 
 export async function enrichPressItem(raw: RawPressItem): Promise<EnrichedPressItem> {
-  const derived = isYouTube(raw.url)
-    ? await enrichFromYouTube(raw.url)
-    : await enrichFromOg(raw.url)
+  const fetched = isYouTube(raw.link)
+    ? await fetchFromYoutubeOembed(raw.link)
+    : await fetchFromOg(raw.link)
 
-  let thumbnail: string | undefined
-  if (raw.imageOverride) {
+  let overrideThumbnail: string | undefined
+  if (raw.thumbnailOverride?.asset) {
     try {
-      thumbnail = urlForImage(raw.imageOverride).width(800).url()
+      overrideThumbnail = urlForImage(raw.thumbnailOverride).width(800).url()
     } catch {
-      thumbnail = derived.thumbnail
+      overrideThumbnail = undefined
     }
-  } else {
-    thumbnail = derived.thumbnail
   }
+
+  const headline = raw.headlineOverride ?? fetched.headline ?? null
+  const thumbnail = overrideThumbnail ?? fetched.thumbnail ?? null
+  const source = raw.source ?? fetched.source ?? null
+
+  const mode: EnrichedPressItem['mode'] = raw.logoCard || !thumbnail ? 'logo' : 'photo'
 
   return {
     _id: raw._id,
-    url: raw.url,
+    url: raw.link,
     type: raw.type,
-    title: raw.titleOverride || derived.title || raw.url,
+    headline,
     thumbnail,
-    source: raw.sourceOverride || derived.source || hostnameFrom(raw.url),
-    order: raw.order ?? 99,
+    source,
+    displayOrder: raw.displayOrder ?? 99,
+    mode,
   }
 }
 
