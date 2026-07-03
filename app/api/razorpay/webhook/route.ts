@@ -125,8 +125,8 @@ export async function POST(req: NextRequest) {
       try {
         const { Resend } = await import('resend')
         const resend = new Resend(process.env.RESEND_API_KEY)
-        const from = process.env.ENQUIRY_FROM_EMAIL ?? 'studio@mandakinirao.com'
-        const notify = process.env.ADMIN_EMAIL ?? process.env.ENQUIRY_NOTIFY_EMAIL ?? 'studio@mandakinirao.com'
+        const from = process.env.ENQUIRY_FROM_EMAIL ?? 'mandakinirao@gmail.com'
+        const notify = process.env.ADMIN_EMAIL ?? process.env.ENQUIRY_NOTIFY_EMAIL ?? 'mandakinirao@gmail.com'
         const emailPayload = {
           orderRef: paymentId.slice(-8).toUpperCase(),
           customerName: contact ?? '',

@@ -1,5 +1,16 @@
 # Progress Log
 
+## Contact email updated to mandakinirao@gmail.com everywhere (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** none — small, low-risk config change made directly (no visual/behavioral change to verify beyond the address itself).
+- **Audit:** every mailto/contact/enquiry email destination in the codebase traced back to two sources, both defaulting to the old placeholder `studio@mandakinirao.com`:
+  - `lib/site-settings.ts` `DEFAULTS.contactEmail` — feeds the `/contact` page's direct `mailto:` link and, via `app/(site)/shop/page.tsx` → `PrivateCollection` → `EnquiryForm`, the Private Collection enquiry form's `mailto:` URL. No `siteSettings` document currently exists in Sanity (`perspective: 'published'` and `'raw'` both return zero documents), so this code default is what's actually live — not overridden by Studio content.
+  - Three server API routes (`app/api/enquiry/route.ts`, `app/api/razorpay/webhook/route.ts`, `app/api/stripe/webhook/route.ts`) had the same placeholder as a fallback for Resend `from`/`to` addresses. None are currently active — no `RESEND_API_KEY` is set locally, so these email sends are already no-ops (enquiries are saved to Sanity's `enquiry` type instead); fixed the fallback anyway for correctness whenever Resend is wired up.
+- **Change:** all 5 occurrences of `studio@mandakinirao.com` → `mandakinirao@gmail.com`.
+- **Note surfaced, not acted on:** the `/contact` page actually renders **two** contact paths — a direct `mailto:` link (fixed here) *and* `ContactForm.tsx`, which POSTs to `/api/enquiry` (saves to Sanity, optionally emails via Resend) rather than using `mailto:` like its sibling `EnquiryForm.tsx` on the shop page. The two forms have different architectures since only the shop enquiry form got the "replace Resend with mailto" refactor (commit `4c5a99c`, 2026-07-01). Didn't unify them — that's a UX/architecture decision (server-saved vs. mail-client-popup), not just an email-address fix.
+- **`enquiryRecipientEmail`** (a `siteSettings` schema field) is defined but never queried anywhere in the codebase — confirmed dead/orphaned, unrelated to any of the above. Not touched.
+- **Verified:** `npm run build` clean; `/contact` page HTML confirmed to contain `mailto:mandakinirao@gmail.com`; `/shop` page HTML confirmed `contactEmail":"mandakinirao@gmail.com"` flowing to the enquiry form.
+
 ## Press grid — paired column layout (2026-07-03)
 - **Date:** 2026-07-03
 - **Branch:** `press-autofetch-masonry` (same branch as the press card work) — localhost-reviewed, approved, merged to `main`.

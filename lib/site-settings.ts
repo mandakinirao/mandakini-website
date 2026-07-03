@@ -26,7 +26,7 @@ const DEFAULTS: SiteSettings = {
   thankYouMessage:
     'Your order is confirmed — a confirmation is on its way to your inbox, and a shipping note with the waybill number will follow once your print leaves the Hyderabad studio.',
   contactPageIntro: 'For enquiries about original works, commissions, workshops, or anything else — write to Mandakini directly.',
-  contactEmail: 'studio@mandakinirao.com',
+  contactEmail: 'mandakinirao@gmail.com',
   privateCollectionTitle: 'The Private Collection',
   privateCollectionLine:
     'A selection of original works shared personally with collectors. Enquire to receive the collection.',

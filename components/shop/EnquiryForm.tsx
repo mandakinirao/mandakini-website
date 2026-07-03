@@ -10,7 +10,7 @@ interface EnquiryFormProps {
   contactEmail?: string
 }
 
-export default function EnquiryForm({ contactEmail = 'studio@mandakinirao.com' }: EnquiryFormProps) {
+export default function EnquiryForm({ contactEmail = 'mandakinirao@gmail.com' }: EnquiryFormProps) {
   const [status, setStatus] = useState<Status>('idle')
   const [errors, setErrors] = useState<{ name?: string; email?: string }>({})
 

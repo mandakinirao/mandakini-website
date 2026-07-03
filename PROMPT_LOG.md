@@ -2,6 +2,18 @@
 
 ---
 
+## 2026-07-03 (vii) — Contact email → mandakinirao@gmail.com
+
+**Prompt summary:** All mailto/"contact me"/"say hello" forms should deliver to mandakinirao@gmail.com.
+
+**Investigation:** grepped for every `mailto:` and email-address occurrence rather than assuming a single source. Found the address is set in exactly two places, both defaulting to the old `studio@mandakinirao.com` placeholder: `lib/site-settings.ts` (feeds both the `/contact` page's mailto link and the shop's Private Collection `EnquiryForm` mailto, via `getSiteSettings()`), and three server API routes with the same fallback for Resend sends. Checked Sanity directly — no `siteSettings` document exists at all (published or raw perspective), so the code default is the actual live value, not something a Studio edit would override.
+
+**Change:** swapped all 5 occurrences to `mandakinirao@gmail.com`.
+
+**Surfaced but not changed:** `/contact` has two contact mechanisms side by side — a direct mailto link (now fixed) and `ContactForm.tsx`, which still POSTs to `/api/enquiry` (saves to Sanity, only emails if `RESEND_API_KEY` is set — it isn't, so it's currently a no-op for email) rather than using mailto like the shop's sibling form. Only the shop form got last week's "replace Resend with mailto" refactor; the main contact form didn't. Flagged this asymmetry rather than silently unifying the two — changing ContactForm's submit behavior (server save + toast vs. popping open the visitor's email client) is a UX decision, not an email-address swap, so left it for the user to decide separately.
+
+**Verified:** `npm run build` clean, then confirmed via `curl` against the built site that `/contact`'s HTML contains `mailto:mandakinirao@gmail.com` and `/shop`'s HTML carries `contactEmail":"mandakinirao@gmail.com"` through to the enquiry form. No user-facing visual change, so no localhost screenshot review needed — applied directly rather than branching.
+
 ## 2026-07-03 (iv) — Press grid: paired-column layout (Function Health reference)
 
 **Prompt summary:** User annotated a screenshot of the Function Health press grid: each column pairs one photo card + one logo/text card, and which sits on top alternates per column ("1 can be the text and 2 can be the image... next item top image bottom text, then top text bottom image"). Asked not to look like the dense-packed result the fix currently produced.
