@@ -1,5 +1,16 @@
 # Progress Log
 
+## Press grid — paired column layout (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-autofetch-masonry` (same branch as the press card work) — localhost-reviewed, approved, merged to `main`.
+- **Problem:** the dense-packed bento grid (`grid-auto-flow: dense`, photo cards `grid-row: span 2`) placed cards wherever there was room, with no relationship between which cards ended up adjacent. Client wanted the Function Health reference pattern instead: each column is a pair of two *distinct* press items — one photo card, one logo/text card — and which one sits on top alternates from column to column (col 1: image-top/text-bottom, col 2: text-top/image-bottom, ...).
+- **First attempt was wrong:** grouped items into column-pairs by raw sequence (`displayOrder`), which produced a column of two stacked photo cards next to a column of two stacked logo cards whenever adjacent items happened to share a mode — not the reference pattern. Caught via user screenshot comparison before committing.
+- **Fix — `components/press/PressPage.tsx`:** replaced sequential pairing with `buildColumns()` — splits items into `photos` and `logos` arrays (mode-filtered, `displayOrder` preserved within each), then zips one from each into every column (`[photos[i], logos[i]]`). Guarantees each column pairs one of each kind; any surplus (unequal photo/logo counts) falls back to solo single-card columns. `GhostGrid` empty-state updated to the same paired-column shape.
+- **CSS (`app/v2.css`):** `.mr2-press-bento` is now a plain 4-column grid of `.mr2-press-col` wrappers (flex column, `gap: 14px`), not a dense auto-flow grid — removed `grid-auto-flow: dense` / `grid-auto-rows`. `.mr2-press-col--reverse` (`flex-direction: column-reverse`) applied to every other column via `i % 2 === 1`, alternating which card is visually on top without touching DOM order. `.mr2-press-card--img` switched from `grid-row: span 2` to `aspect-ratio: 3/4` (now a standalone flex child, not a grid item spanning rows); `.mr2-press-card--logo` given `min-height: 240px` for a comparably "short" counterpart. Responsive breakpoints simplified to just column-count changes (900px→2 cols, 560px→1 col) — no more row-span overrides needed.
+- **Verification:** temporarily published 4 demo `pressItem` documents (mixed photo/logo/podcast) to see the multi-column pattern with only 1 real item live; confirmed columns correctly pair distinct photo+logo items with alternating stack order via Chrome automation, then unpublished + discarded all demo drafts — production Sanity has only the real `telanganafirst.in` item.
+- **No GSAP/motion or palette changes** — pure layout/CSS restructuring.
+- **Build result:** ✓ zero errors, `/press` still static (○), 16 routes.
+
 ## Press card legibility fix — photo mode only (2026-07-03)
 - **Date:** 2026-07-03
 - **Branch:** `press-autofetch-masonry` (same branch as the card build — localhost-reviewed, approved).

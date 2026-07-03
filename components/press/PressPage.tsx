@@ -13,22 +13,45 @@ const CTA: Record<string, string> = {
   article: 'Read',
 }
 
-// Ghost slots define the grid shape before real items arrive.
-// Alternating tall (img) and short (text) mirrors the Function Health layout.
-const GHOST_SLOTS = [
-  'img', 'text', 'text',
-  'img', 'text', 'img',
-  'text', 'text',
-] as const
+// Ghost columns define the grid shape before real items arrive — each column
+// pairs a tall (img) slot with a short (text) slot, alternating which sits on
+// top per column, mirroring the Function Health layout.
+const GHOST_COLUMNS: readonly (readonly ['img' | 'text', 'img' | 'text'])[] = [
+  ['img', 'text'],
+  ['text', 'img'],
+  ['img', 'text'],
+  ['text', 'img'],
+]
 
 function GhostGrid() {
   return (
     <div className="mr2-press-bento" aria-hidden="true">
-      {GHOST_SLOTS.map((kind, i) => (
-        <div key={i} className={`mr2-press-card mr2-press-card--ghost mr2-press-card--ghost-${kind}`} />
+      {GHOST_COLUMNS.map((pair, i) => (
+        <div key={i} className="mr2-press-col">
+          {pair.map((kind, j) => (
+            <div key={j} className={`mr2-press-card mr2-press-card--ghost mr2-press-card--ghost-${kind}`} />
+          ))}
+        </div>
       ))}
     </div>
   )
+}
+
+/** Pairs one photo-mode item with one logo-mode item per column (mirrors the
+ * Function Health reference — each column is a distinct photo card + a
+ * distinct logo card, never two of the same kind stacked together).
+ * Relative order within each mode is preserved (displayOrder). Any surplus
+ * items, once the shorter list runs out, fall back to solo columns. */
+function buildColumns(items: EnrichedPressItem[]): EnrichedPressItem[][] {
+  const photos = items.filter((i) => i.mode === 'photo')
+  const logos = items.filter((i) => i.mode === 'logo')
+  const columns: EnrichedPressItem[][] = []
+  const max = Math.max(photos.length, logos.length)
+  for (let i = 0; i < max; i++) {
+    const pair = [photos[i], logos[i]].filter(Boolean)
+    if (pair.length) columns.push(pair)
+  }
+  return columns
 }
 
 function PhotoCard({ item }: { item: EnrichedPressItem }) {
@@ -108,13 +131,17 @@ export default function PressPage({ items }: { items: EnrichedPressItem[] }) {
         </>
       ) : (
         <div className="mr2-press-bento">
-          {items.map((item) =>
-            item.mode === 'photo' ? (
-              <PhotoCard key={item._id} item={item} />
-            ) : (
-              <LogoCard key={item._id} item={item} />
-            )
-          )}
+          {buildColumns(items).map((pair, i) => (
+            <div key={pair[0]._id} className={`mr2-press-col${i % 2 === 1 ? ' mr2-press-col--reverse' : ''}`}>
+              {pair.map((item) =>
+                item.mode === 'photo' ? (
+                  <PhotoCard key={item._id} item={item} />
+                ) : (
+                  <LogoCard key={item._id} item={item} />
+                )
+              )}
+            </div>
+          ))}
         </div>
       )}
     </section>

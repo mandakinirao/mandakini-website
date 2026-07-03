@@ -2,6 +2,28 @@
 
 ---
 
+## 2026-07-03 (iv) — Press grid: paired-column layout (Function Health reference)
+
+**Prompt summary:** User annotated a screenshot of the Function Health press grid: each column pairs one photo card + one logo/text card, and which sits on top alternates per column ("1 can be the text and 2 can be the image... next item top image bottom text, then top text bottom image"). Asked not to look like the dense-packed result the fix currently produced.
+
+**First pass rejected before commit:** grouped items into columns by raw sequential order (2 items at a time from the displayOrder-sorted list) with alternating `flex-direction: column-reverse` per column. Looked wrong with real+demo data — whenever two adjacent items happened to share a mode (e.g. two photo-mode Wikipedia fetches back to back), the column showed two stacked photos next to a column of two stacked logo cards. User caught this immediately from a screenshot ("i dont think you understood... it should not look like this") before I'd committed anything.
+
+**Fix:** `buildColumns()` in `components/press/PressPage.tsx` — split items into separate `photos` and `logos` arrays (mode-filtered, order preserved within each), then zip: column `i` = `[photos[i], logos[i]]`. This guarantees every column pairs one distinct photo item with one distinct logo item, exactly like the reference (each card in a pair is a different press mention, not an image+caption of the same one). Leftover items (unequal photo/logo counts) become solo single-card columns. The existing `i % 2 === 1 → column-reverse` alternation was kept — it now flips a true photo/logo pair instead of two same-mode cards.
+
+**CSS restructuring (`app/v2.css`):** the grid stopped being a `grid-auto-flow: dense` masonry (which placed cards by whatever fit, not by pairing) — now `.mr2-press-bento` is a plain 4-col grid of `.mr2-press-col` flex-column wrappers, each holding exactly the 2 (or 1) cards for that column. `.mr2-press-card--img` moved from `grid-row: span 2` to `aspect-ratio: 3/4` since it's no longer a row-spanning grid item.
+
+**Verification:** since only one real press item exists (no natural way to see multi-column pairing), published 4 temporary demo items (mixed photo/logo/podcast modes) via Sanity MCP, confirmed via Chrome automation (screenshots + DOM inspection of `.mr2-press-col` children) that columns correctly pair one photo + one logo item with alternating stack order, then fully removed the demo drafts (unpublish + discard) so only the real item remains. User reviewed on localhost and approved; committed and pushed directly to `main` per explicit instruction this time (not a feature-branch-only merge).
+
+---
+
+## 2026-07-03 (iii) — Press card: bigger text, still "barely readable"
+
+**Prompt summary:** After the first legibility pass (larger headline, lighter tracking, stronger scrim), user reported the text was still barely readable on the Vercel preview and asked to increase font size further — no other direction given.
+
+**Fix:** bumped photo-mode text sizes again, same scoped selectors as the first pass (`.mr2-press-card--img .mr2-press-card__{label,title,cta}`, `.mr2-press-card__source`): label 11px→13px, source 12px→16px, CTA 11px→13px, headline `clamp(1.2rem,2vw,1.5rem)` → `clamp(1.4rem,2.6vw,1.9rem)`. Letter-spacing tightened slightly further (0.1em → 0.06–0.08em) since larger uppercase text at the same tracking looks looser. Overlay `gap` 0.5rem→0.6rem for breathing room. Verified via zoomed screenshot on `npm run build && npm start` — did not commit yet, rolled into the same working-tree change as the column-layout fix below since the user moved straight to the next request before reviewing/approving this one in isolation.
+
+---
+
 ## 2026-07-03 (ii) — Press card legibility fix (photo mode only)
 
 **Prompt summary:** Live `/press` photo-mode card text (headline, ARTICLE label, source, READ) too small/faint/tracked-out to read over the image — Telangana First card given as the example, text "nearly dissolves into the photo." Fix only: bigger headline as focal text, subtler tracking, stronger scrim under the text specifically (not the whole card), cream text confirmed against the scrim not the raw image. Do not touch logo-mode unless values are shared (verify if so). No redesign, no GSAP/motion changes, palette locked. STOP for localhost review before commit.
