@@ -1,5 +1,12 @@
 # Progress Log
 
+## Homepage: press marquee CTA visibility bug + hero scroll cue (2026-07-04)
+- **Date:** 2026-07-04
+- **Branch:** none — small CSS fixes made directly to `main` (same low-risk pattern as the contact-email fix).
+- **Bug 1 — "All press & features" CTA invisible on the homepage:** `.mr2-press` (the marquee section) is `display: grid` with no `grid-template-columns` set. Its two ticker rows contain long, un-wrapped, duplicated text (`white-space: nowrap`, for the seamless scroll loop), giving them an enormous intrinsic (max-content) width. Without an explicit column-width constraint, CSS Grid sizes its implicit column to that intrinsic width — and since `.mr2-press__footer` (holding the CTA pill) shares that same grid column, it got stretched to match: confirmed via live DOM inspection at **14,415px wide**. `justify-content: center` then centered the pill at the midpoint of that 14,415px box, which is nowhere near the visible viewport — the CTA existed in the DOM (`display: flex`, `opacity: 1`, correct text) but was effectively invisible to every visitor. Fix: added `grid-template-columns: minmax(0, 1fr)` to `.mr2-press`, capping the column at the section's real available width so the rows clip via the existing `overflow: hidden` (as intended) and the footer centers within the actual viewport.
+- **Bug 2 — hero "Scroll" cue too small to notice:** `.mr2-hscene__cue` was `font-size: clamp(10px, 0.9vw, 12px)` at `opacity: 0.45`, tucked bottom-right. Bumped to `clamp(13px, 1.4vw, 17px)` at `opacity: 0.7`, and repositioned from bottom-right to bottom-center (`left: 50%; transform: translateX(-50%)`) per explicit request.
+- **Verified:** `npm run build` clean; confirmed via live DOM inspection on the deployed site that `.mr2-press__footer`'s bounding-box width was the root cause (not a display/opacity/visibility issue) before writing the fix.
+
 ## Contact email updated to mandakinirao@gmail.com everywhere (2026-07-03)
 - **Date:** 2026-07-03
 - **Branch:** none — small, low-risk config change made directly (no visual/behavioral change to verify beyond the address itself).

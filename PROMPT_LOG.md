@@ -2,6 +2,22 @@
 
 ---
 
+## 2026-07-04 — Homepage press CTA missing + scroll cue too small
+
+**Prompt summary:** From a homepage screenshot, asked whether a "view all press" CTA should be added at the bottom of the press marquee section (it turned out one already existed in code, just not visible in production) — and separately, that the "Scroll" hint at the bottom of the hero is too small to notice; make it bigger and centered.
+
+**Investigation:** the user's original screenshot showed what looked like a dummy/placeholder carousel above the press ticker — turned out to be the unrelated Projects/Works carousel (real Sanity data: Fragments Charcoal, MS Subbalakshmi, London in Gouache), and the ticker below it was already showing real press content correctly. No bug there. Clarified this with the user before touching anything.
+
+Then checked the actual homepage press marquee's footer CTA (`components/home/v2/MarqueePress.tsx` already had `<PillCta href="/press">All press & features</PillCta>` — this was added in an earlier session, "Press reel — slow speed + add CTA"). Scrolled the live production site past the marquee straight into the footer with no CTA visible in between — confirmed via DOM inspection that the element exists (`display: flex`, `opacity: 1`, correct text) but its bounding box was **14,415px wide**. Root cause: `.mr2-press` is `display: grid` with no `grid-template-columns`; the marquee rows' un-wrapped duplicated ticker text has an enormous intrinsic width, and without a column constraint, Grid sizes its implicit column (and therefore every child sharing it, including the footer) to that intrinsic width. The CTA was being centered at the midpoint of a box thousands of pixels wider than the viewport — invisible to every real visitor despite "existing" and passing a naive `display`/`opacity` check.
+
+**Fix:** added `grid-template-columns: minmax(0, 1fr)` to `.mr2-press`, capping the column to the section's actual width.
+
+**Scroll cue fix:** `.mr2-hscene__cue` bumped from `10-12px @ 0.45 opacity, bottom-right` to `13-17px @ 0.7 opacity, bottom-center` (`left: 50%; transform: translateX(-50%)`), per explicit request.
+
+**Verified:** `npm run build` clean. Applied directly to `main` (stashed off the in-progress `press-clippings-lightbox` branch, same pattern as the contact-email fix, since these are unrelated homepage bugs) rather than branching, given the low risk and the user's explicit "commit and push" after checking it themselves on localhost.
+
+
+
 ## 2026-07-03 (vii) — Contact email → mandakinirao@gmail.com
 
 **Prompt summary:** All mailto/"contact me"/"say hello" forms should deliver to mandakinirao@gmail.com.
