@@ -18,6 +18,40 @@
 - **`enquiryRecipientEmail`** (a `siteSettings` schema field) is defined but never queried anywhere in the codebase — confirmed dead/orphaned, unrelated to any of the above. Not touched.
 - **Verified:** `npm run build` clean; `/contact` page HTML confirmed to contain `mailto:mandakinirao@gmail.com`; `/shop` page HTML confirmed `contactEmail":"mandakinirao@gmail.com"` flowing to the enquiry form.
 
+## Press: lightbox size fix + subtler expand affordance (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-clippings-lightbox` — localhost-reviewed, not yet committed.
+- **Bug found from review screenshot:** the lightbox image rendered far smaller than the available space. Root cause: `components/press/PressPage.tsx` `Lightbox` used `next/image` with hardcoded `width={1400} height={1800}` — a portrait 0.78 aspect ratio applied to every clipping regardless of its real shape. Most of these scans are landscape (confirmed one loads at 2000×769), so the image was being fit inside a wrong-shaped box before `object-fit: contain` even got a chance to help, leaving it tiny with dead space around it.
+- **Fix:** swapped the `next/image` for a plain `<img>` (with an eslint-disable comment explaining why) so the browser sizes it from the image's actual loaded dimensions, not a hardcoded guess. CSS caps raised alongside it: lightbox padding `6vh/5vw → 3vh/3vw`, frame `max-width/height` `90vw/88vh → 96vw/94vh`, image `max-width/height` `90vw/74vh → 96vw/86vh`.
+- **Resolution bump:** `lib/press.ts` override-thumbnail cap raised `width(1200) → width(2000)` — the same URL now serves both the grid thumbnail (downsized responsively via `next/image`'s `sizes`) and the near-full-viewport lightbox, which needs real pixel detail to be legible.
+- **Discoverability, per explicit request ("give an idea it's clickable without making it obvious"):** clipping card cursor changed from `pointer` to `zoom-in` (the conventional cue for "this expands"). The circular expand badge now sits at `opacity: 0.55, scale(0.92)` by default and brightens to full opacity/scale/shadow on hover or keyboard focus — present as a hint, not a loud call-to-action.
+- **Build result:** ✓ zero errors.
+
+## Press: print-clipping cards + lightbox, 7 clippings uploaded (2026-07-03)
+- **Date:** 2026-07-03
+- **Branch:** `press-clippings-lightbox` — localhost-reviewed, not yet committed.
+- **Task:** 7 photographed/scanned print-article images (`assests by mandakini/Press Articles/`) needed to go into `/press`. They have no source URL, so the existing photo/logo card treatment (which always links out) didn't fit — needed a third presentation: full scan visible, no scrim/overlay text (would make the scan harder to read), click expands to a full-size lightbox instead of navigating.
+- **Schema (`sanity/schemas/pressItem.ts`):** `link` changed from required to optional (`Rule.uri(...)`, no `.required()`). Field descriptions on `link` and `thumbnailOverride` updated to describe the no-link clipping path.
+- **`lib/press.ts`:** `RawPressItem.link` and `EnrichedPressItem.url` now optional/nullable. When there's no link, the OG/oEmbed fetch is skipped entirely (nothing to fetch). New `mode: 'clipping'` — assigned when there's no link but a thumbnail exists (override or otherwise), independent of the `logoCard` flag. Precedence order: no thumbnail → `logo`; no link + thumbnail → `clipping`; else `logoCard` flag or missing thumbnail → `logo`; else `photo`.
+- **`components/press/PressPage.tsx`:** converted to a client component (`'use client'`) to support the lightbox's open/close state — data is still fetched server-side in `app/(site)/press/page.tsx` and passed in as props, no client-side fetching added. New `ClippingCard` (image uncropped on a cream mat, circular expand-glyph badge top-right, caption below — label/headline/source, no overlay text) and `Lightbox` (GSAP fade+scale via `lib/motion.ts` tokens, `prefers-reduced-motion` → instant show, Escape/backdrop/close-button to dismiss, body scroll locked while open). `buildColumns()` generalized from photo/logo to "tall" (photo + clipping) vs "logo" so clipping cards fit into the existing paired-column layout.
+- **CSS (`app/v2.css`):** `.mr2-press-card--clipping` (image frame `aspect-ratio: 3/4`, `object-fit: contain` on a cream background — shows the full scan, doesn't crop text at the edges), `.mr2-press-card__expand` (circular badge, pill/circle rule), `.mr2-press-lightbox*` (fixed overlay, cream frame, circular close button, responsive max-height on mobile).
+- **Security config unchanged** — no new domains needed since these are Sanity-hosted assets (already covered by the wildcard `https:` change from the earlier press session).
+- **Content — 7 pressItem documents created via Sanity Studio (browser-driven, since no MCP tool supports raw file upload):**
+  1. Andhra Jyothy — "Art exhibition at Café Bistro" (Telugu; headline/source translated from the clipping)
+  2. Art 48 project feature — "Art 48 — 48 paintings in 48 days" (Telugu; publication unclear from the clipping, `source` left blank rather than guessed)
+  3. The Hans India (2014-09-06) — "City on Canvas"
+  4. "Let the wall do the talking" — byline Misha Rajani; publication unclear, `source` left blank
+  5. Telugu feature — "Nagarame O Chitram — the city itself is a painting"; byline S. Satyababu; `source` left blank
+  6. Telangana Today (2019-06-19) — "Master of Watercolour Washes"
+  7. The Hindu MetroPlus (2014-09-03) — "On a City Tour"
+  - All headline/source text was read directly off each scanned clipping (not guessed from filenames) before entry.
+  - Upload mechanism: MCP `file_upload`/`create_documents` can't attach binary assets, so images were temporarily copied into `public/tmp-press-upload/` (removed after), fetched client-side in the Studio tab, and injected into the Sanity Studio's file `<input>` via a `DataTransfer`-constructed `File` + dispatched `change` event — same effect as a real drag-drop, no separate upload API used.
+- **Verified on localhost** (`npm run build && npm start`): all 8 items (1 real link-based photo card + 7 clippings) render in the paired-column grid; lightbox opens/expands/closes correctly (click, close button, confirmed via DOM state after close); the real Telangana First card still opens externally in a new tab (unaffected); homepage press ticker correctly picks up only the 4 clippings that have both headline and a confirmed source, silently excluding the 3 with unclear attribution and the no-headline real item — no ticker breakage.
+- **Merged to `main` 2026-07-04** — branch had been reviewed and pushed but not merged; production was still serving the pre-clippings code (plain photo-mode cards, no pairing) until this merge caught it up. Caught via a live production screenshot that didn't match localhost.
+
+### Open question, not implemented
+Asked whether the same "no destination → expand instead" treatment should extend to other images across the site (works gallery, hero, shop). Recommended holding off — other sections already have a clear click target (series/product pages), so a lightbox there would compete with existing navigation rather than fill a gap. Flagged the works/gallery detail images specifically as worth reconsidering later, as a separate decision.
+
 ## Press grid — paired column layout (2026-07-03)
 - **Date:** 2026-07-03
 - **Branch:** `press-autofetch-masonry` (same branch as the press card work) — localhost-reviewed, approved, merged to `main`.

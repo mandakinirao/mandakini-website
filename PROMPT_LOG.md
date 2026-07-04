@@ -30,6 +30,45 @@ Then checked the actual homepage press marquee's footer CTA (`components/home/v2
 
 **Verified:** `npm run build` clean, then confirmed via `curl` against the built site that `/contact`'s HTML contains `mailto:mandakinirao@gmail.com` and `/shop`'s HTML carries `contactEmail":"mandakinirao@gmail.com"` through to the enquiry form. No user-facing visual change, so no localhost screenshot review needed — applied directly rather than branching.
 
+## 2026-07-03 (vi) — Lightbox too small, expand cue too loud
+
+**Prompt summary:** From a review screenshot, the lightbox image was rendering much smaller than the available space — asked to make it big enough to actually read. Also asked for the clickability of clipping cards to be signaled subtly, not obviously.
+
+**Diagnosis:** the lightbox `<Image>` had hardcoded `width={1400} height={1800}` (portrait 0.78 ratio) applied uniformly to every clipping. Checked the actual loaded dimensions of one clipping — 2000×769, landscape — confirming the hardcoded box shape was fighting the real image on every card that isn't portrait-ish. `width:auto;height:auto` in CSS doesn't override this because the browser still treats the HTML `width`/`height` attributes as the element's intrinsic size for layout purposes.
+
+**Fix:** replaced `next/image` with a plain `<img>` in the lightbox specifically (grid thumbnails still use `next/image` — they have a real fixed aspect-ratio container via CSS, so no bug there) so sizing comes from the real loaded image, not a guess. Raised the lightbox's CSS size caps (padding, frame, image) and bumped the source image resolution cap in `lib/press.ts` from 1200px to 2000px, since the grid thumbnail and the near-full-viewport lightbox now share one URL and the lightbox needs real detail to be legible.
+
+**Subtlety fix:** cursor changed to `zoom-in` on clipping cards (a more specific, conventional signal than a generic pointer). The circular expand badge dimmed to `opacity: 0.55` by default, brightening on hover/focus — visible enough to notice, not loud enough to look like a UI control shouting for attention.
+
+**Verified:** `npm run build && npm start`, Chrome automation — confirmed the lightbox image now loads at its real 2000×769 and fills the frame properly (screenshot matches expectation), badge dims correctly at rest. Not committed — still in the same review cycle as the previous clipping-upload work.
+
+
+## 2026-07-03 (v) — Print clippings: upload + lightbox card
+
+**Prompt summary:** 7 photographed/scanned press-article images sitting in `assests by mandakini/Press Articles/` needed to go into Sanity and onto `/press`. No source URL exists for these (they're print, not online), so asked for a different presentation: expand on click. Also asked, as an open question, whether the same treatment should extend to images elsewhere on the site.
+
+**Answered the open question first (exploratory, not implemented):** recommended not extending the lightbox site-wide yet — other image contexts (hero, works, shop) already have a clear click destination (a series/product page), so a lightbox there would compete with existing navigation. Flagged works/gallery detail images as worth reconsidering later, as its own decision, not bundled into this one.
+
+**Schema + data model:** `pressItem.link` changed from required to optional. `lib/press.ts` skips the OG/oEmbed fetch entirely when there's no link (nothing to fetch), and adds a third mode, `'clipping'`: assigned when there's no link but a thumbnail exists. Mode precedence, in order: no thumbnail → logo; no link + thumbnail → clipping; `logoCard` flag or still no thumbnail → logo; otherwise → photo.
+
+**Component work:** `components/press/PressPage.tsx` converted to a client component (`'use client'`) — needed for the lightbox's open/close state; the data fetch stays server-side in `page.tsx`, only rendering moved client-side. New `ClippingCard`: the scan is shown uncropped (`object-fit: contain` on a cream mat) with no scrim or overlaid text — overlaying text on a document scan would make it harder to read, the opposite of what a photo-card overlay is for. A small circular expand-glyph badge (matching the site's pill/circle rule) sits top-right of the image; caption (label/headline/source) lives below on its own line, not overlaid. New `Lightbox`: GSAP fade+scale via the shared `lib/motion.ts` tokens (`DUR`, `EASE`, `mandaGsap`), `prefers-reduced-motion` → instant show/hide, dismissible via Escape, backdrop click, or a circular close button; locks body scroll while open. `buildColumns()` (from the previous session's paired-column layout work) generalized from a strict photo/logo split to "tall" (photo + clipping) vs "short" (logo), so clipping cards slot into the same alternating-column rhythm without a redesign.
+
+**Upload mechanism (the actual friction point):** no Sanity MCP tool accepts raw file uploads — `create_documents`/`patch_documents` only take JSON, and the browser's own `file_upload` tool stopped accepting filesystem paths mid-session ("must read the file and pass its contents via the `files` parameter... update the desktop app"). Worked around this by copying the 7 images into `public/tmp-press-upload/` (Next.js serves `/public` directly, no rebuild needed), then in the Studio tab: `fetch()` the same-origin URL, build a `File` from the blob, attach it to the hidden Sanity file `<input>` via a `DataTransfer` object and a dispatched `change` event — functionally identical to a real drag-and-drop, no separate asset API involved. Deleted `public/tmp-press-upload/` once all 7 uploads completed.
+
+**Content accuracy:** read each of the 7 scanned clippings directly (via the image-reading tool, not filename guessing) before writing headline/source. Three items (Art 48 feature, "Let the wall do the talking", Nagarame O Chitram) have an unclear or unreadable publication name on the scan — left `source` blank rather than attributing them to a guessed outlet. This also means those three are correctly excluded from the homepage ticker (which requires both headline and source), while the 4 with confirmed sources appear there.
+
+**Verification:** `npm run build && npm start`, Chrome automation. Confirmed: all 8 items render (1 real photo card + 7 clippings) in the correct paired-column layout; clicking a clipping opens the lightbox with the full scan and caption; close button and DOM-state-after-close both verified; the real Telangana First card is unaffected and still opens externally in a new tab; homepage ticker correctly picks up only the 4 sourced clippings. Hit the same dev-mode persisted-fetch-cache issue as prior sessions when the Studio's cold-start briefly 500'd on `/studio/structure/pressItem` right after a `.next` wipe — resolved by a second clean restart, unrelated to this feature.
+
+**Not committed** — stopping here for review, per this project's established pattern (confirmed explicitly after being corrected on this point earlier in the engagement).
+
+## 2026-07-04 (ii) — Merging press-clippings-lightbox into main
+
+**Prompt summary:** User reported `/press` still showed the old plain-photo-card layout in production while localhost showed the correct clipping/lightbox/paired-column result.
+
+**Diagnosis:** the branch had been reviewed, approved, and pushed — but never merged into `main`. `git diff main press-clippings-lightbox --stat` confirmed `main` was still on the pre-clippings commit; production was serving that. Not a new bug, just an unmerged branch.
+
+**Fix:** merged `press-clippings-lightbox` into `main`. Conflicts were limited to `PROGRESS.md`/`PROMPT_LOG.md` (additive doc sections, resolved by keeping both in chronological order); the three email-fix files and CSS auto-merged cleanly since only one side had touched them since the branch point.
+
 ## 2026-07-03 (iv) — Press grid: paired-column layout (Function Health reference)
 
 **Prompt summary:** User annotated a screenshot of the Function Health press grid: each column pairs one photo card + one logo/text card, and which sits on top alternates per column ("1 can be the text and 2 can be the image... next item top image bottom text, then top text bottom image"). Asked not to look like the dense-packed result the fix currently produced.

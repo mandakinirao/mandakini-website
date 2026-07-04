@@ -1628,6 +1628,159 @@ body.mr2-mode .mr-detail__sale:hover {
   gap: 0.3rem;
 }
 
+/* ── Clipping card: photographed/scanned print feature, no link ─────── */
+/* The scan itself is the content, so it's shown uncropped on a cream mat —
+   no scrim, no overlaid text (that would make it harder to read, the
+   opposite of what a press clipping needs). Caption sits below. Whole card
+   is a <button> that opens the lightbox instead of navigating. */
+
+.mr2-press-card--clipping {
+  cursor: zoom-in;
+  background: var(--v2-bg);
+  border: 1.5px solid rgba(44, 26, 14, 0.12);
+  padding: 0;
+  font: inherit;
+  text-align: left;
+}
+
+.mr2-press-card--clipping .mr2-press-card__frame {
+  position: relative;
+  aspect-ratio: 3 / 4;
+  background: var(--v2-cream);
+}
+.mr2-press-card--clipping .mr2-press-card__frame img {
+  padding: 10px;
+}
+
+/* Circular expand cue (pill/circle rule) — top-right of the scan. Quiet by
+   default (a hint, not a call-to-action); brightens on hover/focus so the
+   card reads as clickable without announcing it upfront. cursor: zoom-in on
+   the card itself carries most of the "this expands" signal. */
+.mr2-press-card__expand {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 2;
+  width: 32px;
+  height: 32px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--v2-cream);
+  border: 1px solid rgba(44, 26, 14, 0.14);
+  color: rgba(44, 26, 14, 0.6);
+  box-shadow: 0 2px 8px rgba(44, 26, 14, 0.08);
+  opacity: 0.55;
+  transform: scale(0.92);
+  transition: opacity 0.25s var(--ease-soft-out, ease), transform 0.25s var(--ease-soft-out, ease),
+    box-shadow 0.25s var(--ease-soft-out, ease);
+}
+.mr2-press-card--clipping:hover .mr2-press-card__expand,
+.mr2-press-card--clipping:focus-visible .mr2-press-card__expand {
+  opacity: 1;
+  transform: scale(1);
+  box-shadow: 0 2px 10px rgba(44, 26, 14, 0.14);
+}
+
+.mr2-press-card--clipping .mr2-press-card__caption {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 0.3rem;
+  padding: 1rem 1.3rem 1.3rem;
+}
+.mr2-press-card--clipping .mr2-press-card__label--logo {
+  align-self: flex-start;
+}
+.mr2-press-card--clipping .mr2-press-card__title--dark {
+  text-align: left;
+}
+.mr2-press-card--clipping .mr2-press-card__pub {
+  text-align: left;
+}
+
+/* ── Lightbox: full-image expand for clipping cards ──────────────────── */
+
+.mr2-press-lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(44, 26, 14, 0.92);
+  padding: 3vh 3vw;
+  cursor: zoom-out;
+}
+
+.mr2-press-lightbox__frame {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  max-width: 96vw;
+  max-height: 94vh;
+  border-radius: clamp(14px, 1.5vw, 20px);
+  overflow: hidden;
+  background: var(--v2-cream);
+  cursor: default;
+}
+
+.mr2-press-lightbox__img {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: 96vw;
+  max-height: 86vh;
+  object-fit: contain;
+}
+
+.mr2-press-lightbox__caption {
+  padding: 1rem 1.4rem 1.2rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+}
+.mr2-press-lightbox__caption p {
+  margin: 0;
+  font-family: var(--font-display);
+  font-size: clamp(0.95rem, 1.3vw, 1.1rem);
+  color: var(--v2-fg);
+}
+.mr2-press-lightbox__caption span {
+  font-family: var(--font-label);
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: rgba(44, 26, 14, 0.5);
+}
+
+.mr2-press-lightbox__close {
+  position: fixed;
+  top: clamp(16px, 3vh, 32px);
+  right: clamp(16px, 3vw, 32px);
+  z-index: 201;
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--v2-cream);
+  border: 1px solid rgba(44, 26, 14, 0.16);
+  color: var(--v2-fg);
+  cursor: pointer;
+}
+
+@media (max-width: 640px) {
+  .mr2-press-lightbox {
+    padding: 4vh 4vw;
+  }
+  .mr2-press-lightbox__img {
+    max-height: 64vh;
+  }
+}
+
 /* ── Ghost placeholder cards ───────────────────────────────────────── */
 
 .mr2-press-card--ghost {

@@ -10,8 +10,8 @@ export const pressItemSchema = defineType({
       title: 'Link URL',
       type: 'url',
       description:
-        'Paste the article, video, or podcast link. Headline, thumbnail, and source are auto-filled at build time when the site allows it. Many outlets (paywalls, regional sites, print archives) block this — filling in the overrides below by hand is normal, not a fallback.',
-      validation: (Rule) => Rule.required().uri({ scheme: ['http', 'https'] }),
+        'Paste the article, video, or podcast link. Headline, thumbnail, and source are auto-filled at build time when the site allows it. Many outlets (paywalls, regional sites, print archives) block this — filling in the overrides below by hand is normal, not a fallback. Leave this entirely blank for a print clipping with no online version — upload the scanned image below and the card will open it full-size on click instead of linking out.',
+      validation: (Rule) => Rule.uri({ scheme: ['http', 'https'] }),
     }),
     defineField({
       name: 'type',
@@ -41,7 +41,7 @@ export const pressItemSchema = defineType({
       type: 'image',
       options: { hotspot: true },
       description:
-        'Leave blank to try auto-fill. For print features, paywalled links, or any site with a poor preview image, upload the publication logo here and turn on "Logo card" below.',
+        'Leave blank to try auto-fill. For a photographed/scanned print clipping (no Link URL), upload the clipping image here — it renders full-size with a caption below and expands on click. For a paywalled link with a poor preview, upload the publication logo here instead and turn on "Logo card" below.',
       fields: [
         defineField({
           name: 'alt',
