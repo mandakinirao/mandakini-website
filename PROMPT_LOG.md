@@ -2,6 +2,26 @@
 
 ---
 
+## 2026-07-07 — Bigger logo, hero background swap, per-page colors, journal (planned)
+
+**Prompt summary:** Mandakini's feedback list: logo a little bigger; hero background over the portrait area changed (asset shared); background colors changed per page from her approved palettes; testimonials and media pages pending from her; studio page opening in a new window; journal/blog page. Arun asked to plan before executing since the client's phrasing needed interpretation, not literal execution.
+
+**Planning:** explored the codebase (routes, V1/V2 split, logo rendering, hero mechanism, page-wash color system, testimonials/press/journal state) and the client's shared assets folder in parallel, then asked clarifying questions before writing a plan — critically, on the hero: the first reading ("background over the portrait area has to be changed") was interpreted as "replace her face with the new flat-lay," but the client corrected this immediately: keep the ink-reveal exactly as it behaves today, her B&W portrait stays the top layer, and the new flat-lay becomes the *bottom* (revealed) layer — and both images should be Sanity-configurable, not hardcoded. Also clarified: Studio-link meaning unclear (deferred), testimonials content will be entered directly in Sanity Studio by the client (no code work needed, section already exists), journal should follow the jardin.showit.site editorial pattern (image/kicker/headline/excerpt/read-more → standard article detail).
+
+**Execution (Workstream A — `feat/hero-flatlay-logo`):** wired the previously dormant `homepage` singleton's `heroRevealTop`/`heroRevealBottom` Sanity fields end-to-end instead of hardcoding the new asset, since the schema already existed but nothing consumed it. Removed the fields' required validation to support independent per-field fallback. Seeded the singleton via Sanity MCP (Studio UI can't create it — actions are `['update','publish']` only) and uploaded the client's flat-lay image (downscaled from 6.5MB/5712px to 2560px via `sips`) through Studio using the same file-input-injection technique from the earlier press-clippings session, since `file_upload` rejects host paths.
+
+**Bug found during review:** client reported "the logo and the image are conflicting" on `/about` with a screenshot, plus the press page background still being plain cream. The first was a real regression — the bigger logo increased the fixed nav's height beyond what `/about` and `/contact`'s top padding had been tuned for, causing a visual overlap. Fixed both pages' clearance and had an Explore agent audit every other page for the same failure mode (none found — other pages center their top content away from the logo). The press background comment was simply flagging that Workstream B (per-page colors) hadn't started yet, not a new bug.
+
+**Localhost review blocker:** the client couldn't get the page to load at all. Root cause (pre-existing, unrelated to this work): the site's CSP has no `unsafe-eval`, which breaks Next's Fast Refresh runtime in `next dev` on every fresh load — the page never hydrates. Solved by switching client review to `npm run build && npm start`, which isn't affected.
+
+**Execution (Workstream B — `feat/page-washes`):** implemented the planned per-page color mapping (works→amber 12%, press→skyline 14% [new], contact→lagoon 8%, about→rosehip 12% replacing its previous 38% amber). Renamed `about-amber`→`about-rosehip` everywhere including a hover-fill color that has to match the page background exactly.
+
+**Merge:** client instructed "commit and push" before reviewing (browser automation was rejected mid-flow), then explicitly "merge everything to main" — both branches merged to `main` via `feat/page-washes` (which already contained `feat/hero-flatlay-logo`'s commits), verified with a clean `npm run build` on the merged result before pushing.
+
+**Verified:** clean builds throughout; hero image sources confirmed via network resource timing (Sanity CDN cross-origin requests) and a hover-triggered pixel reveal showing real flat-lay color through the B&W layer; `/?v=1` confirmed untouched via `git diff --stat`; grepped for stragglers of every renamed CSS class.
+
+**Deferred to a later round:** Journal/blog build-out (schema + routes + jardin-style listing/detail components) was planned but not started this session. Studio-page meaning still needs clarification from Mandakini.
+
 ## 2026-07-04 — Homepage press CTA missing + scroll cue too small
 
 **Prompt summary:** From a homepage screenshot, asked whether a "view all press" CTA should be added at the bottom of the press marquee section (it turned out one already existed in code, just not visible in production) — and separately, that the "Scroll" hint at the bottom of the hero is too small to notice; make it bigger and centered.
