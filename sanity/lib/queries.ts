@@ -34,11 +34,11 @@ export const footerSocialQuery = groq`
 `
 
 export const testimonialsQuery = groq`
-  *[_type == "testimonial"] | order(order asc, _createdAt asc) {
+  *[_type == "testimonial"] | order(coalesce(displayOrder, 99) asc, _createdAt asc) {
     _id,
     quote,
-    author,
-    role
+    personName,
+    personImage { asset, alt }
   }
 `
 

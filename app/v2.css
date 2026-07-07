@@ -1504,11 +1504,11 @@ body.mr2-mode .mr-detail__sale:hover {
   text-align: center;
   margin-top: 3rem;
   font-family: var(--font-label);
-  font-size: 12px;
-  letter-spacing: 0.2em;
+  font-size: 13px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   color: var(--v2-fg);
-  opacity: 0.4;
+  opacity: 0.62;
 }
 
 /* 4-col bento grid. Each column is a pair of stacked cards (see
@@ -1605,7 +1605,7 @@ body.mr2-mode .mr-detail__sale:hover {
 
 .mr2-press-card__label--logo {
   align-self: flex-start;
-  color: rgba(44, 26, 14, 0.45);
+  color: rgba(44, 26, 14, 0.65);
 }
 
 /* The logo/mark slot — always circular per the site's pill/circle rule. */
@@ -1771,10 +1771,10 @@ body.mr2-mode .mr-detail__sale:hover {
 }
 .mr2-press-lightbox__caption span {
   font-family: var(--font-label);
-  font-size: 11px;
-  letter-spacing: 0.1em;
+  font-size: 13px;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
-  color: rgba(44, 26, 14, 0.5);
+  color: rgba(44, 26, 14, 0.65);
 }
 
 .mr2-press-lightbox__close {
@@ -1829,8 +1829,8 @@ body.mr2-mode .mr-detail__sale:hover {
 /* Type badge — ARTICLE / VIDEO / PODCAST */
 .mr2-press-card__label {
   font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.28em;
+  font-size: 12px;
+  letter-spacing: 0.22em;
   text-transform: uppercase;
 }
 .mr2-press-card--img .mr2-press-card__label {
@@ -1842,11 +1842,11 @@ body.mr2-mode .mr-detail__sale:hover {
 /* Publication name (logo card) */
 .mr2-press-card__pub {
   font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
   font-weight: 400;
-  color: rgba(44, 26, 14, 0.5);
+  color: rgba(44, 26, 14, 0.65);
   margin: 0;
 }
 
@@ -1888,10 +1888,10 @@ body.mr2-mode .mr-detail__sale:hover {
 /* CTA arrow */
 .mr2-press-card__cta {
   font-family: var(--font-label);
-  font-size: 10px;
-  letter-spacing: 0.2em;
+  font-size: 12px;
+  letter-spacing: 0.16em;
   text-transform: uppercase;
-  color: rgba(245, 239, 228, 0.45);
+  color: rgba(245, 239, 228, 0.65);
   margin-top: 0.2rem;
 }
 .mr2-press-card--img .mr2-press-card__cta {
@@ -1901,7 +1901,7 @@ body.mr2-mode .mr-detail__sale:hover {
   margin-top: 0.2rem;
 }
 .mr2-press-card__cta--dark {
-  color: rgba(44, 26, 14, 0.4);
+  color: rgba(44, 26, 14, 0.62);
 }
 
 /* ── Responsive ─────────────────────────────────────────────────────── */

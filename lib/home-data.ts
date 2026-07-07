@@ -57,8 +57,11 @@ export interface HomeSeries {
 export interface HomeTestimonial {
   _id?: string
   quote: string
+  /** Kept for the V1 (?v=1) PressStrip component — always equal to personName. */
   author: string
-  role?: string
+  personName: string
+  /** Resolved URL; empty = no photo for this testimonial. */
+  personImage: string
 }
 
 export interface HomeData {
@@ -166,14 +169,20 @@ const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
   {
     quote: 'Mandakini sees warmth where the rest of us see walls.',
     author: 'Priya N. — collector, Hyderabad',
+    personName: 'Priya N. — collector, Hyderabad',
+    personImage: '',
   },
   {
     quote: 'A painter’s eye behind every photograph.',
     author: 'Editor — Paint & Process',
+    personName: 'Editor — Paint & Process',
+    personImage: '',
   },
   {
     quote: 'The studio feels like a place where pictures are grown, not made.',
     author: 'Workshop guest, 2025',
+    personName: 'Workshop guest, 2025',
+    personImage: '',
   },
 ]
 
@@ -463,7 +472,7 @@ export async function getHomeData(): Promise<HomeData> {
     client.fetch<string[] | null>(queries.heroImagesQuery),
     client.fetch<{ heroRevealTop?: SanityImageType; heroRevealBottom?: SanityImageType } | null>(queries.homepageHeroQuery),
     client.fetch<{ tagline?: string } | null>(queries.siteSettingsBasicQuery),
-    client.fetch<{ _id: string; quote: string; author: string; role?: string }[] | null>(queries.testimonialsQuery),
+    client.fetch<{ _id: string; quote: string; personName: string; personImage?: SanityImageType }[] | null>(queries.testimonialsQuery),
     client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string } | null>(queries.aboutHomeDataQuery),
   ])
 
@@ -491,11 +500,21 @@ export async function getHomeData(): Promise<HomeData> {
 
   const homeSnippet = aboutData?.homeSnippet ?? ''
 
+  const testimonials: HomeTestimonial[] = rawTestimonials?.length
+    ? rawTestimonials.map((t) => ({
+        _id: t._id,
+        quote: t.quote,
+        author: t.personName,
+        personName: t.personName,
+        personImage: t.personImage?.asset ? urlForImage(t.personImage).width(400).height(400).url() : '',
+      }))
+    : PLACEHOLDER_TESTIMONIALS
+
   return {
     series,
     prints,
     press,
-    testimonials: rawTestimonials?.length ? rawTestimonials : PLACEHOLDER_TESTIMONIALS,
+    testimonials,
     heroImages: rawHeroImages?.length === 7 ? rawHeroImages : [],
     heroRevealTop: heroReveal?.heroRevealTop?.asset
       ? urlForImage(heroReveal.heroRevealTop).width(2560).quality(70).url()
