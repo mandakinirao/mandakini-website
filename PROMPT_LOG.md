@@ -2,6 +2,24 @@
 
 ---
 
+## 2026-07-07 (ii) — Small-text legibility fix + testimonials redesign
+
+**Prompt summary:** About page "About" label and press card text (small serif labels) were hard to read — asked to switch from serif to sans-serif and make it more visible. Separately, asked to redesign the testimonials section to match a specific reference (21st.dev component, later replaced with the client's own pasted React/Framer-Motion source for a stacked-photo carousel), and update Sanity to capture image, text, and name.
+
+**Investigation:** an Explore agent traced every complained-about instance back to one root cause — `--font-label`, the token used for every eyebrow/kicker/label sitewide, resolved to Mailendra, a serif whose license was still pending, at small sizes (10-13px) with reduced opacity (38-50%). Asked the client whether to patch just the two flagged spots or fix the token site-wide; they chose the token fix, which resolved About + Press plus every other small label in one change, and also let go of a licensing liability. Also confirmed whether to raise size/opacity beyond the font swap (yes) and what fields the testimonials redesign needed in Sanity (name + quote + image, no separate role field — role/context stays folded into the name text as before).
+
+**Testimonials execution:** the initial pass (matching the 21st.dev description) was a two-column layout with a single circular photo. The client then pasted the exact reference component they wanted — a Framer Motion stacked-photo-deck carousel (inactive cards tilted/scaled/faded behind the active one) with `lucide-react` arrow icons. Rebuilt it to match that design closely while respecting the project's standing motion rule (GSAP only, no Framer Motion) and avoiding a new icon-library dependency (inline SVG arrows instead) — same visual result, no new dependencies.
+
+**Bug found and fixed along the way:** while wiring testimonial data, discovered `testimonialsQuery` queried `author`/`role`/`order`, fields that don't exist on the `testimonial` schema (`personName`/`displayOrder`). This meant no testimonial entered in Studio could ever have rendered with a real name — the query always returned empty/undefined for the field the component displayed. Fixed the query to match the actual schema.
+
+**V1 protection:** adding `personImage` and renaming the display field to `personName` broke the build — `components/home/PressStrip.tsx`, a V1-only (`?v=1`) component, shares the same `HomeTestimonial` type and reads `.author`. The user explicitly said not to touch PressStrip. Fix: kept a computed `author` field on the shared type (always equal to `personName`), so PressStrip keeps compiling and rendering byte-for-byte the same without being edited at all.
+
+**Merge:** client said "commit and push to main" partway through, before a full manual review — did a quick self-verification screenshot of the new testimonials carousel first, then committed, pushed, merged to main, and verified the merged build.
+
+**Verified:** clean builds throughout; `git diff` confirmed zero changes to any V1 file; visually confirmed sans-serif labels on About/Press and the new stacked-photo testimonials carousel in production mode.
+
+**Deferred:** no real testimonial content exists in Sanity yet — homepage still shows placeholder quotes (no photos) until Mandakini enters real ones in Studio.
+
 ## 2026-07-07 — Bigger logo, hero background swap, per-page colors, journal (planned)
 
 **Prompt summary:** Mandakini's feedback list: logo a little bigger; hero background over the portrait area changed (asset shared); background colors changed per page from her approved palettes; testimonials and media pages pending from her; studio page opening in a new window; journal/blog page. Arun asked to plan before executing since the client's phrasing needed interpretation, not literal execution.
