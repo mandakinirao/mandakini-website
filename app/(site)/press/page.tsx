@@ -1,6 +1,8 @@
 import type { Metadata } from 'next'
 import PressPage from '@/components/press/PressPage'
+import PageWash from '@/components/ui/PageWash'
 import type { EnrichedPressItem } from '@/lib/press'
+import '@/styles/pages.css'
 
 export const metadata: Metadata = {
   title: 'Press — Mandakini Rao',
@@ -24,5 +26,10 @@ export default async function PressRoute() {
   } catch {
     items = []
   }
-  return <PressPage items={items} />
+  return (
+    <>
+      <PageWash className="press-skyline page-wash-light" />
+      <PressPage items={items} />
+    </>
+  )
 }

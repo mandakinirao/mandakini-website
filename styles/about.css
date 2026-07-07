@@ -1,17 +1,17 @@
 /* ─── About Page ─────────────────────────────────────────────────── */
 
-/* Nav fix: light/amber backgrounds need dark navigation.
-   AboutFull adds body.about-page + body.about-amber via useEffect. */
+/* Nav fix: light/rosehip backgrounds need dark navigation.
+   AboutFull adds body.about-page + body.about-rosehip via useEffect. */
 body.about-page .site-nav {
   color: var(--ink-cacao);
 }
 body.about-page .site-logo__img--cream { display: none; }
 body.about-page .site-logo__img--cacao { display: block; }
 
-/* Amber body override: re-roots --ink-current to cacao so every V2
+/* Rosehip body override: re-roots --ink-current to cacao so every V2
    component (nav links, PillCta, menu overlay) inherits dark ink. */
-body.about-amber {
-  background: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+body.about-rosehip {
+  background: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
   --ink-current: var(--ink-cacao);
   --ink-muted-current: rgba(61, 31, 13, 0.52);
   --rule-current: rgba(61, 31, 13, 0.1);
@@ -21,21 +21,25 @@ body.about-amber {
 
 /* ═══════════════════════════════════════════════════════════════════
    SECTION 3 — AboutFull
-   Full-bleed amber field with portrait + editorial bio.
+   Full-bleed rosehip field with portrait + editorial bio.
    No floating box. Colour fills edge-to-edge, top to bottom.
    ═══════════════════════════════════════════════════════════════════ */
 
 .mr-about-full {
   min-height: 100svh;
-  /* Amber softened with cream — warm and refined, not glaring */
-  background: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+  /* Rosehip softened with cream — warm blush, not glaring amber */
+  background: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
 
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
   align-items: center;
   gap: clamp(3.5rem, 6vw, 8rem);
+  /* Top padding must clear the fixed nav, whose height now tracks the
+     bigger logo (globals.css .site-logo__img: clamp(68px, 14vh, 152px))
+     plus its 56px vertical padding — give it real headroom, not just
+     enough for the logo alone. */
   padding:
-    clamp(7rem, 14vh, 11rem)
+    clamp(9rem, 18vh, 14rem)
     clamp(3rem, 8vw, 9rem)
     clamp(5rem, 10vh, 8rem);
 }
@@ -90,7 +94,7 @@ body.about-amber {
   max-width: 44ch;
 }
 
-/* PillCta on amber — use inherited --ink-current (already dark cacao) */
+/* PillCta on rosehip — use inherited --ink-current (already dark cacao) */
 .mr-about-full .mr2-cta {
   border-color: var(--ink-cacao);
   color: var(--ink-cacao);
@@ -98,14 +102,14 @@ body.about-amber {
 .mr-about-full .mr2-cta:hover:not(:disabled) {
   background-color: var(--ink-cacao);
   border-color: var(--ink-cacao);
-  color: color-mix(in srgb, var(--accent-amber) 38%, var(--bg-cream) 62%);
+  color: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
 }
 
 /* Mobile: portrait centred above text */
 @media (max-width: 768px) {
   .mr-about-full {
     grid-template-columns: 1fr;
-    padding: 7rem 1.75rem 4.5rem;
+    padding: 8.5rem 1.75rem 4.5rem;
     align-items: start;
     gap: 2.75rem;
   }
