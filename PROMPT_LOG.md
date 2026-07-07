@@ -2,6 +2,20 @@
 
 ---
 
+## 2026-07-07 (iii) — Hamburger color bug + missing 404 cat
+
+**Prompt summary:** From a screenshot of the live deployed hero, asked that only the hamburger menu there be cream — everywhere else (rest of homepage, other pages) it should be cacao. Separately, reported the cat animation was missing on the live `/404` page.
+
+**Hamburger investigation:** expected this to be a quick CSS tweak, but checking the deployed site showed the hamburger was cream **everywhere**, not just the hero — a real pre-existing bug, not a new request. Traced it to `.site-nav`'s color: the rule meant to make it cacao (`.site-nav.scrolled`) and a page-specific override (`body.about-page .site-nav`) were both present and both matched, yet neither took effect — the base rule's cream value won regardless. Root cause never fully confirmed but most likely Next's automatic CSS chunk/layer splitting between globals.css and a component-imported about.css. Fix: added explicit rules directly in globals.css (same file as the winning base rule) with clearly higher specificity, keyed off the existing `mr2-hero-stage` body class from the earlier hero work.
+
+**A verification detour:** while confirming the fix, `getComputedStyle` reads via the browser automation tool kept returning the old cream value even after setting an inline `style="color:red"` directly on the element — which should be impossible under normal CSS rules (inline style always wins). This turned out to be an unreliable reading from the tool, not a real bug — switching to zoomed screenshots of actual rendered pixels immediately showed the correct cacao color. Lesson: when a DOM/computed-style check contradicts what a screenshot shows, trust the screenshot — screenshots reflect what the compositor actually painted; a JS property read can be stale or wrong for reasons that are hard to pin down.
+
+**404 cat investigation:** console on the live page showed a real error trail — `dotlottie-web`'s WASM binary fetch to `cdn.jsdelivr.net` and `unpkg.com` both failing, with an explicit `[dotlottie-web] Initialization failed` at the end. The site's CSP doesn't allow either host. Also found the local fallback JSON (`public/lottie/persian-cat.json`) was a 116-byte empty placeholder, not real animation data. Rather than widening the CSP for a third-party WASM CDN, downloaded the actual animation (still reachable at the external URL referenced in code) and switched to `lottie-react`, a pure-JS/SVG renderer already in the project's dependencies — no CSP change, no external runtime dependency.
+
+**Merge:** both fixes committed to `fix/nav-color-and-404-cat`, verified, and merged straight to main — treated as corrective fixes to already-live bugs rather than new feature work awaiting review.
+
+**Verified:** clean builds; console showed no WASM errors after the switch; zoomed screenshots (not computed-style checks) confirmed correct hamburger color across the homepage hero, past the hero, `/about`, and `/press`.
+
 ## 2026-07-07 (ii) — Small-text legibility fix + testimonials redesign
 
 **Prompt summary:** About page "About" label and press card text (small serif labels) were hard to read — asked to switch from serif to sans-serif and make it more visible. Separately, asked to redesign the testimonials section to match a specific reference (21st.dev component, later replaced with the client's own pasted React/Framer-Motion source for a stacked-photo carousel), and update Sanity to capture image, text, and name.
