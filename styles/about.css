@@ -68,11 +68,11 @@ body.about-rosehip {
 
 .mr-about-full__eyebrow {
   font-family: var(--font-label);
-  font-size: 0.68rem;
-  letter-spacing: 0.24em;
+  font-size: 0.75rem;
+  letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--ink-cacao);
-  opacity: 0.48;
+  opacity: 0.65;
 }
 
 /* Name: display serif, measured — not a wall of type */
@@ -186,11 +186,11 @@ body.about-rosehip {
 
 .about-hero__caption {
   font-family: var(--font-label);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-cacao);
-  opacity: 0.42;
+  opacity: 0.65;
   text-align: center;
   max-width: clamp(110px, 16vw, 210px);
   line-height: 1.55;
@@ -245,11 +245,11 @@ body.about-rosehip {
 
 .about-hero__sub {
   font-family: var(--font-label);
-  font-size: clamp(0.68rem, 1.1vw, 0.88rem);
-  letter-spacing: 0.14em;
+  font-size: clamp(0.75rem, 1.1vw, 0.92rem);
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-cacao);
-  opacity: 0.48;
+  opacity: 0.65;
 }
 
 /* Mobile: collapse to single column */
@@ -349,11 +349,11 @@ body.about-rosehip {
 .about-edge__series li,
 .about-edge__colophon p {
   font-family: var(--font-label);
-  font-size: 0.68rem;
-  letter-spacing: 0.14em;
+  font-size: 0.75rem;
+  letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--ink-cacao);
-  opacity: 0.38;
+  opacity: 0.62;
   line-height: 1.55;
 }
 

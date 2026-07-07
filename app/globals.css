@@ -83,7 +83,10 @@
   /* ── Type tokens ── */
   --font-display: 'Sephir', 'Boska', serif;
   --font-accent: 'Konya', 'Fraunces', serif;
-  --font-label: 'Mailendra', 'Cormorant SC', serif;
+  /* Sans-serif (was Mailendra, a serif whose license is still pending) —
+     small labels/eyebrows/kickers were hard to read at 10-13px; Jost is
+     already loaded for --font-ui and reads clearly at label sizes. */
+  --font-label: 'Jost', sans-serif;
   --font-body: 'EB Garamond', serif;
   --font-ui: 'Jost', sans-serif;
 
