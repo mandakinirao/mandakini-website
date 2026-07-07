@@ -1753,6 +1753,21 @@ body:not(.mr2-mode) .mrx-cursor {
   color: var(--ink-current);
 }
 
+/* Explicit, higher-specificity nav-ink rules — cacao on every v2 surface
+   except the homepage hero, where it flips to cream. Needed because the
+   plain `.site-nav.scrolled` rule above was losing to the base `.site-nav`
+   rule in production (observed: hamburger stayed cream everywhere,
+   including light/cacao pages) — likely Next's per-chunk CSS layering
+   putting these two rules in different cascade layers. Both rules here
+   live in this same file/layer as the base rule and use enough extra
+   specificity to win regardless. */
+body.mr2-mode .site-nav {
+  color: var(--ink-cacao);
+}
+body.mr2-mode.mr2-hero-stage .site-nav {
+  color: var(--ink-cream);
+}
+
 .site-nav--hidden {
   transform: translateY(-100%);
 }
