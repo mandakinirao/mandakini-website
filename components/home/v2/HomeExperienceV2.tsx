@@ -13,7 +13,7 @@ import type { HomeData } from '@/lib/home-data'
 import { ScrollTrigger, unlockScroll } from '@/lib/motion'
 
 export default function HomeExperienceV2(props: HomeData) {
-  const { series, prints, press, testimonials, tagline } = props
+  const { series, prints, press, testimonials, tagline, heroRevealTop, heroRevealBottom } = props
   const heroRef = useRef<HeroSceneHandle>(null)
   const [showLoader, setShowLoader] = useState(true)
 
@@ -39,7 +39,7 @@ export default function HomeExperienceV2(props: HomeData) {
       {showLoader && (
         <LoadingScreenStripes onComplete={handleComplete} tagline={tagline} />
       )}
-      <HeroScene ref={heroRef} tagline={tagline} />
+      <HeroScene ref={heroRef} tagline={tagline} heroTop={heroRevealTop} heroBottom={heroRevealBottom} />
       <div className="mr2-home__content">
         <StripeBand />
         <RisingSunWorks series={series} />

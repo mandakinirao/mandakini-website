@@ -68,6 +68,10 @@ export interface HomeData {
   testimonials: HomeTestimonial[]
   /** 7 image URLs in card order (left→right). Empty = use built-in fallback. */
   heroImages: string[]
+  /** Ink-reveal hero — top (portrait) and bottom (revealed) image URLs.
+   *  Empty string = use the built-in static fallback for that layer. */
+  heroRevealTop: string
+  heroRevealBottom: string
   /** "Painter · Educator · Storyteller" or whatever is set in siteSettings. */
   tagline: string
   /** One-line bio for the About section. */
@@ -453,10 +457,11 @@ export async function getHomeData(): Promise<HomeData> {
   const ok = <T>(r: PromiseSettledResult<T>): T | null =>
     r.status === 'fulfilled' ? r.value : null
 
-  const [shopRes, pressRes, heroRes, basicRes, testiRes, aboutRes] = await Promise.allSettled([
+  const [shopRes, pressRes, heroRes, heroRevealRes, basicRes, testiRes, aboutRes] = await Promise.allSettled([
     client.fetch<ShopDoc[] | null>(queries.featuredShopItemsQuery),
     client.fetch<RawPressItem[] | null>(queries.pressItemsQuery),
     client.fetch<string[] | null>(queries.heroImagesQuery),
+    client.fetch<{ heroRevealTop?: SanityImageType; heroRevealBottom?: SanityImageType } | null>(queries.homepageHeroQuery),
     client.fetch<{ tagline?: string } | null>(queries.siteSettingsBasicQuery),
     client.fetch<{ _id: string; quote: string; author: string; role?: string }[] | null>(queries.testimonialsQuery),
     client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string } | null>(queries.aboutHomeDataQuery),
@@ -465,6 +470,7 @@ export async function getHomeData(): Promise<HomeData> {
   const shopItems = ok(shopRes)
   const rawPressItems = ok(pressRes)
   const rawHeroImages = ok(heroRes)
+  const heroReveal = ok(heroRevealRes)
   const siteBasic = ok(basicRes)
   const rawTestimonials = ok(testiRes)
   const aboutData = ok(aboutRes)
@@ -491,6 +497,12 @@ export async function getHomeData(): Promise<HomeData> {
     press,
     testimonials: rawTestimonials?.length ? rawTestimonials : PLACEHOLDER_TESTIMONIALS,
     heroImages: rawHeroImages?.length === 7 ? rawHeroImages : [],
+    heroRevealTop: heroReveal?.heroRevealTop?.asset
+      ? urlForImage(heroReveal.heroRevealTop).width(2560).quality(70).url()
+      : '',
+    heroRevealBottom: heroReveal?.heroRevealBottom?.asset
+      ? urlForImage(heroReveal.heroRevealBottom).width(2560).quality(70).url()
+      : '',
     tagline: siteBasic?.tagline ?? 'Painter · Educator · Storyteller',
     aboutBio: homeSnippet,
     // Hardcoded until a colour portrait is uploaded to Studio (current upload is B&W).

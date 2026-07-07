@@ -57,6 +57,12 @@ body.mr2-mode .site-logo__mark { display: flex; }
 body.mr2-mode .site-logo__img--cream { display: none; }
 body.mr2-mode .site-logo__img--cacao { display: block; }
 
+/* While the hero (dark ink-reveal) is the visible stage on the homepage,
+   show the cream mark instead so the logo pops over the artwork; the
+   swap is driven by a ScrollTrigger toggling this class in Navigation.tsx. */
+body.mr2-mode.mr2-hero-stage .site-logo__img--cream { display: block; }
+body.mr2-mode.mr2-hero-stage .site-logo__img--cacao { display: none; }
+
 /* ── Menu overlay — theme-aware colours ────────────────────────────
    The overlay background and text must follow --v2-bg / --v2-fg so
    they switch with the dark / light toggle. */
@@ -584,6 +590,22 @@ html.mr-intro-seen .mr2-loader {
   width: 100%;
   height: 100%;
   cursor: none; /* custom cursor handles pointer — no default crosshair */
+}
+
+/* Top scrim — darkens the crown of the hero so the cream logo mark reads
+   clearly over the artwork underneath it. */
+.mr2-hscene__scrim {
+  position: absolute;
+  inset: 0 0 auto 0;
+  height: clamp(130px, 24vh, 230px);
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    to bottom,
+    rgba(26, 14, 6, 0.60) 0%,
+    rgba(26, 14, 6, 0.32) 55%,
+    rgba(26, 14, 6, 0.00) 100%
+  );
 }
 
 /* Bottom-weighted vignette — ensures text stays legible over both layers */
@@ -1904,7 +1926,10 @@ body.mr2-mode .mr-detail__sale:hover {
 
 .mr2-contact-page {
   display: block;
-  padding: 18vh clamp(20px, 6vw, 80px) 16vh;
+  /* Top clearance must beat the fixed nav's height (logo + 56px padding,
+     see globals.css .site-logo__img) — a plain vh value collapses at
+     shorter viewports, so give it a rem floor like the about page. */
+  padding: clamp(9rem, 18vh, 14rem) clamp(20px, 6vw, 80px) 16vh;
 }
 
 .mr2-contact__layout {

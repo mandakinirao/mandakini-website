@@ -8,8 +8,19 @@ export interface HeroSceneHandle {
   playEntrance: () => void
 }
 
-const HeroScene = forwardRef<HeroSceneHandle, { tagline?: string }>(
-  function HeroScene({ tagline = 'Artist · Educator · Storyteller' }, ref) {
+interface HeroSceneProps {
+  tagline?: string
+  /** Resolved Sanity URLs; empty string falls back to the built-in static file. */
+  heroTop?: string
+  heroBottom?: string
+}
+
+const HeroScene = forwardRef<HeroSceneHandle, HeroSceneProps>(
+  function HeroScene({
+    tagline = 'Artist · Educator · Storyteller',
+    heroTop = '',
+    heroBottom = '',
+  }, ref) {
     const textRef = useRef<HTMLDivElement>(null)
 
     useImperativeHandle(ref, () => ({
@@ -42,7 +53,11 @@ const HeroScene = forwardRef<HeroSceneHandle, { tagline?: string }>(
       <section className="mr2-hscene" aria-label="Mandakini Rao — artist studio">
         {/* Static framed clip — cream mat visible on all sides */}
         <div className="mr2-hscene__clip">
-          <InkReveal topSrc="/art/hero/hero-bw.jpg" bottomSrc="/art/hero/hero-bottom.png" />
+          <InkReveal
+            topSrc={heroTop || '/art/hero/hero-bw.jpg'}
+            bottomSrc={heroBottom || '/art/hero/hero-bottom.png'}
+          />
+          <div className="mr2-hscene__scrim" aria-hidden="true" />
           <div className="mr2-hscene__vignette" aria-hidden="true" />
         </div>
         <div ref={textRef} className="mr2-hscene__text">

@@ -8,6 +8,16 @@ export const heroImagesQuery = groq`
   *[_type == "siteSettings"][0].heroImages[].asset->url
 `
 
+// Homepage hero reveal — top (portrait) / bottom (revealed) images for the
+// ink-reveal effect. Both optional: falls back to the built-in static
+// files when the homepage singleton or either field is missing.
+export const homepageHeroQuery = groq`
+  *[_type == "homepage"][0] {
+    heroRevealTop { ..., alt },
+    heroRevealBottom { ..., alt }
+  }
+`
+
 export const siteSettingsBasicQuery = groq`
   *[_type == "siteSettings"][0] {
     tagline,

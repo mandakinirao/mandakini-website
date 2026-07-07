@@ -45,6 +45,28 @@ export default function Navigation() {
     }
   }, [pathname])
 
+  // Homepage hero stage — while the ink-reveal hero is the visible surface,
+  // the nav logo shows its cream mark (over dark artwork) instead of cacao.
+  useEffect(() => {
+    const hero = document.querySelector('.mr2-hscene')
+    const content = document.querySelector('.mr2-home__content')
+    if (!hero || !content) return
+
+    document.body.classList.add('mr2-hero-stage')
+
+    const trigger = ScrollTrigger.create({
+      trigger: content,
+      start: 'top 120px',
+      onEnter: () => document.body.classList.remove('mr2-hero-stage'),
+      onLeaveBack: () => document.body.classList.add('mr2-hero-stage'),
+    })
+
+    return () => {
+      trigger.kill()
+      document.body.classList.remove('mr2-hero-stage')
+    }
+  }, [pathname])
+
   // Hide on scroll-down, reveal on scroll-up — driven by direction, not position.
   // Dead zone of 6px prevents jitter from micro-bounces.
   useEffect(() => {

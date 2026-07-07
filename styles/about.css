@@ -34,8 +34,12 @@ body.about-amber {
   grid-template-columns: 0.9fr 1.1fr;
   align-items: center;
   gap: clamp(3.5rem, 6vw, 8rem);
+  /* Top padding must clear the fixed nav, whose height now tracks the
+     bigger logo (globals.css .site-logo__img: clamp(68px, 14vh, 152px))
+     plus its 56px vertical padding — give it real headroom, not just
+     enough for the logo alone. */
   padding:
-    clamp(7rem, 14vh, 11rem)
+    clamp(9rem, 18vh, 14rem)
     clamp(3rem, 8vw, 9rem)
     clamp(5rem, 10vh, 8rem);
 }
@@ -105,7 +109,7 @@ body.about-amber {
 @media (max-width: 768px) {
   .mr-about-full {
     grid-template-columns: 1fr;
-    padding: 7rem 1.75rem 4.5rem;
+    padding: 8.5rem 1.75rem 4.5rem;
     align-items: start;
     gap: 2.75rem;
   }

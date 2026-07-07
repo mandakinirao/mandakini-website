@@ -11,14 +11,13 @@ export const homepageSchema = defineType({
       title: 'Hero Reveal — Top image',
       type: 'image',
       options: { hotspot: true },
-      description: 'Top image in the two-image hero reveal.',
-      validation: (Rule) => Rule.required(),
+      description:
+        'Top image in the two-image hero reveal (the layer the cursor erases). Leave empty to use the built-in default.',
       fields: [
         defineField({
           name: 'alt',
           title: 'Alt text',
           type: 'string',
-          validation: (Rule) => Rule.required(),
         }),
       ],
     }),
@@ -27,14 +26,13 @@ export const homepageSchema = defineType({
       title: 'Hero Reveal — Bottom image',
       type: 'image',
       options: { hotspot: true },
-      description: 'Bottom image in the two-image hero reveal.',
-      validation: (Rule) => Rule.required(),
+      description:
+        'Bottom image in the two-image hero reveal (revealed underneath as the cursor erases the top layer). Leave empty to use the built-in default.',
       fields: [
         defineField({
           name: 'alt',
           title: 'Alt text',
           type: 'string',
-          validation: (Rule) => Rule.required(),
         }),
       ],
     }),
