@@ -4,13 +4,14 @@ import dynamic from 'next/dynamic'
 import { useEffect, useRef } from 'react'
 import PillCta from '@/components/ui/PillCta'
 import { EASE_SINE, mandaGsap, prefersReducedMotion } from '@/lib/motion'
+import catAnimation from '@/public/lottie/persian-cat.json'
 
-const DotLottieReact = dynamic(
-  () => import('@lottiefiles/dotlottie-react').then((m) => m.DotLottieReact),
-  { ssr: false }
-)
-
-const CAT_LOTTIE = 'https://lottie.host/8cf4ba71-e5fb-44f3-8134-178c4d389417/0CCsdcgNIP.json'
+// Plain SVG renderer (lottie-react / lottie-web) — no WASM, no external
+// CDN fetch at runtime. The previous dotlottie-web player needs its WASM
+// binary from cdn.jsdelivr.net/unpkg.com, which the site's CSP doesn't
+// allow (connect-src has no CDN hosts) — the cat never rendered in
+// production. This animation is bundled locally, so it always renders.
+const Lottie = dynamic(() => import('lottie-react'), { ssr: false })
 
 export default function NotFound() {
   const b1 = useRef<HTMLDivElement>(null)
@@ -46,7 +47,7 @@ export default function NotFound() {
 
       <div className="mr-nf__body">
         <div className="mr-nf__lottie" aria-hidden="true">
-          <DotLottieReact src={CAT_LOTTIE} loop autoplay style={{ width: '100%', height: '100%' }} />
+          <Lottie animationData={catAnimation} loop autoplay style={{ width: '100%', height: '100%' }} />
         </div>
 
         <p className="mr-nf__code">404</p>
