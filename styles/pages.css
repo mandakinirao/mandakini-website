@@ -19,12 +19,13 @@ body.page-wash-light {
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   WORKS LISTING  (/works)  — cream
+   WORKS LISTING  (/works)  — soft amber (lighter than the project detail
+   page's 20%, so the two stay in the same family but read as distinct)
    ══════════════════════════════════════════════════════════════════════ */
 
-body.works-cream {
-  background: var(--bg-cream);
-  --scroll-bg: var(--bg-cream);
+body.works-amber {
+  background: color-mix(in srgb, var(--accent-amber) 12%, var(--bg-cream) 88%);
+  --scroll-bg: color-mix(in srgb, var(--accent-amber) 12%, var(--bg-cream) 88%);
 }
 
 
@@ -49,10 +50,22 @@ body.pdp-moss {
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   CONTACT  (/contact)  — soft rosehip
+   CONTACT  (/contact)  — soft lagoon (cool, calm — distinct from the
+   warm amber/moss/rosehip family used elsewhere)
    ══════════════════════════════════════════════════════════════════════ */
 
-body.contact-rosehip {
-  background: color-mix(in srgb, var(--accent-rosehip) 7%, var(--bg-cream) 93%);
-  --scroll-bg: color-mix(in srgb, var(--accent-rosehip) 7%, var(--bg-cream) 93%);
+body.contact-lagoon {
+  background: color-mix(in srgb, var(--accent-lagoon) 8%, var(--bg-cream) 92%);
+  --scroll-bg: color-mix(in srgb, var(--accent-lagoon) 8%, var(--bg-cream) 92%);
+}
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   PRESS  (/press)  — soft skyline (cool, editorial; skyline is a locked
+   client palette token, kept low so it never reads as "blue")
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.press-skyline {
+  background: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
+  --scroll-bg: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
 }

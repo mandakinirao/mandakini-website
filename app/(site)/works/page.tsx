@@ -20,7 +20,7 @@ export default async function WorksPage() {
   ])
   return (
     <>
-      <PageWash className="works-cream page-wash-light" />
+      <PageWash className="works-amber page-wash-light" />
       <WorksIndex
         series={series}
         featured={featured}
