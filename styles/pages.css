@@ -69,3 +69,14 @@ body.press-skyline {
   background: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
   --scroll-bg: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   JOURNAL  (/journal)  — plain cream, no tint. Text-forward reading
+   surface; the paragraph images carry the color, not the page field.
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.journal-cream {
+  background: var(--bg-cream);
+  --scroll-bg: var(--bg-cream);
+}

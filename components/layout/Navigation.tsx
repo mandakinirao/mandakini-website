@@ -10,6 +10,7 @@ const menuLinks = [
   { label: 'Works / Projects', href: '/works' },
   { label: 'Shop', href: '/shop' },
   { label: 'Press', href: '/press' },
+  { label: 'Journal', href: '/journal' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]

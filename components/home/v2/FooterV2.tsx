@@ -12,6 +12,7 @@ const NAV_LINKS = [
   { label: 'Shop', href: '/shop' },
   { label: 'About', href: '/about' },
   { label: 'Press', href: '/press' },
+  { label: 'Journal', href: '/journal' },
 ]
 
 const SOCIALS: Social[] = [

@@ -1,0 +1,298 @@
+/* ─── Journal ─────────────────────────────────────────────────────────
+   Listing cards + per-paragraph flexible image layouts (single/collage/
+   carousel × left/right/top/bottom). Reuses the site's .mr-mask organic
+   frame and .mr-carousel interaction pattern rather than inventing new
+   visual language.
+   ───────────────────────────────────────────────────────────────────── */
+
+/* ── Listing card (/journal) — modeled on .mr-product ─────────────── */
+
+.mr-journal-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(28px, 4vw, 64px);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.mr-journal-card {
+  color: var(--ink-current);
+}
+
+.mr-journal-card--featured {
+  grid-column: 1 / -1;
+}
+
+.mr-journal-card__frame {
+  position: relative;
+  display: block;
+  aspect-ratio: 16 / 10;
+  overflow: hidden;
+}
+.mr-journal-card--featured .mr-journal-card__frame {
+  aspect-ratio: 21 / 9;
+}
+
+.mr-journal-card__frame img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 1.2s var(--ease-manda);
+}
+.mr-journal-card:hover .mr-journal-card__frame img {
+  transform: scale(1.05);
+}
+
+.mr-journal-card__kicker {
+  margin-top: 1.4rem;
+  color: var(--ink-muted-current);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.mr-journal-card__title {
+  margin-top: 0.5rem;
+  font-family: var(--font-display);
+  font-size: clamp(1.3rem, 2.4vw, 2rem);
+  font-weight: 400;
+  line-height: 1.2;
+}
+.mr-journal-card--featured .mr-journal-card__title {
+  font-size: clamp(1.8rem, 3.6vw, 3rem);
+}
+
+.mr-journal-card__excerpt {
+  margin-top: 0.6rem;
+  max-width: 48ch;
+  color: var(--ink-muted-current);
+  font-family: var(--font-body);
+  font-size: clamp(0.95rem, 1.1vw, 1.05rem);
+  line-height: 1.6;
+}
+
+.mr-journal-card__cta {
+  display: inline-block;
+  margin-top: 0.9rem;
+  color: var(--accent-link);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 800px) {
+  .mr-journal-grid { grid-template-columns: 1fr; }
+}
+
+/* ── Article header ──────────────────────────────────────────────── */
+
+.mr-journal__header {
+  max-width: 900px;
+  margin: 0 auto clamp(3rem, 7vh, 5rem);
+  text-align: center;
+}
+
+.mr-journal__kicker {
+  color: var(--ink-current);
+  font-family: var(--font-label);
+  font-size: clamp(12px, 1vw, 15px);
+  letter-spacing: 0.28em;
+  text-transform: uppercase;
+  margin-bottom: 0.8rem;
+}
+
+.mr-journal__header h1 {
+  max-width: 22ch;
+  margin-inline: auto;
+  font-family: var(--font-display);
+  font-size: clamp(2.2rem, 5.6vw, 5rem);
+  font-weight: 400;
+  line-height: 1.08;
+}
+
+.mr-journal__cover {
+  position: relative;
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin-top: clamp(2rem, 5vh, 3.5rem);
+  overflow: hidden;
+}
+.mr-journal__cover img { object-fit: cover; }
+
+.mr-journal__date {
+  margin-top: 0.75rem;
+  color: var(--ink-muted-current);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+/* ── Per-paragraph section ───────────────────────────────────────── */
+
+.mr-journal__section {
+  display: grid;
+  gap: clamp(1.5rem, 3vw, 3rem);
+  margin-block: clamp(2.5rem, 6vh, 5rem);
+  align-items: start;
+}
+
+.mr-journal__section--text-only {
+  grid-template-columns: 1fr;
+  max-width: 62ch;
+  margin-inline: auto;
+}
+
+.mr-journal__section--top,
+.mr-journal__section--bottom {
+  grid-template-columns: 1fr;
+  max-width: 900px;
+  margin-inline: auto;
+}
+.mr-journal__section--bottom .mr-journal__text { order: 1; }
+.mr-journal__section--bottom .mr-journal__image,
+.mr-journal__section--bottom .mr-collage,
+.mr-journal__section--bottom .mr-carousel { order: 2; }
+
+.mr-journal__section--left,
+.mr-journal__section--right {
+  grid-template-columns: minmax(0, 5fr) minmax(0, 7fr);
+  max-width: 1240px;
+  margin-inline: auto;
+}
+.mr-journal__section--right { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
+.mr-journal__section--right .mr-journal__text { order: 1; }
+.mr-journal__section--right .mr-journal__image,
+.mr-journal__section--right .mr-collage,
+.mr-journal__section--right .mr-carousel { order: 2; }
+
+@media (max-width: 800px) {
+  .mr-journal__section--left,
+  .mr-journal__section--right {
+    grid-template-columns: 1fr;
+  }
+  .mr-journal__section--left .mr-journal__text,
+  .mr-journal__section--right .mr-journal__text {
+    order: 2;
+  }
+  .mr-journal__section--left .mr-journal__image,
+  .mr-journal__section--left .mr-collage,
+  .mr-journal__section--left .mr-carousel,
+  .mr-journal__section--right .mr-journal__image,
+  .mr-journal__section--right .mr-collage,
+  .mr-journal__section--right .mr-carousel {
+    order: 1;
+  }
+}
+
+.mr-journal__text {
+  font-family: var(--font-body);
+  font-size: clamp(1rem, 1.2vw, 1.15rem);
+  line-height: 1.85;
+  color: var(--ink-current);
+}
+.mr-journal__text p { margin: 0 0 1.2em; }
+.mr-journal__text p:last-child { margin-bottom: 0; }
+.mr-journal__link {
+  color: var(--accent-link);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.mr-journal__image {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.mr-journal__image img { object-fit: cover; }
+
+/* ── Collage ──────────────────────────────────────────────────────── */
+
+.mr-collage {
+  display: grid;
+  gap: 0.75rem;
+}
+.mr-collage__item {
+  position: relative;
+  display: block;
+  width: 100%;
+}
+.mr-collage__item img { object-fit: cover; }
+
+.mr-collage[data-count="2"] { grid-template-columns: 1fr 1fr; }
+
+.mr-collage[data-count="3"] { grid-template-columns: repeat(3, 1fr); }
+.mr-collage[data-count="3"] .mr-collage__item:first-child { grid-column: 1 / -1; }
+
+.mr-collage[data-count="4"] {
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr 1fr;
+}
+
+.mr-collage[data-count="5-plus"] {
+  /* CSS multi-column layout only works on non-grid containers — override
+     the base .mr-collage's display:grid, or `columns` is silently ignored
+     and every item falls onto its own full-width row. */
+  display: block;
+  columns: 3 200px;
+  column-gap: 0.75rem;
+}
+.mr-collage[data-count="5-plus"] .mr-collage__item {
+  break-inside: avoid;
+  margin-bottom: 0.75rem;
+}
+
+/* Narrow (left/right) collages cap at 2 columns regardless of count,
+   so images stay legible beside text instead of shrinking to fit a
+   full-width grid in half the space. */
+.mr-journal__section--left .mr-collage[data-count="3"],
+.mr-journal__section--right .mr-collage[data-count="3"] {
+  grid-template-columns: 1fr 1fr;
+}
+.mr-journal__section--left .mr-collage[data-count="3"] .mr-collage__item:first-child,
+.mr-journal__section--right .mr-collage[data-count="3"] .mr-collage__item:first-child {
+  grid-column: auto;
+}
+.mr-journal__section--left .mr-collage[data-count="4"],
+.mr-journal__section--right .mr-collage[data-count="4"] {
+  grid-template-columns: 1fr 1fr;
+}
+.mr-journal__section--left .mr-collage[data-count="5-plus"],
+.mr-journal__section--right .mr-collage[data-count="5-plus"] {
+  display: block;
+  columns: 2 140px;
+}
+
+/* ── Carousel — extends .mr-carousel with a thumbnail strip ────────── */
+
+.mr-journal__carousel .mr-carousel__stage {
+  aspect-ratio: var(--journal-carousel-ar, 4 / 5);
+}
+
+.mr-carousel__thumbs {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.75rem;
+  flex-wrap: wrap;
+}
+.mr-carousel__thumb {
+  position: relative;
+  width: 3.2rem;
+  height: 3.2rem;
+  border-radius: 50%;
+  overflow: hidden;
+  border: 2px solid transparent;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s, border-color 0.2s;
+}
+.mr-carousel__thumb img { object-fit: cover; }
+.mr-carousel__thumb--active {
+  opacity: 1;
+  border-color: var(--accent-toffee);
+}
