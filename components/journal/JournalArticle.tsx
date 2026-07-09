@@ -17,6 +17,9 @@ const dateFormatter = new Intl.DateTimeFormat('en-IN', { day: 'numeric', month: 
 
 export default function JournalArticle({ post, prev, next }: JournalArticleProps) {
   const rootRef = useRef<HTMLElement>(null)
+  const relatedPosts = [prev, next].filter(
+    (related, i, arr) => related.slug !== post.slug && arr.findIndex((r) => r.slug === related.slug) === i
+  )
 
   useEffect(() => {
     const root = rootRef.current
@@ -68,16 +71,24 @@ export default function JournalArticle({ post, prev, next }: JournalArticleProps
         <JournalSection key={section._key} section={section} />
       ))}
 
-      <nav className="mr-detail__nav" aria-label="More journal entries">
-        <Link href={`/journal/${prev.slug}`}>
-          <small>Previous</small>
-          {prev.title}
-        </Link>
-        <Link href={`/journal/${next.slug}`} className="mr-detail__next">
-          <small>Next</small>
-          {next.title}
-        </Link>
-      </nav>
+      {relatedPosts.length > 0 && (
+        <nav className="mr-journal__more" aria-label="More journal entries">
+          <p className="mr-journal__more-label">More from the Journal</p>
+          <div className="mr-journal__more-grid">
+            {relatedPosts.map((related) => (
+              <Link key={related.slug} href={`/journal/${related.slug}`} className="mr-journal-card mr-journal-card--mini">
+                <span className="mr-journal-card__frame mr-mask">
+                  {related.coverImage && (
+                    <Image src={related.coverImage.url} alt={related.coverImage.alt} fill sizes="(max-width: 800px) 92vw, 400px" />
+                  )}
+                </span>
+                {related.kicker && <p className="mr-journal-card__kicker">{related.kicker}</p>}
+                <h2 className="mr-journal-card__title">{related.title}</h2>
+              </Link>
+            ))}
+          </div>
+        </nav>
+      )}
     </section>
   )
 }

@@ -10,6 +10,8 @@ export interface JournalImage {
   url: string
   thumbUrl: string
   alt: string
+  /** Optional visible caption shown under the image on the page. */
+  caption: string
   aspectRatio: number
 }
 
@@ -19,6 +21,7 @@ export interface JournalSectionData {
   images: JournalImage[]
   displayMode: 'collage' | 'carousel'
   position: 'left' | 'right' | 'top' | 'bottom'
+  pullQuote: boolean
 }
 
 export interface JournalPost {
@@ -35,6 +38,7 @@ export interface JournalPost {
 
 interface RawImage extends SanityImage {
   alt?: string
+  caption?: string
   aspectRatio?: number
 }
 
@@ -43,6 +47,7 @@ interface RawSection {
   text?: unknown[]
   displayMode?: 'collage' | 'carousel'
   position?: 'left' | 'right' | 'top' | 'bottom'
+  pullQuote?: boolean
   images?: RawImage[]
 }
 
@@ -69,6 +74,7 @@ function resolveImage(raw: RawImage | undefined, urlForImage: UrlFor): JournalIm
       url: urlForImage(raw).width(2000).url(),
       thumbUrl: urlForImage(raw).width(160).height(160).url(),
       alt: raw.alt ?? '',
+      caption: raw.caption ?? '',
       aspectRatio: raw.aspectRatio || 4 / 5,
     }
   } catch {
@@ -86,6 +92,7 @@ function resolveSection(raw: RawSection, urlForImage: UrlFor): JournalSectionDat
     images,
     displayMode: raw.displayMode ?? 'collage',
     position: raw.position ?? 'right',
+    pullQuote: raw.pullQuote ?? false,
   }
 }
 

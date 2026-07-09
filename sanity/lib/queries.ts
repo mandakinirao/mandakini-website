@@ -235,9 +235,11 @@ export const journalPostBySlugQuery = groq`
       text,
       displayMode,
       position,
+      pullQuote,
       images[] {
         asset,
         alt,
+        caption,
         "aspectRatio": asset->metadata.dimensions.aspectRatio
       }
     }

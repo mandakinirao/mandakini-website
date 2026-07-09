@@ -52,7 +52,14 @@ export const journalSectionSchema = defineType({
               name: 'alt',
               title: 'Alt text',
               type: 'string',
+              description: 'Describes the image for screen readers — not shown on the page.',
               validation: (Rule) => Rule.required(),
+            }),
+            defineField({
+              name: 'caption',
+              title: 'Caption',
+              type: 'string',
+              description: 'Optional — shown on the page under the image, e.g. a title or note about the piece.',
             }),
           ],
         }),
@@ -60,6 +67,15 @@ export const journalSectionSchema = defineType({
       options: { layout: 'grid' },
       description:
         'Optional — leave empty for a text-only paragraph. Add one image for a single large photo, or several for a collage or carousel.',
+    }),
+    defineField({
+      name: 'pullQuote',
+      title: 'Show as pull quote',
+      type: 'boolean',
+      initialValue: false,
+      hidden: ({ parent }) => ((parent as { images?: unknown[] })?.images?.length ?? 0) > 0,
+      description:
+        'Only for a text-only paragraph. Displays this line large and centered as a visual break in the article, instead of a normal paragraph.',
     }),
     defineField({
       name: 'displayMode',
@@ -100,12 +116,14 @@ export const journalSectionSchema = defineType({
       images: 'images',
       displayMode: 'displayMode',
       position: 'position',
+      pullQuote: 'pullQuote',
     },
-    prepare({ textBlocks, images, displayMode, position }: {
+    prepare({ textBlocks, images, displayMode, position, pullQuote }: {
       textBlocks?: { _type: string; children?: { text?: string }[] }[]
       images?: unknown[]
       displayMode?: string
       position?: string
+      pullQuote?: boolean
     }) {
       const firstBlock = (textBlocks ?? []).find((b) => b._type === 'block')
       const plain = (firstBlock?.children ?? [])
@@ -117,7 +135,7 @@ export const journalSectionSchema = defineType({
         count === 0 ? 'no images' : count === 1 ? '1 image' : `${count} images (${displayMode ?? 'collage'})`
       return {
         title: plain ? (plain.length > 60 ? `${plain.slice(0, 60)}…` : plain) : '(empty paragraph)',
-        subtitle: count > 0 ? `${imgLabel} · ${position ?? 'right'}` : imgLabel,
+        subtitle: count > 0 ? `${imgLabel} · ${position ?? 'right'}` : pullQuote ? 'Pull quote' : imgLabel,
         media: images?.[0] as never,
       }
     },

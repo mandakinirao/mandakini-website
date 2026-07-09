@@ -153,9 +153,7 @@
   margin-inline: auto;
 }
 .mr-journal__section--bottom .mr-journal__text { order: 1; }
-.mr-journal__section--bottom .mr-journal__image,
-.mr-journal__section--bottom .mr-collage,
-.mr-journal__section--bottom .mr-carousel { order: 2; }
+.mr-journal__section--bottom .mr-journal__image-group { order: 2; }
 
 .mr-journal__section--left,
 .mr-journal__section--right {
@@ -165,9 +163,7 @@
 }
 .mr-journal__section--right { grid-template-columns: minmax(0, 7fr) minmax(0, 5fr); }
 .mr-journal__section--right .mr-journal__text { order: 1; }
-.mr-journal__section--right .mr-journal__image,
-.mr-journal__section--right .mr-collage,
-.mr-journal__section--right .mr-carousel { order: 2; }
+.mr-journal__section--right .mr-journal__image-group { order: 2; }
 
 @media (max-width: 800px) {
   .mr-journal__section--left,
@@ -178,12 +174,8 @@
   .mr-journal__section--right .mr-journal__text {
     order: 2;
   }
-  .mr-journal__section--left .mr-journal__image,
-  .mr-journal__section--left .mr-collage,
-  .mr-journal__section--left .mr-carousel,
-  .mr-journal__section--right .mr-journal__image,
-  .mr-journal__section--right .mr-collage,
-  .mr-journal__section--right .mr-carousel {
+  .mr-journal__section--left .mr-journal__image-group,
+  .mr-journal__section--right .mr-journal__image-group {
     order: 1;
   }
 }
@@ -202,12 +194,49 @@
   text-underline-offset: 3px;
 }
 
+/* Lede — the article's very first paragraph reads with a touch more
+   weight than the uniform body size, standard editorial convention. */
+.mr-journal__section:first-of-type .mr-journal__text p:first-child {
+  font-size: clamp(1.15rem, 1.6vw, 1.35rem);
+  line-height: 1.75;
+}
+
+.mr-journal__image-group { min-width: 0; }
+
 .mr-journal__image {
   position: relative;
   display: block;
   width: 100%;
 }
 .mr-journal__image img { object-fit: cover; }
+
+.mr-journal__caption {
+  margin-top: 0.6rem;
+  font-family: var(--font-body);
+  font-style: italic;
+  font-size: 13px;
+  line-height: 1.5;
+  text-align: center;
+  color: var(--ink-muted-current);
+}
+
+/* Pull quote — a standalone typographic break, always centered,
+   never paired with an image group. */
+.mr-journal__pullquote {
+  max-width: 26ch;
+  margin: clamp(3rem, 7vh, 5.5rem) auto;
+  padding-block: 1.4rem;
+  border-top: 1px solid var(--accent-toffee);
+  border-bottom: 1px solid var(--accent-toffee);
+  text-align: center;
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(1.6rem, 3.2vw, 2.6rem);
+  line-height: 1.3;
+  color: var(--ink-current);
+}
+.mr-journal__pullquote p { margin: 0; }
 
 /* ── Collage ──────────────────────────────────────────────────────── */
 
@@ -295,4 +324,42 @@
 .mr-carousel__thumb--active {
   opacity: 1;
   border-color: var(--accent-toffee);
+}
+
+/* ── "More from the Journal" — richer close than a bare prev/next link ── */
+
+.mr-journal__more {
+  max-width: 1240px;
+  margin: clamp(4rem, 9vh, 7rem) auto 0;
+  padding-top: clamp(2.5rem, 6vh, 4rem);
+  border-top: 1px solid var(--rule-current);
+}
+
+.mr-journal__more-label {
+  margin-bottom: clamp(1.5rem, 4vh, 2.5rem);
+  text-align: center;
+  color: var(--ink-muted-current);
+  font-family: var(--font-label);
+  font-size: 12px;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+}
+
+.mr-journal__more-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: clamp(24px, 4vw, 48px);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.mr-journal-card--mini .mr-journal-card__frame {
+  aspect-ratio: 16 / 10;
+}
+.mr-journal-card--mini .mr-journal-card__title {
+  font-size: clamp(1.1rem, 1.8vw, 1.4rem);
+}
+
+@media (max-width: 640px) {
+  .mr-journal__more-grid { grid-template-columns: 1fr; max-width: 420px; }
 }
