@@ -202,3 +202,46 @@ export const featuredSeriesQuery = groq`
       }
   )[0...4]
 `
+
+// Journal listing — /journal. Cover + card copy only, no body (kept light).
+export const allJournalPostsQuery = groq`
+  *[_type == "journalPost" && defined(slug.current)] | order(publishedAt desc) {
+    _id,
+    title,
+    "slug": slug.current,
+    kicker,
+    excerpt,
+    coverImage { asset, alt, "aspectRatio": asset->metadata.dimensions.aspectRatio },
+    publishedAt,
+    featured
+  }
+`
+
+// Journal detail — /journal/[slug]. Resolves each paragraph's images to
+// asset refs + alt + aspect ratio so the renderer never needs a second
+// round trip for image metadata.
+export const journalPostBySlugQuery = groq`
+  *[_type == "journalPost" && slug.current == $slug][0] {
+    _id,
+    title,
+    "slug": slug.current,
+    kicker,
+    excerpt,
+    coverImage { asset, alt, "aspectRatio": asset->metadata.dimensions.aspectRatio },
+    publishedAt,
+    featured,
+    body[] {
+      _key,
+      text,
+      displayMode,
+      position,
+      pullQuote,
+      images[] {
+        asset,
+        alt,
+        caption,
+        "aspectRatio": asset->metadata.dimensions.aspectRatio
+      }
+    }
+  }
+`

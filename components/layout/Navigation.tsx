@@ -5,17 +5,19 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useState } from 'react'
 import { ScrollTrigger, menuLock, menuUnlock } from '@/lib/motion'
 
-const menuLinks = [
+const allLinks = [
   { label: 'Home', href: '/' },
   { label: 'Works / Projects', href: '/works' },
   { label: 'Shop', href: '/shop' },
   { label: 'Press', href: '/press' },
+  { label: 'Journal', href: '/journal' },
   { label: 'About', href: '/about' },
   { label: 'Contact', href: '/contact' },
 ]
 
-export default function Navigation() {
+export default function Navigation({ showJournal = false }: { showJournal?: boolean }) {
   const pathname = usePathname()
+  const menuLinks = showJournal ? allLinks : allLinks.filter((link) => link.href !== '/journal')
   const [menuOpen, setMenuOpen] = useState(false)
   const [scrolled, setScrolled] = useState(false)
   const [navHidden, setNavHidden] = useState(false)

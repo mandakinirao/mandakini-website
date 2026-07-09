@@ -2,6 +2,38 @@
 
 ---
 
+## 2026-07-09 (ii) — Journal article editorial polish
+
+**Prompt summary:** After reviewing the two test journal articles, client said keep both to show Mandakini, add more content, and the article page "looks very bland" — asked to look at how other creative/editorial sites structure an article and match that (corrected me when I initially searched "artist blogs" — wanted creative-professional sites generally, a broader and more useful reference class).
+
+**Research:** rather than relying on generic listicle search results, fetched one concrete real article page (Kinfolk.com's David Chipperfield story) to study actual structure rather than trend-roundup prose. Findings: symmetric kicker-above/byline-below framing around the headline (already matched by our existing header), pull quotes as visual breaks, italicized captions under photos, and related-story cards at the end rather than a bare link. Diagnosed that our layout system itself (left/right/top/bottom positioning, collage, carousel) wasn't the problem — the plain, uniform paragraph flow with no typographic variety was.
+
+**Execution:** added two optional Sanity fields (`caption` per image, `pullQuote` boolean per paragraph — hidden unless the paragraph has no images, since a pull quote is a standalone break), an automatic lede-paragraph CSS rule (no schema field — the site's opening paragraph is styled slightly larger by convention, zero extra authoring burden), and replaced the flat prev/next text links with a "More from the Journal" mini-card block matching the listing page's visual language.
+
+**Bug caught before shipping**: with only 2 total posts, `prev` and `next` both resolve to the same "other" post (`(i-1+n)%n` and `(i+1)%n` collide when n=2), which would have rendered a duplicate card with a colliding React key. Added dedup + self-exclusion logic and verified the fix by checking the actual rendered output showed exactly one related card, not two.
+
+**Content**: patched the two existing test posts via Sanity MCP (create/insert/set patch operations, no new image uploads — reused existing assets) to add a pull quote, at least one caption, and a closing paragraph to each.
+
+**Verified**: clean build; both articles reviewed end-to-end on localhost (production mode) confirming lede paragraph, pull quote, image captions (on both a single image and a collage), and the deduplicated "More from the Journal" ending; `/?v=1` confirmed untouched via `git diff --stat`.
+
+## 2026-07-09 — Journal/blog feature, planned then built
+
+**Prompt summary:** Build a journal/blog: one listing page (all articles, each a card with image + text + read-more CTA) and one detail page per article. For each paragraph of an article, Mandakini needs to independently choose in Sanity Studio: 0/1/many images, collage vs. carousel-with-thumbnails display for 2+ images, and left/right/top/bottom position relative to the paragraph's text — all authored in Studio, reflected on the site automatically.
+
+**Planning:** used plan mode properly since this was a new, architecturally non-trivial feature (no prior journal/blog code, no carousel library, no collage component to reuse). Ran an Explore pass to confirm what existed (`components/shop/ImageCarousel.tsx` as the only carousel — dot nav, no thumbnails; `.mr-mask`/`.mr-mask--b` as the only "organic image frame" pattern; Portable Text block-type fields existing in two dead schema fields with zero rendering code anywhere; no `@portabletext/react` installed), then a Plan pass to design the schema and rendering architecture. Key design decision, reasoned through rather than assumed: model each paragraph as one `journalSection` object (text + images + displayMode + position) rather than mixing plain Portable Text blocks with a separate image-block type — a paragraph's image choice needs a specific paragraph to pair against for left/right layout, which a sibling-block model can't express predictably in Studio's editor.
+
+Confirmed three decisions with the client before writing code: add `@portabletext/react` (yes — it's Sanity's own package for a real, non-trivial rendering problem, not the kind of library the project avoids); cap narrow (left/right) collages at 2 columns regardless of image count so images stay legible (yes); one paragraph = one image-choice unit, no multi-paragraph grouping (yes).
+
+**Execution:** schema (`journalSection.ts` object type with Sanity's `hidden: ({parent}) => ...` pattern so displayMode/position only appear once enough images exist; `journalPost.ts` document type), GROQ, a `lib/journal.ts` loader mirroring existing loader conventions, five new components (`JournalArticle`, `JournalSection`, `JournalImageGroup`, `JournalCollage`, `JournalCarousel`, `JournalIndex`), and the listing/detail routes mirroring `works/page.tsx`'s exact structure.
+
+**Bugs found during verification** (both CSS, caught by measuring actual DOM rects rather than trusting a screenshot at first glance): the cover image was invisible because `.mr-journal__cover` is a `<span>` and never got `display:block`, so `aspect-ratio` silently didn't apply and the element collapsed to zero height. The 5-image collage rendered as single-column full-width stacked images instead of a 3-column masonry, because the base `.mr-collage` rule sets `display:grid` and the 5+-image variant only added `columns` (CSS multi-column) without overriding `display` — multi-column layout is a no-op inside a grid container. Both fixed by adding explicit `display: block` overrides. Several other apparent "missing image" moments during review turned out to be nothing — just screenshots taken before the browser had scrolled/painted the right region; confirmed via `getBoundingClientRect()` before concluding anything was actually broken.
+
+**Content-authoring verification**: rather than uploading new test images, queried existing Sanity image assets already referenced by published `project` documents (Fragments Charcoal, MS Subbalakshmi, London in Gouache series) and reused those `asset._ref`s directly via the Sanity MCP's `create_documents` tool — built two full `journalPost` documents with real Portable Text block structure covering all 6 required layout combinations, published them, and reviewed every combination on localhost. Also verified interactively in Sanity Studio itself that the conditional field-hiding works live (adding a second image to a single-image paragraph immediately revealed the Collage/Carousel picker that had been hidden).
+
+**Verified:** clean build; all 6 combinations visually confirmed; `/?v=1` confirmed untouched via `git diff --stat`; Studio's live conditional-field behavior confirmed interactively, not just by reading the schema.
+
+**Open/deferred**: whether to keep the 2 test journal posts as Mandakini's real first entries or delete them — flagged for the client to decide, not resolved yet.
+
 ## 2026-07-07 (iii) — Hamburger color bug + missing 404 cat
 
 **Prompt summary:** From a screenshot of the live deployed hero, asked that only the hamburger menu there be cream — everywhere else (rest of homepage, other pages) it should be cacao. Separately, reported the cat animation was missing on the live `/404` page.

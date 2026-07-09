@@ -69,3 +69,15 @@ body.press-skyline {
   background: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
   --scroll-bg: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
 }
+
+
+/* ══════════════════════════════════════════════════════════════════════
+   JOURNAL  (/journal)  — soft toffee (warm, paper/notebook feel; kept
+   low since it's a text-forward reading surface — distinct from every
+   other page wash's hue: amber/moss/skyline/rosehip/lagoon).
+   ══════════════════════════════════════════════════════════════════════ */
+
+body.journal-toffee {
+  background: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
+  --scroll-bg: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
+}
