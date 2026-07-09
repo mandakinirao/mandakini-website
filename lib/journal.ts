@@ -118,6 +118,13 @@ export async function getAllJournalPosts(): Promise<JournalPost[]> {
   }
 }
 
+/** Used by the layout to hide the Journal nav link entirely when there's
+ *  nothing published yet — shares the listing query's cache, no extra cost. */
+export async function hasJournalPosts(): Promise<boolean> {
+  const posts = await getAllJournalPosts()
+  return posts.length > 0
+}
+
 export async function getJournalPostBySlug(slug: string): Promise<JournalPost | null> {
   try {
     const [{ client }, { urlForImage }, queries] = await Promise.all([

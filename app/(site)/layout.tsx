@@ -6,15 +6,18 @@ import FooterV2 from '@/components/home/v2/FooterV2'
 import CartDrawer from '@/components/shop/CartDrawer'
 import { CartProvider } from '@/lib/cart'
 import { commerceEnabled } from '@/lib/commerce'
+import { hasJournalPosts } from '@/lib/journal'
 export default async function SiteLayout({ children }: { children: React.ReactNode }) {
+  const showJournal = await hasJournalPosts()
+
   const inner = (
     <>
       <Suspense fallback={null}>
         <ThemeV2 />
       </Suspense>
-      <Navigation />
+      <Navigation showJournal={showJournal} />
       <main id="main-content">{children}</main>
-      <FooterV2 />
+      <FooterV2 showJournal={showJournal} />
     </>
   )
 

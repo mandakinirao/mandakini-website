@@ -7,7 +7,7 @@ import { usePathname } from 'next/navigation'
 import { useEffect, useRef } from 'react'
 import { mandaGsap, prefersReducedMotion } from '@/lib/motion'
 
-const NAV_LINKS = [
+const ALL_NAV_LINKS = [
   { label: 'Works', href: '/works' },
   { label: 'Shop', href: '/shop' },
   { label: 'About', href: '/about' },
@@ -28,9 +28,10 @@ const SOCIALS: Social[] = [
   },
 ]
 
-export default function FooterV2() {
+export default function FooterV2({ showJournal = false }: { showJournal?: boolean }) {
   const rootRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
+  const navLinks = showJournal ? ALL_NAV_LINKS : ALL_NAV_LINKS.filter((link) => link.href !== '/journal')
 
   useEffect(() => {
     const root = rootRef.current
@@ -60,7 +61,7 @@ export default function FooterV2() {
       <div className="mr2-footer__cols">
         <div className="mr2-footer__col">
           <h4>Pages</h4>
-          {NAV_LINKS.map((link) => (
+          {navLinks.map((link) => (
             <Link key={link.href} href={link.href}>
               {link.label}
             </Link>

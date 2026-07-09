@@ -3,10 +3,11 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
-import PillCta from '@/components/ui/PillCta'
 import type { JournalPost } from '@/lib/journal'
 import { mandaGsap, revealImage, revealLines } from '@/lib/motion'
 
+/** Parent route (app/(site)/journal/page.tsx) calls notFound() when
+ *  posts is empty, so this always renders at least one post. */
 export default function JournalIndex({ posts }: { posts: JournalPost[] }) {
   const rootRef = useRef<HTMLElement>(null)
 
@@ -22,21 +23,6 @@ export default function JournalIndex({ posts }: { posts: JournalPost[] }) {
     }, root)
     return () => ctx.revert()
   }, [posts])
-
-  if (posts.length === 0) {
-    return (
-      <section ref={rootRef} className="mr-page" aria-label="Journal">
-        <header className="mr-page__head">
-          <p>Journal</p>
-          <h1>New entries are being written</h1>
-        </header>
-        <div className="mr-page__note">
-          <p>Check back soon for notes from the studio.</p>
-          <PillCta href="/">Back home</PillCta>
-        </div>
-      </section>
-    )
-  }
 
   return (
     <section ref={rootRef} className="mr-page" aria-label="Journal">
