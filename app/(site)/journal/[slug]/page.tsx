@@ -33,7 +33,7 @@ export default async function JournalPostPage({ params }: Params) {
 
   return (
     <>
-      <PageWash className="journal-cream page-wash-light" />
+      <PageWash className="journal-toffee page-wash-light" />
       <JournalArticle post={post} prev={prev} next={next} />
     </>
   )

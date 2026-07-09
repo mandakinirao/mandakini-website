@@ -72,11 +72,12 @@ body.press-skyline {
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   JOURNAL  (/journal)  — plain cream, no tint. Text-forward reading
-   surface; the paragraph images carry the color, not the page field.
+   JOURNAL  (/journal)  — soft toffee (warm, paper/notebook feel; kept
+   low since it's a text-forward reading surface — distinct from every
+   other page wash's hue: amber/moss/skyline/rosehip/lagoon).
    ══════════════════════════════════════════════════════════════════════ */
 
-body.journal-cream {
-  background: var(--bg-cream);
-  --scroll-bg: var(--bg-cream);
+body.journal-toffee {
+  background: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
+  --scroll-bg: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
 }

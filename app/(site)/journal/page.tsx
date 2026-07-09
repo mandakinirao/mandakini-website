@@ -22,7 +22,7 @@ export default async function JournalPage() {
 
   return (
     <>
-      <PageWash className="journal-cream page-wash-light" />
+      <PageWash className="journal-toffee page-wash-light" />
       <JournalIndex posts={posts} />
     </>
   )
