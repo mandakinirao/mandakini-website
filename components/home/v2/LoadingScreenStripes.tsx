@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import {
   DUR,
   EASE,
@@ -11,7 +11,10 @@ import {
   prefersReducedMotion,
 } from '@/lib/motion'
 
-const BAR_COUNT = 22
+// Server-rendered default (desktop count) so the client's first paint
+// matches SSR — the real, viewport-aware count is applied in an effect.
+const BAR_COUNT_DESKTOP = 22
+const BAR_COUNT_MOBILE = 9
 
 interface LoadingScreenStripesProps {
   onComplete: () => void
@@ -40,8 +43,22 @@ export default function LoadingScreenStripes({
   const animDoneRef  = useRef(false)
   const shownRef     = useRef(false)
   const exitingRef   = useRef(false)
+  // Starts at the server-rendered (desktop) count so hydration matches;
+  // corrected on mount, before the bar-widen animation begins (delay 0.35s).
+  // The main setup effect below waits for `ready` so it never queries the
+  // DOM before the corrected bar count has actually rendered.
+  const [barCount, setBarCount] = useState(BAR_COUNT_DESKTOP)
+  const [ready, setReady] = useState(false)
 
   useEffect(() => {
+    setBarCount(
+      window.matchMedia('(max-width: 640px)').matches ? BAR_COUNT_MOBILE : BAR_COUNT_DESKTOP
+    )
+    setReady(true)
+  }, [])
+
+  useEffect(() => {
+    if (!ready) return
     const root  = rootRef.current
     const word  = wordRef.current
     const enter = enterRef.current
@@ -137,7 +154,7 @@ export default function LoadingScreenStripes({
       ctx.revert()
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [])
+  }, [ready])
 
   const handleEnter = () => {
     const root = rootRef.current
@@ -181,7 +198,7 @@ export default function LoadingScreenStripes({
   return (
     <div ref={rootRef} className="mr2-loader" aria-label="Loading">
       <div className="mr2-loader__bars" aria-hidden="true">
-        {Array.from({ length: BAR_COUNT }).map((_, i) => (
+        {Array.from({ length: barCount }).map((_, i) => (
           <div key={i} className="mr2-loader__bar" />
         ))}
       </div>

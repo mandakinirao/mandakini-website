@@ -137,14 +137,22 @@ body.mr2-mode .menu-overlay__links a {
 
 .mr2-cat {
   position: fixed;
-  right: clamp(0.7rem, 2vw, 1.5rem);
-  bottom: clamp(0.7rem, 2vw, 1.5rem);
+  right: calc(clamp(0.7rem, 2vw, 1.5rem) + env(safe-area-inset-right, 0px));
+  bottom: calc(clamp(0.7rem, 2vw, 1.5rem) + env(safe-area-inset-bottom, 0px));
   width: clamp(104px, 12vw, 160px);
   aspect-ratio: 7 / 5; /* matches the 280×200 animation frame */
   z-index: 100;
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+/* Smaller floor on phones — at ~104px the cat reads as ~27% of a narrow
+   screen's width, more than the "small, subtle accent" it's meant to be. */
+@media (max-width: 640px) {
+  .mr2-cat {
+    width: clamp(64px, 16vw, 96px);
+  }
 }
 
 /* Hide over the dark homepage hero (a black cat vanishes there). The
@@ -582,6 +590,7 @@ html.mr-intro-seen .mr2-loader {
   top: 0;
   z-index: 1;
   height: 100vh;
+  height: 100dvh; /* adapts to mobile browser chrome so the cue below isn't clipped */
   overflow: hidden;
   background: #2C1A0E; /* cacao fallback while images load; no cream mat */
 }
@@ -688,7 +697,7 @@ html.mr-intro-seen .mr2-loader {
 
 .mr2-hscene__cue {
   position: absolute;
-  bottom: clamp(1.6rem, 4vh, 3.2rem);
+  bottom: calc(clamp(1.6rem, 4vh, 3.2rem) + env(safe-area-inset-bottom, 0px));
   left: 50%;
   transform: translateX(-50%);
   z-index: 10;
@@ -896,6 +905,24 @@ html.mr-intro-seen .mr2-loader {
   right: clamp(20px, 5vw, 72px);
   bottom: clamp(1.8rem, 5vh, 3.4rem);
   z-index: 4;
+}
+
+/* On mobile the right-corner CTA collided with the centered title text
+   below it (and with the fixed corner cat, which also lives bottom-right).
+   Raise the counter/title block clear of the bottom edge and center the
+   CTA there instead of pinning it to the corner. */
+@media (max-width: 640px) {
+  .mr2-works__meta {
+    bottom: 15vh;
+    row-gap: 0.6rem;
+  }
+
+  .mr2-works__all {
+    left: 50%;
+    right: auto;
+    bottom: clamp(1rem, 2.6vh, 1.6rem);
+    transform: translateX(-50%);
+  }
 }
 
 /* ── Contact — one quiet beat ──────────────────────────────────────── */
