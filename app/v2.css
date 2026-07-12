@@ -63,6 +63,17 @@ body.mr2-mode .site-logo__img--cacao { display: block; }
 body.mr2-mode.mr2-hero-stage .site-logo__img--cream { display: block; }
 body.mr2-mode.mr2-hero-stage .site-logo__img--cacao { display: none; }
 
+/* The menu overlay is always a light cream field, regardless of
+   hero-stage (that class only tracks scroll position, not menu state) —
+   force the cacao mark so the logo stays visible against it. Deliberately
+   MORE specific than the hero-stage rules above rather than relying on
+   source-order tie-breaking (proved unreliable for the nav-color rule
+   in globals.css, so not trusted here either). */
+body.mr2-mode.mr2-hero-stage .site-nav--menu-open .site-logo__img--cream { display: none; }
+body.mr2-mode.mr2-hero-stage .site-nav--menu-open .site-logo__img--cacao { display: block; }
+body.mr2-mode .site-nav--menu-open .site-logo__img--cream { display: none; }
+body.mr2-mode .site-nav--menu-open .site-logo__img--cacao { display: block; }
+
 /* ── Menu overlay — theme-aware colours ────────────────────────────
    The overlay background and text must follow --v2-bg / --v2-fg so
    they switch with the dark / light toggle. */

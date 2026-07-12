@@ -105,7 +105,7 @@ export default function Navigation({ showJournal = false }: { showJournal?: bool
 
   return (
     <>
-      <nav className={`site-nav ${scrolled ? 'scrolled' : ''} ${navHidden ? 'site-nav--hidden' : ''}`} aria-label="Primary navigation">
+      <nav className={`site-nav ${scrolled ? 'scrolled' : ''} ${navHidden ? 'site-nav--hidden' : ''} ${menuOpen ? 'site-nav--menu-open' : ''}`} aria-label="Primary navigation">
         <Link href="/" className="site-logo" onClick={() => setMenuOpen(false)}>
           {/* Text fallback — shown on non-v2 pages (e.g. /?v=1) */}
           <span className="site-logo__text">

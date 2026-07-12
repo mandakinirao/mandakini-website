@@ -1768,6 +1768,19 @@ body.mr2-mode.mr2-hero-stage .site-nav {
   color: var(--ink-cream);
 }
 
+/* The fullscreen menu overlay is always a light cream field, even while
+   mr2-hero-stage is still set (it doesn't change on menu open — only on
+   scroll position). Force cacao so the close icon stays visible against
+   it instead of vanishing into the cream. Deliberately MORE specific
+   (4 classes) than the hero-stage rule above (3 classes) rather than
+   relying on source-order tie-breaking, which proved unreliable here. */
+body.mr2-mode.mr2-hero-stage .site-nav.site-nav--menu-open {
+  color: var(--ink-cacao);
+}
+body.mr2-mode .site-nav.site-nav--menu-open {
+  color: var(--ink-cacao);
+}
+
 .site-nav--hidden {
   transform: translateY(-100%);
 }
