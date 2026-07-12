@@ -129,7 +129,34 @@ body.mr2-mode .menu-overlay__links a {
   background: #b8572a; /* terracotta — fixed, visible on both stages */
 }
 
-/* ── Keyboard focus — visible in both themes ───────────────────────── */
+/* ── Corner cat — persistent bottom-right mascot ───────────────────────
+   A small black cat fixed to the bottom-right on every site page. z-index
+   100 keeps it below the nav (120), fullscreen menu (110), loader (300),
+   cart chip (310) and cursor (9999) — the menu and loader cleanly cover it
+   and it never blocks chrome. pointer-events:none so it never eats clicks. */
+
+.mr2-cat {
+  position: fixed;
+  right: clamp(0.7rem, 2vw, 1.5rem);
+  bottom: clamp(0.7rem, 2vw, 1.5rem);
+  width: clamp(104px, 12vw, 160px);
+  aspect-ratio: 7 / 5; /* matches the 280×200 animation frame */
+  z-index: 100;
+  pointer-events: none;
+  opacity: 1;
+  transition: opacity 0.45s ease, visibility 0.45s ease;
+}
+
+/* Hide over the dark homepage hero (a black cat vanishes there). The
+   body.mr2-hero-stage class is toggled by Navigation.tsx while the dark
+   ink-reveal hero is the visible surface; the cat fades in once scrolled
+   onto the cream content. On every other page the class is absent → shown. */
+body.mr2-hero-stage .mr2-cat {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Keyboard focus — visible in both themes ─────────────────────────── */
 
 body.mr2-mode a:focus-visible,
 body.mr2-mode button:focus-visible {

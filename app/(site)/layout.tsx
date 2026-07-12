@@ -3,6 +3,7 @@ import Script from 'next/script'
 import Navigation from '@/components/layout/Navigation'
 import ThemeV2 from '@/components/layout/ThemeV2'
 import FooterV2 from '@/components/home/v2/FooterV2'
+import CatMascot from '@/components/ui/CatMascot'
 import CartDrawer from '@/components/shop/CartDrawer'
 import { CartProvider } from '@/lib/cart'
 import { commerceEnabled } from '@/lib/commerce'
@@ -18,6 +19,7 @@ export default async function SiteLayout({ children }: { children: React.ReactNo
       <Navigation showJournal={showJournal} />
       <main id="main-content">{children}</main>
       <FooterV2 showJournal={showJournal} />
+      <CatMascot />
     </>
   )
 
