@@ -174,6 +174,31 @@ export function revealLines(
 }
 
 /**
+ * revealFade — plain opacity/translate reveal, no line-splitting.
+ * Use for long-form body copy (multiple wrapped lines of running text):
+ * SplitText's line masking mis-groups words on paragraphs this long,
+ * producing broken mid-sentence wraps. Headings/short lines should use
+ * revealLines instead.
+ */
+export function revealFade(el: Element | null, opts: RevealOptions = {}): void {
+  if (!el) return
+  gsap.fromTo(
+    el,
+    { opacity: 0, y: prefersReducedMotion() ? 0 : 16 },
+    {
+      opacity: 1,
+      y: 0,
+      duration: DUR.fast,
+      ease: EASE_SOFT_OUT,
+      delay: opts.delay ?? 0,
+      scrollTrigger: opts.scrollTrigger
+        ? { trigger: el, start: opts.start ?? 'top 85%', once: true }
+        : undefined,
+    }
+  )
+}
+
+/**
  * revealImage — the painting is uncovered, never slid in.
  * `el` is the rounded mask container; the inner image carries
  * [data-reveal-img] and rests at scale 1.12 (parallax travel room).

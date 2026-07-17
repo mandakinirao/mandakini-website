@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import { useEffect, useRef } from 'react'
 import type { JournalPost } from '@/lib/journal'
-import { mandaGsap, revealImage, revealLines } from '@/lib/motion'
+import { mandaGsap, revealFade, revealImage, revealLines } from '@/lib/motion'
 import JournalSection from './JournalSection'
 
 interface JournalArticleProps {
@@ -33,7 +33,7 @@ export default function JournalArticle({ post, prev, next }: JournalArticleProps
       if (cover) revealImage(cover, { delay: 0.2 })
 
       root.querySelectorAll<HTMLElement>('[data-journal-section]').forEach((section) => {
-        revealLines(section.querySelector('.mr-journal__text'), { scrollTrigger: true })
+        revealFade(section.querySelector('.mr-journal__text'), { scrollTrigger: true })
         section.querySelectorAll<HTMLElement>('[data-reveal-img]').forEach((img, j) => {
           const mask = img.closest<HTMLElement>('.mr-mask')
           revealImage(mask, { scrollTrigger: true, delay: j * 0.1 })
