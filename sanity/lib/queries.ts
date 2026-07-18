@@ -143,6 +143,9 @@ export const shopItemsBySlugsQuery = groq`
     title,
     "slug": slug.current,
     "basePrice": coalesce(basePrice, price),
+    "availabilityStatus": coalesce(availabilityStatus, "available"),
+    editionSize,
+    sold,
     stock,
     stripePriceId
   }
