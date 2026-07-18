@@ -32,7 +32,7 @@ export default async function ProductPage({ params }: Params) {
   const others = all.filter((p) => p.slug !== print.slug)
   return (
     <>
-      <PageWash className="pdp-moss page-wash-light" />
+      <PageWash className="pdp-moss page-wash-dark" />
       <ProductDetail
         print={print}
         others={others}

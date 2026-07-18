@@ -1,15 +1,16 @@
 /* ─── Per-page background washes ─────────────────────────────────────
-   Soft, low-saturation tints drawn from the locked palette.
-   Ink tokens are flipped to cacao because every tinted surface reads
-   as a light field. Logo is always the cacao version.
+   Solid colors from the client's page-palette sheet (2026-07-18):
+   shop = moss green, press = lagoon (same as the homepage press
+   marquee), journal = deep sea, contact = sand, works/projects =
+   terracotta. Ink flips cacao/cream per page depending on which reads
+   legibly against that page's color.
    ───────────────────────────────────────────────────────────────────── */
 
-/* ── Shared nav / logo fix for all light-field pages ──────────────── */
+/* ── Shared nav / logo / ink fix for light-field pages (dark ink) ──── */
 body.page-wash-light .site-nav { color: var(--ink-cacao); }
 body.page-wash-light .site-logo__img--cream { display: none; }
 body.page-wash-light .site-logo__img--cacao { display: block; }
 
-/* ── Shared ink token override for all light-field pages ──────────── */
 body.page-wash-light {
   --ink-current: var(--ink-cacao);
   --ink-muted-current: rgba(61, 31, 13, 0.52);
@@ -17,67 +18,65 @@ body.page-wash-light {
   --v2-fg: var(--ink-cacao);
 }
 
+/* ── Shared nav / logo / ink fix for dark-field pages (cream ink) ──── */
+body.page-wash-dark .site-nav { color: var(--ink-cream); }
+body.page-wash-dark .site-logo__img--cream { display: block; }
+body.page-wash-dark .site-logo__img--cacao { display: none; }
 
-/* ══════════════════════════════════════════════════════════════════════
-   WORKS LISTING  (/works)  — soft amber (lighter than the project detail
-   page's 20%, so the two stay in the same family but read as distinct)
-   ══════════════════════════════════════════════════════════════════════ */
-
-body.works-amber {
-  background: color-mix(in srgb, var(--accent-amber) 12%, var(--bg-cream) 88%);
-  --scroll-bg: color-mix(in srgb, var(--accent-amber) 12%, var(--bg-cream) 88%);
+body.page-wash-dark {
+  --ink-current: var(--ink-cream);
+  --ink-muted-current: rgba(245, 239, 228, 0.6);
+  --rule-current: rgba(245, 239, 228, 0.16);
+  --v2-fg: var(--ink-cream);
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   INDIVIDUAL PROJECT  (/works/[slug])  — soft amber
+   WORKS / PROJECTS  (/works and /works/[slug])  — terracotta
    ══════════════════════════════════════════════════════════════════════ */
 
-body.series-amber {
-  background: color-mix(in srgb, var(--accent-amber) 20%, var(--bg-cream) 80%);
-  --scroll-bg: color-mix(in srgb, var(--accent-amber) 20%, var(--bg-cream) 80%);
+body.works-terracotta,
+body.series-terracotta {
+  background: var(--page-terracotta);
+  --scroll-bg: var(--page-terracotta);
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   SHOP  (/shop and /shop/[slug])  — soft moss
+   SHOP  (/shop and /shop/[slug])  — moss green
    ══════════════════════════════════════════════════════════════════════ */
 
 body.pdp-moss {
-  background: color-mix(in srgb, var(--accent-moss) 22%, var(--bg-cream) 78%);
-  --scroll-bg: color-mix(in srgb, var(--accent-moss) 22%, var(--bg-cream) 78%);
+  background: var(--page-moss);
+  --scroll-bg: var(--page-moss);
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   CONTACT  (/contact)  — soft lagoon (cool, calm — distinct from the
-   warm amber/moss/rosehip family used elsewhere)
+   CONTACT  (/contact)  — sand
    ══════════════════════════════════════════════════════════════════════ */
 
-body.contact-lagoon {
-  background: color-mix(in srgb, var(--accent-lagoon) 8%, var(--bg-cream) 92%);
-  --scroll-bg: color-mix(in srgb, var(--accent-lagoon) 8%, var(--bg-cream) 92%);
+body.contact-sand {
+  background: var(--page-sand);
+  --scroll-bg: var(--page-sand);
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   PRESS  (/press)  — soft skyline (cool, editorial; skyline is a locked
-   client palette token, kept low so it never reads as "blue")
+   PRESS  (/press)  — lagoon, same token as the homepage press marquee
    ══════════════════════════════════════════════════════════════════════ */
 
-body.press-skyline {
-  background: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
-  --scroll-bg: color-mix(in srgb, var(--accent-skyline) 14%, var(--bg-cream) 86%);
+body.press-lagoon {
+  background: var(--accent-lagoon);
+  --scroll-bg: var(--accent-lagoon);
 }
 
 
 /* ══════════════════════════════════════════════════════════════════════
-   JOURNAL  (/journal)  — soft toffee (warm, paper/notebook feel; kept
-   low since it's a text-forward reading surface — distinct from every
-   other page wash's hue: amber/moss/skyline/rosehip/lagoon).
+   JOURNAL  (/journal)  — deep sea
    ══════════════════════════════════════════════════════════════════════ */
 
-body.journal-toffee {
-  background: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
-  --scroll-bg: color-mix(in srgb, var(--accent-toffee) 10%, var(--bg-cream) 90%);
+body.journal-deepsea {
+  background: var(--page-deepsea);
+  --scroll-bg: var(--page-deepsea);
 }

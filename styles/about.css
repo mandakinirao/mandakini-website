@@ -1,17 +1,17 @@
 /* ─── About Page ─────────────────────────────────────────────────── */
 
-/* Nav fix: light/rosehip backgrounds need dark navigation.
-   AboutFull adds body.about-page + body.about-rosehip via useEffect. */
+/* Nav fix: sunshine background needs dark navigation.
+   AboutFull adds body.about-page + body.about-sunshine via useEffect. */
 body.about-page .site-nav {
   color: var(--ink-cacao);
 }
 body.about-page .site-logo__img--cream { display: none; }
 body.about-page .site-logo__img--cacao { display: block; }
 
-/* Rosehip body override: re-roots --ink-current to cacao so every V2
+/* Sunshine body override: re-roots --ink-current to cacao so every V2
    component (nav links, PillCta, menu overlay) inherits dark ink. */
-body.about-rosehip {
-  background: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
+body.about-sunshine {
+  background: var(--page-sunshine);
   --ink-current: var(--ink-cacao);
   --ink-muted-current: rgba(61, 31, 13, 0.52);
   --rule-current: rgba(61, 31, 13, 0.1);
@@ -21,14 +21,13 @@ body.about-rosehip {
 
 /* ═══════════════════════════════════════════════════════════════════
    SECTION 3 — AboutFull
-   Full-bleed rosehip field with portrait + editorial bio.
+   Full-bleed sunshine field with portrait + editorial bio.
    No floating box. Colour fills edge-to-edge, top to bottom.
    ═══════════════════════════════════════════════════════════════════ */
 
 .mr-about-full {
   min-height: 100svh;
-  /* Rosehip softened with cream — warm blush, not glaring amber */
-  background: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
+  background: var(--page-sunshine);
 
   display: grid;
   grid-template-columns: 0.9fr 1.1fr;
@@ -94,7 +93,7 @@ body.about-rosehip {
   max-width: 44ch;
 }
 
-/* PillCta on rosehip — use inherited --ink-current (already dark cacao) */
+/* PillCta on sunshine — use inherited --ink-current (already dark cacao) */
 .mr-about-full .mr2-cta {
   border-color: var(--ink-cacao);
   color: var(--ink-cacao);
@@ -102,7 +101,7 @@ body.about-rosehip {
 .mr-about-full .mr2-cta:hover:not(:disabled) {
   background-color: var(--ink-cacao);
   border-color: var(--ink-cacao);
-  color: color-mix(in srgb, var(--accent-rosehip) 12%, var(--bg-cream) 88%);
+  color: var(--page-sunshine);
 }
 
 /* Mobile: portrait centred above text */

@@ -69,6 +69,12 @@
   --accent-skyline: #99BFDF;
   --accent-tangerine: #E99E26;
   --accent-salsa: #DB3100;
+  /* ── Per-page background palette (2026-07-18 client swatch sheet) ── */
+  --page-sand: #E4CBA9;
+  --page-moss: #4B5B34;
+  --page-deepsea: #092F33;
+  --page-sunshine: #EA8913;
+  --page-terracotta: #AF5031;
   /* ── Fixed surface tokens ── */
   --ink-cream: #F5EFE4;           /* fixed cream type on night surfaces */
   --bg-void: #060606;             /* loader field — never theme-switched */
@@ -1033,9 +1039,10 @@ body:not(.mr2-mode) .mrx-cursor {
 }
 
 .mr-pdp__price {
-  color: var(--accent-rosehip);
+  color: var(--accent-tangerine);
   font-family: var(--font-label);
   font-size: clamp(14px, 1.3vw, 18px);
+  font-weight: 600;
   letter-spacing: 0.16em;
   text-transform: uppercase;
 }

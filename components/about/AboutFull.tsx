@@ -17,10 +17,10 @@ export default function AboutFull({ portrait, bio }: AboutFullProps) {
   const rootRef = useRef<HTMLElement>(null)
   const maskRef = useRef<HTMLDivElement>(null)
 
-  // Rosehip field: add body classes so the nav + logo switch to dark ink.
+  // Sunshine field: add body classes so the nav + logo switch to dark ink.
   useEffect(() => {
-    document.body.classList.add('about-page', 'about-rosehip')
-    return () => document.body.classList.remove('about-page', 'about-rosehip')
+    document.body.classList.add('about-page', 'about-sunshine')
+    return () => document.body.classList.remove('about-page', 'about-sunshine')
   }, [])
 
   useEffect(() => {

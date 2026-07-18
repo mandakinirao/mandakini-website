@@ -33,7 +33,7 @@ export default async function SeriesPage({ params }: Params) {
 
   return (
     <>
-      <PageWash className="series-amber page-wash-light" />
+      <PageWash className="series-terracotta page-wash-dark" />
       <SeriesDetail series={series} prev={prev} next={next} />
     </>
   )

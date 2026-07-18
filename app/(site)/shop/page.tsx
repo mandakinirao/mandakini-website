@@ -21,7 +21,7 @@ export default async function ShopPage() {
   ])
   return (
     <>
-      <PageWash className="pdp-moss page-wash-light" />
+      <PageWash className="pdp-moss page-wash-dark" />
       <ShopIndex
         prints={prints}
         commerceEnabled={commerceEnabled()}

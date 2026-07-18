@@ -16,7 +16,7 @@ export default async function ContactPage() {
 
   return (
     <>
-    <PageWash className="contact-lagoon page-wash-light" />
+    <PageWash className="contact-sand page-wash-light" />
     <section className="mr2-contact-page mr2-page-shell">
       <div className="mr2-contact__layout">
         <div className="mr2-contact__intro">

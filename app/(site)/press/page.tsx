@@ -28,7 +28,7 @@ export default async function PressRoute() {
   }
   return (
     <>
-      <PageWash className="press-skyline page-wash-light" />
+      <PageWash className="press-lagoon page-wash-dark" />
       <PressPage items={items} />
     </>
   )
