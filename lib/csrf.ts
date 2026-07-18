@@ -12,7 +12,15 @@ import type { NextRequest } from 'next/server'
 function allowedOrigins(): string[] {
   const site = process.env.NEXT_PUBLIC_SITE_URL
   const origins = ['http://localhost:3000', 'http://localhost:3001']
-  if (site) origins.push(site.replace(/\/$/, ''))
+  if (site) {
+    // Comma-separated so a Vercel preview/alias domain can be allowed
+    // alongside the primary custom domain without another env var.
+    site
+      .split(',')
+      .map((s) => s.trim().replace(/\/$/, ''))
+      .filter(Boolean)
+      .forEach((o) => origins.push(o))
+  }
   return origins
 }
 
