@@ -34,7 +34,10 @@ export async function POST(req: NextRequest) {
     )
   }
 
-  let body: { items?: { slug?: unknown; qty?: unknown }[] }
+  let body: {
+    items?: { slug?: unknown; qty?: unknown }[]
+    customer?: { name?: unknown; email?: unknown; phone?: unknown; address?: unknown }
+  }
   try {
     body = await req.json()
   } catch {
@@ -50,6 +53,19 @@ export async function POST(req: NextRequest) {
 
   if (!requested.length || requested.length > 20) {
     return NextResponse.json({ error: 'Your cart looks empty.' }, { status: 400 })
+  }
+
+  const name = String(body.customer?.name ?? '').trim().slice(0, 120)
+  const email = String(body.customer?.email ?? '').trim().slice(0, 120)
+  const phone = String(body.customer?.phone ?? '').trim().slice(0, 40)
+  const address = String(body.customer?.address ?? '').trim().slice(0, 240)
+  const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+
+  if (!name || !EMAIL_RE.test(email) || !phone || !address) {
+    return NextResponse.json(
+      { error: 'Please fill in your name, email, phone, and shipping address.' },
+      { status: 400 }
+    )
   }
 
   const items = await getPurchasableItems(requested.map((i) => i.slug))
@@ -73,7 +89,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const order = await createRazorpayOrder(lines)
+    const order = await createRazorpayOrder(lines, { name, email, phone, address })
     if (!order) {
       return NextResponse.json(
         { error: 'Checkout is unavailable right now.' },
