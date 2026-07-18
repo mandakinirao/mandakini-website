@@ -1,5 +1,29 @@
 # Progress Log
 
+## Commerce Phase B fixes (stock, enquiry email) + Razorpay integration diagnosis (2026-07-18, ii)
+- **Date:** 2026-07-18
+- **Branch:** `commerce/order-schema-studio` (same branch as the schema/Studio work) — not merged, not pushed.
+- User clarified the three fixes flagged in the earlier report were approved as part of Phase B, not deferred work — implemented them on the same branch before doing anything else.
+
+### FIX 1 — shared stock resolution
+`lib/home-data.ts`: new `resolveStock(stock, available)` helper (`stock != null ? stock : available ? 999 : 0`), now used by both `mapShopDoc` (display) and `getPurchasableItems` (checkout validation) — previously they defaulted `null` stock differently (999 vs 0), which is exactly why Buy Now 409'd on every real product. `getPurchasableItems` now calls the same `printAvailable()` check the display path already used, which required adding `availabilityStatus`/`editionSize`/`sold` to `shopItemsBySlugsQuery` (`sanity/lib/queries.ts`) — it only selected `stock` before.
+
+### FIX 2 & 3 — enquiry route email correctness
+`app/api/enquiry/route.ts`: `from`/`to` now read `EMAIL_FROM`/`MANDAKINI_ORDER_EMAIL` with no fallback — missing either now returns a real `500` instead of silently defaulting to the unverified `mandakinirao@gmail.com` (which Resend rejected with 403). Notification email's `replyTo` is the visitor's address (so Mandakini can hit reply); confirmation email's `replyTo` is `MANDAKINI_ORDER_EMAIL` (so a reply from the visitor doesn't go to the throwaway sending address). Every `resend.emails.send()` call's resolved `.error` is now checked and logged — the Resend SDK resolves rather than throws on API-level failures, which is why the old `Promise.allSettled`-rejection-only check never caught anything. A real failure now returns `{ok:false, error}` (502), which `ContactForm.tsx` already knew how to render.
+
+### Verification (live, not just types)
+- `POST /api/checkout` for a real shopItem (`dhyanam`, real stock=null) — now `200` with a genuine Razorpay order (`order_TErYh020WBPLjc`), was `409`. Clicked Buy Now in the browser — Razorpay's checkout.js initialized and opened (confirmed via its risk-detection sub-resource request firing); didn't complete a real payment.
+- `POST /api/enquiry` — `200 {ok:true}`. Independently confirmed actual deliverability by hitting Resend's own API directly with the new code's exact `from`/`to` (`onboarding@resend.dev` → `mandakinirao@gmail.com`) — got a real message ID back, not the earlier 403.
+- `npx tsc --noEmit` and `npm run build` both clean.
+
+### Diagnosis-only report — existing Razorpay integration (no code changed for this part)
+Requested before writing any new checkout/webhook code:
+1. **Checkout flow** (`app/api/checkout/route.ts` + `lib/razorpay.ts` + `lib/razorpay-checkout.ts`): a real end-to-end handoff to Razorpay does exist — server creates a genuine Razorpay order (amount server-validated, cart contents survive only inside `order.notes.items` as JSON), client opens Razorpay's hosted modal with no `prefill`, success handler just redirects to `/thank-you`. Correct pattern (client never writes to Sanity) — the gap is entirely on the webhook side.
+2. **Webhook** (`app/api/razorpay/webhook/route.ts`): path `/api/razorpay/webhook`, handles only `payment.captured`, verifies `x-razorpay-signature` via HMAC-SHA256 against `RAZORPAY_WEBHOOK_SECRET` — **which isn't set in `.env.local`**, so the route would currently 503 on any real delivery, separate from the schema issue. Field-by-field: it writes `orderId`/`stripeSessionId`/`shippingAddress` (as an object)/`items[].shopItemRef`+`price`/`totalAmount`/`paymentStatus`+`fulfillmentStatus`/`orderDate` — **none of these field names exist in the current schema** (Stripe-era leftover, predates the Razorpay rebuild noted in the 2026-06-23 schema audit entry above). Never writes `orderNumber`, `razorpayOrderId` (despite having the value), `customerPhone` (despite reading it), or `items[].title`. A real webhook delivery today would produce a document Studio's new grouped view couldn't sort or preview correctly.
+3. **Customer detail collection:** there is no checkout page and no address form anywhere in the codebase. Whatever email/phone Razorpay's own modal happens to collect goes into `payment.email`/`payment.contact` — the webhook saves email correctly but hardcodes `customerName: ''` and drops `contact` on the floor. **No shipping address is collected by anything, anywhere** — the webhook's `shippingAddress` object is empty scaffolding (`country: 'India'` hardcoded, everything else blank). This is the real blocker under the schema mismatches: even fixing every field name, there's currently no address in the system for Mandakini to ship to.
+
+**Not fixed — explicitly diagnosis-only per this task's instructions.** Needs a follow-up task to (a) add an address-collection step somewhere in the flow, (b) rewrite the webhook to the current schema's field names, (c) set `RAZORPAY_WEBHOOK_SECRET`.
+
 ## Commerce diagnosis (Buy Now / Add to Cart / Send Message) + Order schema & Studio grouping (2026-07-18)
 - **Date:** 2026-07-18
 - **Branch:** `commerce/order-schema-studio` — not merged, not pushed. Localhost-reviewed only.
