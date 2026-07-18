@@ -115,6 +115,22 @@ body.mr2-mode .menu-overlay__links a {
   body.mr2-mode * {
     cursor: none !important;
   }
+
+  /* Cart drawer / address modal: restore the native pointer and hide the
+     custom cursor so it can't render as a stray dot over the panel UI. */
+  body.mr2-mode.mr-modal-open,
+  body.mr2-mode.mr-modal-open * {
+    cursor: auto !important;
+  }
+}
+
+/* GSAP's autoAlpha sets opacity/visibility via inline style (higher
+   priority than any class selector), so this needs !important to win —
+   same technique as the cursor:none rule above. */
+body.mr-modal-open .mr2-cursor__ring,
+body.mr-modal-open .mr2-cursor__dot {
+  opacity: 0 !important;
+  visibility: hidden !important;
 }
 
 .mr2-cursor__ring,

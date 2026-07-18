@@ -4,7 +4,7 @@ import { useState } from 'react'
 import type { HomePrint } from '@/lib/home-data'
 import { useCart } from '@/lib/cart'
 import PillCta from '@/components/ui/PillCta'
-import { openRazorpayCheckout } from '@/lib/razorpay-checkout'
+import CheckoutAddressModal from '@/components/shop/CheckoutAddressModal'
 
 interface BuyControlsProps {
   print: HomePrint
@@ -13,8 +13,7 @@ interface BuyControlsProps {
 
 export default function BuyControls({ print, variant = 'compact' }: BuyControlsProps) {
   const { add } = useCart()
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const [addrOpen, setAddrOpen] = useState(false)
 
   if (!print.available || print.stock === 0) {
     return (
@@ -26,36 +25,6 @@ export default function BuyControls({ print, variant = 'compact' }: BuyControlsP
         </p>
       </div>
     )
-  }
-
-  const buyNow = async () => {
-    setBusy(true)
-    setError('')
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ items: [{ slug: print.slug, qty: 1 }] }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.orderId) {
-        setError(data.error ?? 'Checkout is unavailable right now.')
-        setBusy(false)
-        return
-      }
-      openRazorpayCheckout({
-        orderId: data.orderId,
-        amount: data.amount,
-        currency: data.currency,
-        keyId: data.keyId,
-        name: print.title,
-        onDismiss: () => setBusy(false),
-        onError: (msg) => { setError(msg); setBusy(false) },
-      })
-    } catch {
-      setError('Checkout is unavailable right now.')
-      setBusy(false)
-    }
   }
 
   return (
@@ -75,11 +44,15 @@ export default function BuyControls({ print, variant = 'compact' }: BuyControlsP
         >
           Add to Cart
         </PillCta>
-        <PillCta onClick={buyNow} disabled={busy}>
-          {busy ? 'One moment…' : 'Buy Now'}
-        </PillCta>
+        <PillCta onClick={() => setAddrOpen(true)}>Buy Now</PillCta>
       </div>
-      {error && <p className="mr-buy__error">{error}</p>}
+
+      <CheckoutAddressModal
+        open={addrOpen}
+        items={[{ slug: print.slug, qty: 1 }]}
+        label={print.title}
+        onClose={() => setAddrOpen(false)}
+      />
     </div>
   )
 }

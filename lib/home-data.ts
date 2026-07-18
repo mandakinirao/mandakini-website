@@ -250,6 +250,14 @@ function printAvailable(s: {
   return true
 }
 
+/** Shared by every reader of shopItem.stock (display + checkout
+ *  validation) so they can never disagree again: null stock means
+ *  "not tracked yet," not "zero." Untracked + available → treat as
+ *  plentiful; untracked + unavailable → zero. */
+function resolveStock(stock: number | null | undefined, available: boolean): number {
+  return stock != null ? stock : available ? 999 : 0
+}
+
 type UrlFor = (img: SanityImageType) => { width: (w: number) => { url: () => string } }
 
 const SHOP_IMAGE_FALLBACK = '/art/subbulakshmi/ms-sq-3.jpg'
@@ -292,8 +300,7 @@ function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
     desc: s.desc ?? '',
     available: printAvailable(s),
     amount: s.basePrice ?? 0,
-    // null stock = not tracked yet; treat as plentiful so buy buttons show
-    stock: s.stock != null ? s.stock : (printAvailable(s) ? 999 : 0),
+    stock: resolveStock(s.stock, printAvailable(s)),
   }
 }
 
@@ -323,7 +330,17 @@ export async function getPurchasableItems(
       import('@/sanity/lib/queries'),
     ])
     const docs = await client.fetch<
-      | { _id: string; title?: string; slug?: string; basePrice?: number; stock?: number; stripePriceId?: string }[]
+      | {
+          _id: string
+          title?: string
+          slug?: string
+          basePrice?: number
+          availabilityStatus?: string
+          editionSize?: number
+          sold?: number
+          stock?: number
+          stripePriceId?: string
+        }[]
       | null
     >(queries.shopItemsBySlugsQuery, { slugs })
     return (docs ?? [])
@@ -333,7 +350,7 @@ export async function getPurchasableItems(
         slug: d.slug as string,
         title: d.title ?? 'Untitled print',
         amount: d.basePrice as number,
-        stock: d.stock ?? 0,
+        stock: resolveStock(d.stock, printAvailable(d)),
         stripePriceId: d.stripePriceId || undefined,
       }))
   } catch {

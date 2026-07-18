@@ -5,6 +5,13 @@ export interface CheckoutLine {
   quantity: number
 }
 
+export interface CheckoutCustomer {
+  name: string
+  email: string
+  phone: string
+  address: string
+}
+
 export interface RazorpayOrderResult {
   orderId: string
   amount: number  // paise
@@ -12,8 +19,16 @@ export interface RazorpayOrderResult {
   keyId: string
 }
 
+/**
+ * Razorpay order notes: max 15 keys, each value capped near 256 chars —
+ * customer fields go in as separate keys (not one JSON blob) so a long
+ * address can't silently truncate a sibling field. Item pricing is
+ * intentionally NOT included here: the webhook re-fetches title/price
+ * from Sanity at capture time, so only id/slug/qty travel in notes.
+ */
 export async function createRazorpayOrder(
-  lines: CheckoutLine[]
+  lines: CheckoutLine[],
+  customer: CheckoutCustomer
 ): Promise<RazorpayOrderResult | null> {
   const keyId = process.env.RAZORPAY_KEY_ID
   const keySecret = process.env.RAZORPAY_KEY_SECRET
@@ -32,12 +47,15 @@ export async function createRazorpayOrder(
     currency: 'INR',
     receipt: `rcpt_${Date.now()}`,
     notes: {
+      customerName: customer.name.slice(0, 256),
+      customerEmail: customer.email.slice(0, 256),
+      customerPhone: customer.phone.slice(0, 256),
+      shippingAddress: customer.address.slice(0, 256),
       items: JSON.stringify(
         lines.map(({ item, quantity }) => ({
           id: item.id,
           slug: item.slug,
           qty: quantity,
-          amount: item.amount,
         }))
       ),
     },

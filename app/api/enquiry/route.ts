@@ -87,26 +87,45 @@ export async function POST(req: NextRequest) {
     console.warn('[enquiry] Sanity env missing — enquiry logged only:', payload)
   }
 
-  // 2 — Emails. Failure here never blocks the visitor's success state.
+  // 2 — Emails. The Sanity write above already succeeded, so a failure
+  // here is reported to the visitor but doesn't mean the enquiry was lost.
   if (process.env.RESEND_API_KEY) {
+    const from = process.env.EMAIL_FROM
+    const to = process.env.MANDAKINI_ORDER_EMAIL
+    if (!from || !to) {
+      console.error('[enquiry] EMAIL_FROM / MANDAKINI_ORDER_EMAIL not set — cannot send email')
+      return NextResponse.json(
+        { ok: false, error: 'Your message was saved, but email is misconfigured — please reach out directly in the meantime.' },
+        { status: 500 }
+      )
+    }
     try {
       const { Resend } = await import('resend')
       const resend = new Resend(process.env.RESEND_API_KEY)
-      const from = process.env.ENQUIRY_FROM_EMAIL ?? 'mandakinirao@gmail.com'
-      const to = process.env.ENQUIRY_NOTIFY_EMAIL ?? 'mandakinirao@gmail.com'
       const note = enquiryNotification(payload)
       const conf = enquiryConfirmation(payload)
-      await Promise.allSettled([
-        resend.emails.send({ from, to, subject: note.subject, html: note.html }),
-        resend.emails.send({ from, to: email, subject: conf.subject, html: conf.html }),
-      ]).then((results) =>
-        results.forEach((r) => {
-          if (r.status === 'rejected')
-            console.error('[enquiry] email send failed:', r.reason)
-        })
-      )
+      const [noteResult, confResult] = await Promise.all([
+        resend.emails.send({ from, to, replyTo: email, subject: note.subject, html: note.html }),
+        resend.emails.send({ from, to: email, replyTo: to, subject: conf.subject, html: conf.html }),
+      ])
+      if (noteResult.error) {
+        console.error('[enquiry] notification email failed:', noteResult.error)
+      }
+      if (confResult.error) {
+        console.error('[enquiry] confirmation email failed:', confResult.error)
+      }
+      if (noteResult.error || confResult.error) {
+        return NextResponse.json(
+          { ok: false, error: 'Your message was saved, but the notification email failed to send — Mandakini may not see it right away.' },
+          { status: 502 }
+        )
+      }
     } catch (err) {
-      console.error('[enquiry] Resend failed (write succeeded):', err)
+      console.error('[enquiry] Resend threw (write succeeded):', err)
+      return NextResponse.json(
+        { ok: false, error: 'Your message was saved, but the notification email failed to send.' },
+        { status: 502 }
+      )
     }
   } else {
     console.warn('[enquiry] RESEND_API_KEY missing — emails skipped')

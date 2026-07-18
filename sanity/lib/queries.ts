@@ -134,6 +134,10 @@ export const allShopItemsQuery = groq`
     }
 `
 
+// Order numbering — MR-<year>-<NNNN> is incremented from the total
+// order count. Used only by the Razorpay webhook.
+export const orderCountQuery = groq`count(*[_type == "order"])`
+
 // Checkout price validation — amounts always come from Sanity, never
 // from the client. Buyable items only.
 export const shopItemsBySlugsQuery = groq`
@@ -143,6 +147,9 @@ export const shopItemsBySlugsQuery = groq`
     title,
     "slug": slug.current,
     "basePrice": coalesce(basePrice, price),
+    "availabilityStatus": coalesce(availabilityStatus, "available"),
+    editionSize,
+    sold,
     stock,
     stripePriceId
   }

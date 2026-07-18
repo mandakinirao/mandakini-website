@@ -1,6 +1,6 @@
 import crypto from 'crypto'
 import { NextRequest, NextResponse } from 'next/server'
-import { orderConfirmation, orderNotification } from '@/emails/orderEmails'
+import { sendOrderConfirmation, sendOwnerNotification } from '@/lib/emails'
 
 function verifySignature(payload: string, signature: string, secret: string): boolean {
   const expected = crypto.createHmac('sha256', secret).update(payload).digest('hex')
@@ -11,10 +11,23 @@ function verifySignature(payload: string, signature: string, secret: string): bo
   }
 }
 
+interface NoteItem {
+  id: string
+  slug: string
+  qty: number
+}
+
 /**
  * Razorpay webhook — verifies the signature, and on payment.captured
  * creates the Sanity order, decrements stock, and sends confirmation
- * emails. Idempotent: order _id is derived from the Razorpay payment id.
+ * emails. Idempotent on razorpayOrderId (a captured payment can only
+ * ever belong to one order).
+ *
+ * Customer/address fields travel in the Razorpay ORDER's notes (set at
+ * order-creation time in lib/razorpay.ts). Razorpay does not copy order
+ * notes onto the payment entity delivered in this webhook, so they are
+ * read by fetching the order directly rather than trusting
+ * `payment.notes`.
  */
 export async function POST(req: NextRequest) {
   const secret = process.env.RAZORPAY_WEBHOOK_SECRET
@@ -47,10 +60,10 @@ export async function POST(req: NextRequest) {
   if (!payment) return NextResponse.json({ received: true })
 
   const paymentId = payment.id as string
-  const orderId = payment.order_id as string
+  const razorpayOrderId = payment.order_id as string
   const amountPaise = payment.amount as number
-  const email = payment.email as string | undefined
-  const contact = payment.contact as string | undefined
+  const paymentEmail = payment.email as string | undefined
+  const paymentContact = payment.contact as string | undefined
 
   if (
     !process.env.NEXT_PUBLIC_SANITY_PROJECT_ID ||
@@ -60,16 +73,39 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: 'Storage not configured.' }, { status: 503 })
   }
 
-  let items: { id: string; slug: string; qty: number; amount: number }[] = []
+  // Order notes carry the customer/address fields set at order-creation
+  // time — fetch the order itself, not payment.notes (see doc comment).
+  let notes: Record<string, string> = {}
+  const keyId = process.env.RAZORPAY_KEY_ID
+  const keySecret = process.env.RAZORPAY_KEY_SECRET
+  if (keyId && keySecret) {
+    try {
+      const Razorpay = (await import('razorpay')).default
+      const rzpClient = new Razorpay({ key_id: keyId, key_secret: keySecret })
+      const order = await rzpClient.orders.fetch(razorpayOrderId)
+      notes = (order.notes as Record<string, string>) ?? {}
+    } catch (err) {
+      console.error('[rzp-webhook] order fetch failed for', razorpayOrderId, err)
+    }
+  }
+
+  const customerName = notes.customerName ?? ''
+  const customerEmail = notes.customerEmail || paymentEmail || ''
+  const customerPhone = notes.customerPhone || paymentContact || ''
+  const shippingAddress = notes.shippingAddress ?? ''
+
+  let noteItems: NoteItem[] = []
   try {
-    const notes = payment.notes as Record<string, string> | undefined
-    items = JSON.parse(notes?.items ?? '[]')
+    noteItems = JSON.parse(notes.items ?? '[]')
   } catch {
-    console.error('[rzp-webhook] unreadable items notes for', paymentId)
+    console.error('[rzp-webhook] unreadable items notes for', razorpayOrderId)
   }
 
   try {
-    const { createClient } = await import('next-sanity')
+    const [{ createClient }, { orderCountQuery, shopItemsBySlugsQuery }] = await Promise.all([
+      import('next-sanity'),
+      import('@/sanity/lib/queries'),
+    ])
     const client = createClient({
       projectId: process.env.NEXT_PUBLIC_SANITY_PROJECT_ID,
       dataset: process.env.NEXT_PUBLIC_SANITY_DATASET ?? 'production',
@@ -78,74 +114,94 @@ export async function POST(req: NextRequest) {
       useCdn: false,
     })
 
-    const sanityId = `order.${paymentId.toLowerCase().replace(/[^a-z0-9._-]/g, '-')}`
+    const sanityId = `order.${razorpayOrderId.toLowerCase().replace(/[^a-z0-9._-]/g, '-')}`
     const existing = await client.fetch<string | null>(`*[_id == $id][0]._id`, { id: sanityId })
     if (existing) {
       return NextResponse.json({ received: true, duplicate: true })
     }
 
+    // Re-fetch title/price snapshots from Sanity — never trust client-
+    // supplied amounts, and notes.items intentionally carries no pricing.
+    const slugs = noteItems.map((i) => i.slug)
+    const shopDocs = slugs.length
+      ? await client.fetch<{ _id: string; title?: string; slug?: string; basePrice?: number }[]>(
+          shopItemsBySlugsQuery,
+          { slugs }
+        )
+      : []
+
+    const items = noteItems.map((i) => {
+      const doc = shopDocs.find((d) => d.slug === i.slug)
+      return {
+        _key: i.slug,
+        shopItem: doc ? { _type: 'reference' as const, _ref: doc._id } : undefined,
+        title: doc?.title ?? i.slug,
+        quantity: i.qty,
+        priceAtPurchase: doc?.basePrice ?? 0,
+        docId: doc?._id,
+      }
+    })
+
+    const orderCount = await client.fetch<number>(orderCountQuery)
+    const orderNumber = `MR-${new Date().getFullYear()}-${String(orderCount + 1).padStart(4, '0')}`
+    const createdAt = new Date().toISOString()
+    const amountTotal = amountPaise / 100
+
     await client.create({
       _id: sanityId,
       _type: 'order',
-      orderId: paymentId,
-      stripeSessionId: orderId, // reuse field for Razorpay order_id
-      customerName: '',
-      customerEmail: email ?? '',
-      shippingAddress: { line1: '', line2: '', city: '', state: '', pincode: '', country: 'India' },
-      items: items.map((i) => ({
-        _key: i.slug,
-        shopItemRef: i.id && i.id !== i.slug ? { _type: 'reference', _ref: i.id } : undefined,
-        quantity: i.qty,
-        price: i.amount,
+      orderNumber,
+      razorpayOrderId,
+      razorpayPaymentId: paymentId,
+      customerName,
+      customerEmail,
+      customerPhone,
+      shippingAddress,
+      items: items.map(({ _key, shopItem, title, quantity, priceAtPurchase }) => ({
+        _key,
+        shopItem,
+        title,
+        quantity,
+        priceAtPurchase,
       })),
-      totalAmount: amountPaise / 100,
-      paymentStatus: 'paid',
-      fulfillmentStatus: 'new',
-      orderDate: new Date().toISOString(),
+      amountTotal,
+      status: 'paid',
+      shippedEmailSent: false,
+      createdAt,
     })
 
     // Stock decrement + sold increment
     for (const i of items) {
-      if (!i.id || i.id === i.slug) continue
+      if (!i.docId) continue
       try {
         const updated = await client
-          .patch(i.id)
-          .dec({ stock: i.qty })
-          .inc({ sold: i.qty })
+          .patch(i.docId)
+          .dec({ stock: i.quantity })
+          .inc({ sold: i.quantity })
           .commit<{ stock?: number }>()
         if (typeof updated.stock === 'number' && updated.stock <= 0) {
-          await client.patch(i.id).set({ availabilityStatus: 'soldOut' }).commit()
+          await client.patch(i.docId).set({ availabilityStatus: 'soldOut' }).commit()
         }
       } catch (err) {
-        console.error('[rzp-webhook] stock update failed for', i.slug, err)
+        console.error('[rzp-webhook] stock update failed for', i.title, err)
       }
     }
 
-    if (process.env.RESEND_API_KEY && email) {
-      try {
-        const { Resend } = await import('resend')
-        const resend = new Resend(process.env.RESEND_API_KEY)
-        const from = process.env.ENQUIRY_FROM_EMAIL ?? 'mandakinirao@gmail.com'
-        const notify = process.env.ADMIN_EMAIL ?? process.env.ENQUIRY_NOTIFY_EMAIL ?? 'mandakinirao@gmail.com'
-        const emailPayload = {
-          orderRef: paymentId.slice(-8).toUpperCase(),
-          customerName: contact ?? '',
-          total: amountPaise / 100,
-          items,
-        }
-        const note = orderNotification(emailPayload)
-        const conf = orderConfirmation(emailPayload)
-        const results = await Promise.allSettled([
-          resend.emails.send({ from, to: notify, subject: note.subject, html: note.html }),
-          resend.emails.send({ from, to: email, subject: conf.subject, html: conf.html }),
-        ])
-        results.forEach((r) => {
-          if (r.status === 'rejected') console.error('[rzp-webhook] email failed:', r.reason)
-        })
-      } catch (err) {
-        console.error('[rzp-webhook] Resend failed (order recorded):', err)
-      }
+    const emailPayload = {
+      orderNumber,
+      customerName,
+      customerEmail,
+      shippingAddress,
+      items: items.map(({ title, quantity, priceAtPurchase }) => ({ title, quantity, priceAtPurchase })),
+      amountTotal,
     }
+
+    if (customerEmail) {
+      const confResult = await sendOrderConfirmation(emailPayload)
+      if (!confResult.ok) console.error('[rzp-webhook] confirmation email failed:', confResult.error)
+    }
+    const notifyResult = await sendOwnerNotification(emailPayload)
+    if (!notifyResult.ok) console.error('[rzp-webhook] owner notification failed:', notifyResult.error)
 
     return NextResponse.json({ received: true })
   } catch (err) {

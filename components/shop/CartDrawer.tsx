@@ -2,8 +2,8 @@
 
 import { useEffect, useState } from 'react'
 import PillCta from '@/components/ui/PillCta'
+import CheckoutAddressModal from '@/components/shop/CheckoutAddressModal'
 import { useCart } from '@/lib/cart'
-import { openRazorpayCheckout } from '@/lib/razorpay-checkout'
 import {
   EASE,
   lockScroll,
@@ -21,11 +21,23 @@ import {
 export default function CartDrawer() {
   const { items, subtotal, count, open, setOpen, setQty, remove, clear } =
     useCart()
-  const [busy, setBusy] = useState(false)
-  const [error, setError] = useState('')
+  const [addrOpen, setAddrOpen] = useState(false)
+  const [nearFooter, setNearFooter] = useState(false)
+
+  useEffect(() => {
+    const footer = document.querySelector('footer.mr2-footer')
+    if (!footer) return
+    const io = new IntersectionObserver(
+      ([entry]) => setNearFooter(entry.isIntersecting),
+      { rootMargin: '0px 0px -15% 0px' }
+    )
+    io.observe(footer)
+    return () => io.disconnect()
+  }, [])
 
   useEffect(() => {
     if (!open) return
+    document.body.classList.add('mr-modal-open')
     lockScroll()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape') setOpen(false)
@@ -45,54 +57,30 @@ export default function CartDrawer() {
     }
     return () => {
       window.removeEventListener('keydown', onKey)
+      document.body.classList.remove('mr-modal-open')
       unlockScroll()
     }
   }, [open, setOpen])
-
-  const checkout = async () => {
-    setBusy(true)
-    setError('')
-    try {
-      const res = await fetch('/api/checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          items: items.map((i) => ({ slug: i.slug, qty: i.qty })),
-        }),
-      })
-      const data = await res.json()
-      if (!res.ok || !data.orderId) {
-        setError(data.error ?? 'Checkout is unavailable right now.')
-        setBusy(false)
-        return
-      }
-      openRazorpayCheckout({
-        orderId: data.orderId,
-        amount: data.amount,
-        currency: data.currency,
-        keyId: data.keyId,
-        name: items.length === 1 ? items[0].title : `${items.length} prints`,
-        onDismiss: () => setBusy(false),
-        onError: (msg) => { setError(msg); setBusy(false) },
-      })
-    } catch {
-      setError('Checkout is unavailable right now.')
-      setBusy(false)
-    }
-  }
 
   return (
     <>
       {count > 0 && !open && (
         <button
           type="button"
-          className="mr-cart__chip"
+          className={`mr-cart__chip${nearFooter ? ' mr-cart__chip--hidden' : ''}`}
           onClick={() => setOpen(true)}
           aria-label={`Open cart, ${count} item${count === 1 ? '' : 's'}`}
         >
           Cart · {count}
         </button>
       )}
+
+      <CheckoutAddressModal
+        open={addrOpen}
+        items={items.map((i) => ({ slug: i.slug, qty: i.qty }))}
+        label={items.length === 1 ? items[0]?.title ?? 'Print' : `${items.length} prints`}
+        onClose={() => setAddrOpen(false)}
+      />
 
       {open && (
         <div
@@ -135,23 +123,25 @@ export default function CartDrawer() {
                         <p className="mr-cart__amount">
                           ₹{item.amount.toLocaleString('en-IN')}
                         </p>
-                        <div className="mr-cart__qty">
-                          <button
-                            type="button"
-                            onClick={() => setQty(item.slug, item.qty - 1)}
-                            aria-label={`Reduce quantity of ${item.title}`}
-                          >
-                            −
-                          </button>
-                          <span aria-live="polite">{item.qty}</span>
-                          <button
-                            type="button"
-                            onClick={() => setQty(item.slug, item.qty + 1)}
-                            disabled={item.qty >= item.stock}
-                            aria-label={`Increase quantity of ${item.title}`}
-                          >
-                            +
-                          </button>
+                        <div className="mr-cart__qty-row">
+                          <div className="mr-cart__qty">
+                            <button
+                              type="button"
+                              onClick={() => setQty(item.slug, item.qty - 1)}
+                              aria-label={`Reduce quantity of ${item.title}`}
+                            >
+                              −
+                            </button>
+                            <span aria-live="polite">{item.qty}</span>
+                            <button
+                              type="button"
+                              onClick={() => setQty(item.slug, item.qty + 1)}
+                              disabled={item.qty >= item.stock}
+                              aria-label={`Increase quantity of ${item.title}`}
+                            >
+                              +
+                            </button>
+                          </div>
                           <button
                             type="button"
                             className="mr-cart__remove"
@@ -170,13 +160,14 @@ export default function CartDrawer() {
                     <span>Subtotal</span>
                     <span>₹{subtotal.toLocaleString('en-IN')}</span>
                   </p>
-                  {error && <p className="mr-cart__error">{error}</p>}
                   <PillCta
                     className="mr-cart__checkout"
-                    onClick={checkout}
-                    disabled={busy}
+                    onClick={() => {
+                      setOpen(false)
+                      setAddrOpen(true)
+                    }}
                   >
-                    {busy ? 'One moment…' : 'Checkout'}
+                    Checkout
                   </PillCta>
                   <button
                     type="button"
