@@ -35,7 +35,10 @@ export const projectSchema = defineType({
       title: 'Description',
       type: 'text',
       rows: 5,
-      description: 'A short description shown on the Works listing and the individual series page.',
+      description:
+        'Shown on the Works listing next to the cover image and on the series page. Keep it brief — 1–2 sentences read best; longer text gets clipped on the Works listing.',
+      validation: (Rule) =>
+        Rule.max(220).warning('Long descriptions get visually clipped on the Works listing — keep it to 1–2 sentences.'),
     }),
     defineField({
       name: 'gallery',

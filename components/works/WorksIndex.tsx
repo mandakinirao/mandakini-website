@@ -11,9 +11,11 @@ import {
   isTouch,
   mandaGsap,
   prefersReducedMotion,
+  revealFade,
   revealImage,
   revealLines,
 } from '@/lib/motion'
+import '@/styles/works.css'
 
 const FEATURED_COUNT = 3 // Tier 1 — editorial rows
 
@@ -57,20 +59,19 @@ export default function WorksIndex({
       revealLines(root.querySelector('.mr-page__head h1'), { delay: 0.12 })
 
       // Tier 1 — the editorial rows keep their uncover language.
-      root.querySelectorAll<HTMLElement>('.mr-series').forEach((row) => {
-        revealLines(row.querySelector('.mr-series__name'), {
+      root.querySelectorAll<HTMLElement>('.mr-wfeat').forEach((row) => {
+        revealLines(row.querySelector('.mr-wfeat__name'), {
           scrollTrigger: true,
         })
-        revealLines(row.querySelector('.mr-series__meta'), {
+        revealFade(row.querySelector('.mr-wfeat__meta'), {
           scrollTrigger: true,
           delay: 0.12,
         })
-        row
-          .querySelectorAll<HTMLElement>('.mr-series__mask')
-          .forEach((mask, i) => {
-            revealImage(mask, { scrollTrigger: true, delay: i * 0.12 })
-            const img = mask.querySelector('img')
-            if (reduced || touch || !img) return
+        const mask = row.querySelector<HTMLElement>('.mr-wfeat__image')
+        if (mask) {
+          revealImage(mask, { scrollTrigger: true })
+          const img = mask.querySelector('img')
+          if (!reduced && !touch && img) {
             mask.addEventListener(
               'mouseenter',
               () =>
@@ -83,7 +84,8 @@ export default function WorksIndex({
                 mandaGsap.to(img, { scale: 1.12, duration: DUR.fast, ease: EASE }),
               { signal }
             )
-          })
+          }
+        }
       })
 
       // Tier 2 — rows fade in; a cover preview floats beside the cursor.
@@ -163,39 +165,33 @@ export default function WorksIndex({
         <h1>{headline}</h1>
       </header>
 
-      {/* Tier 1 — featured */}
+      {/* Tier 1 — featured. One cover image, alternating sides, with a
+          concise title/description/CTA block (IA §3 revision, July 2026). */}
       <div className="mr-projects__list">
         {tierOne.map((item, n) => (
           <Link
             key={item.slug}
             href={item.href}
-                       className={`mr-series${n % 2 ? ' mr-series--alt' : ''}`}
+            className={`mr-wfeat${n % 2 ? ' mr-wfeat--alt' : ''}`}
           >
-            <div className="mr-series__head">
-              <span className="mr-series__index">{item.index}</span>
-              <h2 className="mr-series__name">{item.name}</h2>
-              <p className="mr-series__meta">
+            <span className="mr-wfeat__image mr-mask">
+              <Image
+                src={item.images[0]}
+                alt={`${item.name} — cover`}
+                fill
+                sizes="(max-width: 800px) 92vw, 44vw"
+                data-reveal-img
+              />
+            </span>
+            <div className="mr-wfeat__head">
+              <span className="mr-wfeat__index">{item.index}</span>
+              <h2 className="mr-wfeat__name">{item.name}</h2>
+              <p className="mr-wfeat__meta">
                 {item.desc}
               </p>
-              <span className="mr-series__cta" aria-hidden="true">
+              <span className="mr-wfeat__cta" aria-hidden="true">
                 View series →
               </span>
-            </div>
-            <div className="mr-series__row">
-              {item.images.slice(0, 3).map((src, i) => (
-                <span
-                  key={src}
-                  className={`mr-series__mask mr-mask${i % 2 ? ' mr-mask--b' : ''}`}
-                >
-                  <Image
-                    src={src}
-                    alt={`${item.name} — image ${i + 1}`}
-                    fill
-                    sizes="(max-width: 900px) 44vw, 30vw"
-                    data-reveal-img
-                  />
-                </span>
-              ))}
             </div>
           </Link>
         ))}

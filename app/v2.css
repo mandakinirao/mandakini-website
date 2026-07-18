@@ -1297,15 +1297,13 @@ html.mr-intro-seen .mr2-loader {
 /* ── Phase 1 — accent moments (June 2026) ──────────────────────────────
    Accents appear as moments, never floods: numerals amber, eyebrows
    moss, link hover states + focus rings rosehip, pill hover fills
-   rosehip. Scoped to body.mr2-mode so the frozen /?v=1 reference keeps
-   its original colors. All pairings AA-verified — see PROJECT.md §6. */
+   rosehip. All pairings AA-verified — see PROJECT.md §6. */
 
 body.mr2-mode .mr-eyebrow {
   color: var(--accent-eyebrow);
 }
 
-body.mr2-mode .mr-windex__num,
-body.mr2-mode .mr-series__index {
+body.mr2-mode .mr-windex__num {
   color: var(--accent-index);
 }
 

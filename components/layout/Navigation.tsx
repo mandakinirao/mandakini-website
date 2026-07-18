@@ -27,24 +27,7 @@ export default function Navigation({ showJournal = false }: { showJournal?: bool
   }, [pathname])
 
   useEffect(() => {
-    if (!document.querySelector('.mr-hero')) {
-      setScrolled(true)
-      return
-    }
-
-    const trigger = ScrollTrigger.create({
-      trigger: '.mr-hero',
-      start: 'bottom 30%',
-      end: 'max',
-      onEnter: () => setScrolled(true),
-      onLeaveBack: () => setScrolled(false),
-    })
-
-    setScrolled(window.scrollY > window.innerHeight * 1.5)
-
-    return () => {
-      trigger.kill()
-    }
+    setScrolled(true)
   }, [pathname])
 
   // Homepage hero stage — while the ink-reveal hero is the visible surface,
@@ -107,7 +90,7 @@ export default function Navigation({ showJournal = false }: { showJournal?: bool
     <>
       <nav className={`site-nav ${scrolled ? 'scrolled' : ''} ${navHidden ? 'site-nav--hidden' : ''} ${menuOpen ? 'site-nav--menu-open' : ''}`} aria-label="Primary navigation">
         <Link href="/" className="site-logo" onClick={() => setMenuOpen(false)}>
-          {/* Text fallback — shown on non-v2 pages (e.g. /?v=1) */}
+          {/* Text fallback — shown on non-v2 pages (e.g. /studio) */}
           <span className="site-logo__text">
             <span>Mandakini</span>
             <span>Rao</span>

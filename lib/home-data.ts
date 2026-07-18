@@ -57,8 +57,6 @@ export interface HomeSeries {
 export interface HomeTestimonial {
   _id?: string
   quote: string
-  /** Kept for the V1 (?v=1) PressStrip component — always equal to personName. */
-  author: string
   personName: string
   /** Resolved URL; empty = no photo for this testimonial. */
   personImage: string
@@ -168,19 +166,16 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
 const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
   {
     quote: 'Mandakini sees warmth where the rest of us see walls.',
-    author: 'Priya N. — collector, Hyderabad',
     personName: 'Priya N. — collector, Hyderabad',
     personImage: '',
   },
   {
     quote: 'A painter’s eye behind every photograph.',
-    author: 'Editor — Paint & Process',
     personName: 'Editor — Paint & Process',
     personImage: '',
   },
   {
     quote: 'The studio feels like a place where pictures are grown, not made.',
-    author: 'Workshop guest, 2025',
     personName: 'Workshop guest, 2025',
     personImage: '',
   },
@@ -504,7 +499,6 @@ export async function getHomeData(): Promise<HomeData> {
     ? rawTestimonials.map((t) => ({
         _id: t._id,
         quote: t.quote,
-        author: t.personName,
         personName: t.personName,
         personImage: t.personImage?.asset ? urlForImage(t.personImage).width(400).height(400).url() : '',
       }))
