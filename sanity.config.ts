@@ -14,6 +14,18 @@ const PINNED = [
   'enquiry',
 ]
 
+const orderGroup = (S: StructureBuilder, title: string, filter: string) =>
+  S.listItem()
+    .title(title)
+    .child(
+      S.documentList()
+        .title(title)
+        .schemaType('order')
+        .apiVersion('2024-01-01')
+        .filter(filter)
+        .defaultOrdering([{ field: 'createdAt', direction: 'desc' }])
+    )
+
 const structure = (S: StructureBuilder) =>
   S.list()
     .title('Content')
@@ -41,7 +53,23 @@ const structure = (S: StructureBuilder) =>
 
       // ── Commerce ────────────────────────────────────────────────────────
       S.documentTypeListItem('shopItem').title('Shop Items'),
-      S.documentTypeListItem('order').title('Orders'),
+      S.listItem()
+        .title('Orders')
+        .id('order')
+        .child(
+          S.list()
+            .title('Orders')
+            .items([
+              orderGroup(S, 'Paid', '_type == "order" && status == "paid"'),
+              orderGroup(S, 'Shipped', '_type == "order" && status == "shipped"'),
+              orderGroup(
+                S,
+                'Delivered & Cancelled',
+                '_type == "order" && status in ["delivered", "cancelled"]'
+              ),
+              orderGroup(S, 'All Orders', '_type == "order"'),
+            ])
+        ),
       S.documentTypeListItem('enquiry').title('Enquiries'),
       S.divider(),
 
