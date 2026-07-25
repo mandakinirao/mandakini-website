@@ -16,6 +16,9 @@ body.page-wash-light {
   --ink-muted-current: rgba(61, 31, 13, 0.52);
   --rule-current: rgba(61, 31, 13, 0.10);
   --v2-fg: var(--ink-cacao);
+  --v2-fg-dim: rgba(61, 31, 13, 0.6);
+  --v2-fg-faint: rgba(61, 31, 13, 0.16);
+  --accent-link: var(--accent-rosehip);
 }
 
 /* ── Shared nav / logo / ink fix for dark-field pages (cream ink) ──── */
@@ -28,6 +31,9 @@ body.page-wash-dark {
   --ink-muted-current: rgba(245, 239, 228, 0.6);
   --rule-current: rgba(245, 239, 228, 0.16);
   --v2-fg: var(--ink-cream);
+  --v2-fg-dim: rgba(245, 239, 228, 0.62);
+  --v2-fg-faint: rgba(245, 239, 228, 0.18);
+  --accent-link: var(--accent-tangerine);
 }
 
 

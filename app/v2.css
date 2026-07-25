@@ -74,20 +74,22 @@ body.mr2-mode.mr2-hero-stage .site-nav--menu-open .site-logo__img--cacao { displ
 body.mr2-mode .site-nav--menu-open .site-logo__img--cream { display: none; }
 body.mr2-mode .site-nav--menu-open .site-logo__img--cacao { display: block; }
 
-/* ── Menu overlay — theme-aware colours ────────────────────────────
-   The overlay background and text must follow --v2-bg / --v2-fg so
-   they switch with the dark / light toggle. */
+/* ── Menu overlay — always a light cream field ─────────────────────
+   Background stays --v2-bg (cream) regardless of the per-page dark/light
+   wash in styles/pages.css, so text must stay fixed dark ink too —
+   using the flippable --v2-fg/--v2-fg-dim tokens here made the overlay
+   go cream-on-cream on page-wash-dark routes (journal/shop/works). */
 
 body.mr2-mode .menu-overlay {
   background: var(--v2-bg);
 }
 
 body.mr2-mode .menu-overlay__inner > p {
-  color: var(--v2-fg-dim);
+  color: rgba(61, 31, 13, 0.56);
 }
 
 body.mr2-mode .menu-overlay__links a {
-  color: var(--v2-fg);
+  color: var(--ink-cacao);
 }
 
 /* Loader logo — large centered PNG shown after field turns dark */
