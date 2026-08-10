@@ -1,5 +1,41 @@
 # Prompt Log
 
+## 2026-08-10 — Phase 4: Font diagnosis (Konya.otf)
+
+**Prompt summary:** Revised diagnosis request — original "corrupt Staff woff2" framing was wrong (no Staff font exists; a 404 can't produce an OTS error). Primary hypothesis instead: the raw `.otf` files (Sephir, Konya, Mailendra) served directly as `format('opentype')`, since OTS is stricter than tools that "just" parse OpenType. Ordered as evidence-gated steps: (1) network evidence — a table of every font request's status/size/content-type, curl fallback explicitly pre-authorized if a real browser test wasn't practical, STOP if any 404; (2) fontTools `TTFont()` validation per file, STOP and report before touching anything; (3) convert only files that failed validation, keep untouched files alone, STOP if conversion also fails validation (bad vendor file).
+
+**Step 1:** Hard-reloaded production build in a real browser; the extension's network tool doesn't capture passive font loads, so fell back to `curl -I` against all four `@font-face` URLs (pre-authorized fallback) — all 200, byte-identical to disk via MD5 comparison. No 404 — proceeded to Step 2 per the stated branch.
+
+**Step 2:** fontTools alone reported all four files clean, which would have been the wrong conclusion — went further than asked and installed the actual OTS binary (`pip install opentype-sanitizer`) to test against Chrome's real validator rather than trust fontTools' more lenient CFF parse. Konya.otf failed OTS with the exact console error text from the original report; Sephir, Mailendra, Boska all passed. Reported before touching anything, per instruction.
+
+**Step 3 (this entry):** Direct `fonttools ttLib.woff2 compress` on Konya.otf, then OTS re-run — failed, same error, confirming a straight repackage doesn't fix a malformed source table. Fell to the fontTools round-trip path (open → force-decompile every table → save fresh `.otf` → compress to woff2): glyph count held at 205/205 through the rebuild, but OTS re-run on the result **still failed**, identical error. Both paths exhausted.
+
+**What changed:** nothing shipped. Two scratch conversion artifacts (`Konya.woff2`, `Konya-rebuilt.otf`) were created during the attempt and deleted afterward — confirmed via `git status` they were untracked before removing them, and confirmed via MD5 that the original `Konya.otf` was never modified through any of this. No `@font-face` edits. Per the user's stop condition, this is a "get a clean file from the vendor" outcome, not a code fix.
+
+---
+
+## 2026-08-10 — Phase 3: /api/checkout error surfacing
+
+**Prompt summary:** Localhost verification of Phase 2 confirmed. Phase 3: (a) `createRazorpayOrder` must throw a typed error naming the specific missing env var instead of silently returning `null` for both a config failure and a business failure; (b) trim env vars on read — pasted Vercel UI values carry trailing newlines; (c) the route's catch block must put the real Razorpay error (`err.error?.description`/`err.error?.code`, or `.message` for non-Razorpay errors) into the response body, keeping `console.error` and the 502 status — with an explicit guard that nothing matching `rzp_` ever reaches the response, "show me that line." Also: change `.mr-addr__error` from `var(--accent-error)` to rosehip `#792318`.
+
+**What changed:** `lib/razorpay.ts` — added `RazorpayConfigError` (thrown for missing `RAZORPAY_KEY_ID`/`RAZORPAY_KEY_SECRET`, naming which), `.trim()` on both env reads, and `safeCheckoutError(err)` which extracts a safe message/code and redacts `rzp_\S*` before returning. `app/api/checkout/route.ts` catch block now returns `{ error: message, code }`. `app/globals.css` `.mr-addr__error` → `var(--accent-rosehip)`.
+
+**Verified, not just asserted:** rebuilt production, started it with `RAZORPAY_KEY_SECRET` set to whitespace-only to reproduce the real "trailing newline" bug (truthy to `Boolean()`, empty after `.trim()` — the scenario (b) exists for), then `curl POST /api/checkout` with a valid cart. Response: `{"error":"RAZORPAY_KEY_SECRET is not configured."}` at 502, no secret in the body. Server log via `console.error` still had the full stack. Confirmed a plain empty-string override wouldn't have exercised this code path at all — `razorpayEnabled()` in `lib/commerce.ts` gates on `Boolean()` first and would have short-circuited to the existing "shop is not taking orders yet" 503 before ever reaching the new code — so the test was redone with whitespace specifically to hit the real bug scenario, not a version that happens to also return an error.
+
+---
+
+## 2026-08-10 — Phase 2: CSP fix (Razorpay + Google Fonts)
+
+**Prompt summary:** Phased fix for three live-site bugs (CSP blocking Razorpay, 502 on `/api/checkout`, corrupt Staff font). Phase 1 (discovery only) found: the CSP fix was already written in an uncommitted `next.config.js` but never deployed; the checkout route already catches its own exception cleanly (502 is deliberate, not unhandled); the paise conversion is correct; `CheckoutAddressModal` already surfaces `data.error`; "Staff" font doesn't exist anywhere in the repo (no directory, no `@font-face`, not in the `--font-display` stack) — the OTS parsing error must be something else; a second, undiscussed CSP gap was found (`fonts.googleapis.com`/`fonts.gstatic.com` never allowlisted, breaking `--font-body`/`--font-label`/`--font-ui` site-wide via a plain CSS `@import`).
+
+**Decisions given back:** fix the Google Fonts CSP gap in the same pass (confirmed live, not deferred); leave `NEXT_PUBLIC_RAZORPAY_KEY_ID` in Vercel unused, just comment it; keep `i4t9kzxg.api.sanity.io` in `connect-src`. Corrected on `'unsafe-eval'`: only ship it if the Razorpay modal actually fails without it — test both ways.
+
+**Phase 2 executed:** merged `fonts.googleapis.com` into `style-src`, `data:` + `fonts.gstatic.com` into `font-src`. Tested `'unsafe-eval'` empirically: dev mode (`npm run dev`) throws a CSP `EvalError` from Next.js's own Fast Refresh/HMR runtime regardless of Razorpay, which would have been a false positive if trusted — switched to a production build (`npm run build && npm run start`) and drove the full checkout flow in a real browser (Buy Now → shipping form → order created → Razorpay Payment Options modal fully rendered: Cards/Netbanking/Wallet/Pay Later, zero console messages). `'unsafe-eval'` was not required and was not added.
+
+**What changed:** `next.config.js` only — `style-src` and `font-src` directives, plus an explanatory comment. Not committed, not pushed, per standing constraint.
+
+---
+
 ## 2026-07-18 (iv) — Final build: address collection, webhook rewrite, ship-notify, cart/footer fixes
 
 **Prompt summary:** Approval to proceed with the full build, same branch, in explicit priority order: (1) address collection before Razorpay opens, passed into the order notes; (2) rewrite the webhook to the current schema, with order numbering, idempotency, re-fetched item snapshots, and confirmation/owner-notification emails via a new `lib/emails.ts`; (3) a `ship-notify` route for a Sanity webhook that emails once on shipped+AWB-set+not-already-sent; (4) four specific cart-drawer/footer visual fixes with exact descriptions of each symptom. Explicit instruction to verify on localhost with actual screenshots, not just code review, then push (only after localhost passes) for a preview deployment, then report exact Razorpay/Sanity dashboard webhook setup steps and stop.

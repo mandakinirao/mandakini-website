@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { razorpayEnabled } from '@/lib/commerce'
 import { getPurchasableItems } from '@/lib/home-data'
-import { createRazorpayOrder } from '@/lib/razorpay'
+import { createRazorpayOrder, safeCheckoutError } from '@/lib/razorpay'
 import { checkRateLimit } from '@/lib/rate-limit'
 import { originAllowed } from '@/lib/csrf'
 
@@ -99,9 +99,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json(order)
   } catch (err) {
     console.error('[checkout] Razorpay order creation failed:', err)
-    return NextResponse.json(
-      { error: 'Checkout is unavailable right now.' },
-      { status: 502 }
-    )
+    const { message, code } = safeCheckoutError(err)
+    return NextResponse.json({ error: message, code }, { status: 502 })
   }
 }
