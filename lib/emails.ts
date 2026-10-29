@@ -110,6 +110,27 @@ function shippingUpdateEmail(o: ShippingEmailPayload) {
   }
 }
 
+export interface CancellationEmailPayload {
+  orderNumber: string
+  customerName: string
+  amountTotal: number
+}
+
+function cancellationEmail(o: CancellationEmailPayload) {
+  return {
+    subject: `Your order has been cancelled: ${o.orderNumber}`,
+    html: wrap(`
+      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">Your order has been cancelled${o.customerName ? `, ${esc(o.customerName.split(' ')[0])}` : ''}.</h1>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
+        Order <strong>${esc(o.orderNumber)}</strong> has been cancelled and
+        <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong> has been refunded to your
+        original payment method. Refunds usually arrive within 5 to 7 working days.
+      </p>
+      <p style="font-size:16px;line-height:1.6;margin:0;">If you have any questions, just reply to this email.</p>
+    `),
+  }
+}
+
 interface SendResult {
   ok: boolean
   error?: unknown
@@ -166,5 +187,19 @@ export async function sendShippingUpdate(payload: ShippingEmailPayload, customer
     return { ok: false, error: 'EMAIL_FROM missing' }
   }
   const { subject, html } = shippingUpdateEmail(payload)
+  return send(from, customerEmail, subject, html)
+}
+
+/** To the customer: order cancelled and refunded. */
+export async function sendCancellationEmail(
+  payload: CancellationEmailPayload,
+  customerEmail: string
+): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM
+  if (!from) {
+    console.error('[emails] EMAIL_FROM not set, cannot send cancellation email')
+    return { ok: false, error: 'EMAIL_FROM missing' }
+  }
+  const { subject, html } = cancellationEmail(payload)
   return send(from, customerEmail, subject, html)
 }

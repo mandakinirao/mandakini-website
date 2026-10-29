@@ -49,3 +49,21 @@ export async function resendAction(orderId: string): Promise<ActionState> {
   refresh()
   return { ok: true, message: 'Shipping email sent.' }
 }
+
+export async function cancelAction(orderId: string): Promise<ActionState> {
+  await requireAdmin()
+  const [{ cancelOrder }, { refundPayment }, { sendCancellationEmail }] = await Promise.all([
+    import('@/lib/admin/orders'),
+    import('@/lib/razorpay'),
+    import('@/lib/emails'),
+  ])
+  const r = await cancelOrder({ ...deps(), refundPayment, sendCancellationEmail }, orderId)
+  if (!r.ok) return { error: r.error }
+  refresh()
+  return {
+    ok: true,
+    message: r.emailSent
+      ? 'Order cancelled. The refund is on its way to the buyer.'
+      : "Order cancelled and refunded, but the email to the buyer didn't send.",
+  }
+}

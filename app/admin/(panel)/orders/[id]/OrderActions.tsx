@@ -3,7 +3,8 @@
 import { useFormState, useFormStatus } from 'react-dom'
 import { useState, useTransition } from 'react'
 import type { OrderStatus } from '@/lib/admin/orders'
-import { deliverAction, resendAction, shipAction, type ActionState } from './actions'
+import ConfirmButton from '@/components/admin/ConfirmButton'
+import { cancelAction, deliverAction, resendAction, shipAction, type ActionState } from './actions'
 
 interface Props {
   orderId: string
@@ -96,6 +97,22 @@ export default function OrderActions(p: Props) {
             </button>
           )}
         </>
+      )}
+
+      {(p.status === 'paid' || p.status === 'shipped') && (
+        <div style={{ marginTop: 28, paddingTop: 20, borderTop: '1px solid var(--a-line)' }}>
+          <ConfirmButton
+            label="Cancel order"
+            question={`Cancel this order and refund ${p.amount} to ${p.customerName}? This can't be undone.`}
+            confirmLabel="Yes, cancel and refund"
+            keepLabel="Keep the order"
+            onConfirm={async () => {
+              const r = await cancelAction(p.orderId)
+              if (r.error) return r.error
+              setOther(r)
+            }}
+          />
+        </div>
       )}
 
       {p.status === 'cancelled' && (

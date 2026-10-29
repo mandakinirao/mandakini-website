@@ -132,3 +132,74 @@ export async function resendShippingEmail(
   await deps.client.patch(orderId).set({ shippedEmailSent: true }).commit()
   return { ok: true }
 }
+
+export interface CancelDeps extends OrderDeps {
+  refundPayment: (paymentId: string, amountPaise: number) => Promise<{ id: string }>
+  sendCancellationEmail: (
+    payload: { orderNumber: string; customerName: string; amountTotal: number },
+    customerEmail: string
+  ) => Promise<{ ok: boolean }>
+}
+
+interface StockDoc {
+  _id: string
+  stock?: number | null
+  sold?: number | null
+  availabilityStatus?: string
+}
+
+/** Full refund via Razorpay, then cancel + restock in one transaction, then email. */
+export async function cancelOrder(
+  deps: CancelDeps,
+  orderId: string
+): Promise<{ ok: true; emailSent: boolean } | Fail> {
+  const order = await fetchOrder(deps.client, orderId)
+  if (!order) return { ok: false, error: 'This order could not be found.' }
+  if (order.refundId) return { ok: false, error: 'This order has already been refunded.' }
+  if (!canCancel(order.status)) return { ok: false, error: "This order can't be cancelled any more." }
+  if (!order.razorpayPaymentId) return { ok: false, error: 'This order has no payment to refund.' }
+
+  let refundId: string
+  try {
+    refundId = (await deps.refundPayment(order.razorpayPaymentId, Math.round(order.amountTotal * 100))).id
+  } catch (err) {
+    const { safeCheckoutError } = await import('@/lib/razorpay')
+    return { ok: false, error: `Razorpay could not refund this payment: ${safeCheckoutError(err).message}` }
+  }
+
+  const qtyById = new Map<string, number>()
+  for (const i of order.items ?? []) {
+    if (i.shopItem?._ref) qtyById.set(i.shopItem._ref, (qtyById.get(i.shopItem._ref) ?? 0) + i.quantity)
+  }
+  const shopDocs = qtyById.size
+    ? await deps.client.fetch<StockDoc[]>(`*[_id in $ids]{ _id, stock, sold, availabilityStatus }`, {
+        ids: Array.from(qtyById.keys()),
+      })
+    : []
+
+  let tx = deps.client.transaction().patch(orderId, (p) =>
+    p.set({ status: 'cancelled', refundId, refundedAt: deps.now().toISOString() })
+  )
+  for (const doc of shopDocs ?? []) {
+    const qty = qtyById.get(doc._id) ?? 0
+    const tracked = typeof doc.stock === 'number'
+    const hasSold = typeof doc.sold === 'number'
+    if (!tracked && !hasSold) continue
+    tx = tx.patch(doc._id, (p) => {
+      let b = p
+      if (tracked) b = b.inc({ stock: qty })
+      if (hasSold) b = (doc.sold as number) >= qty ? b.dec({ sold: qty }) : b.set({ sold: 0 })
+      if (doc.availabilityStatus === 'soldOut') b = b.set({ availabilityStatus: 'available' })
+      return b
+    })
+  }
+  await tx.commit()
+
+  const email = order.customerEmail
+    ? await deps.sendCancellationEmail(
+        { orderNumber: order.orderNumber, customerName: order.customerName ?? '', amountTotal: order.amountTotal },
+        order.customerEmail
+      )
+    : { ok: false }
+  return { ok: true, emailSent: email.ok }
+}
