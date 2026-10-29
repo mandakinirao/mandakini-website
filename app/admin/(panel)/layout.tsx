@@ -13,13 +13,14 @@ export const dynamic = 'force-dynamic'
 
 export default async function AdminLayout({ children }: { children: React.ReactNode }) {
   await requireAdmin()
-  const toShip = await getAdminClient().fetch<number>(
-    `count(*[_type == "order" && status == "paid"])`
-  )
+  const { toShip, newMessages } = await getAdminClient().fetch<{ toShip: number; newMessages: number }>(`{
+    "toShip": count(*[_type == "order" && coalesce(status, "paid") == "paid"]),
+    "newMessages": count(*[_type == "enquiry" && coalesce(status, "new") == "new"])
+  }`)
 
   return (
     <div className="mr-admin mr-admin-shell">
-      <Sidebar toShip={toShip} />
+      <Sidebar toShip={toShip} newMessages={newMessages} />
       <main className="mr-admin-main">{children}</main>
     </div>
   )

@@ -1,6 +1,7 @@
 'use server'
 
 import { requireAdmin } from '@/lib/admin/auth'
+import { reorderDocs } from '@/lib/admin/content'
 import { getAdminClient, revalidateSite } from '@/lib/admin/sanity'
 import { slugify, splitNulls, toShopItemFields, uniqueSlug, validatePrintInput, type PrintErrors } from '@/lib/admin/shop'
 
@@ -76,12 +77,7 @@ export async function deletePrint(id: string): Promise<{ ok: boolean; error?: st
 export async function reorderPrints(ids: string[]): Promise<{ ok: boolean }> {
   await requireAdmin()
   if (!Array.isArray(ids) || ids.some((i) => typeof i !== 'string')) return { ok: false }
-  const client = getAdminClient()
-  let tx = client.transaction()
-  ids.forEach((id, i) => {
-    tx = tx.patch(id, (p) => p.set({ displayOrder: i + 1 }))
-  })
-  await tx.commit()
+  await reorderDocs(getAdminClient(), ids, 'displayOrder')
   refresh()
   return { ok: true }
 }

@@ -13,7 +13,15 @@ export interface GridCard {
   badges: string[]
 }
 
-export default function SortableGrid({ cards: initial }: { cards: GridCard[] }) {
+export default function SortableGrid({
+  cards: initial,
+  onReorder = reorderPrints,
+  savedText = 'Order saved. The shop shows this order now.',
+}: {
+  cards: GridCard[]
+  onReorder?: (ids: string[]) => Promise<{ ok: boolean }>
+  savedText?: string
+}) {
   const [cards, setCards] = useState(initial)
   const [dragging, setDragging] = useState<string | null>(null)
   const [over, setOver] = useState<string | null>(null)
@@ -30,8 +38,8 @@ export default function SortableGrid({ cards: initial }: { cards: GridCard[] }) 
     setCards(next)
     setNotice('Saving the new order…')
     start(async () => {
-      const r = await reorderPrints(next.map((c) => c.id))
-      setNotice(r.ok ? 'Order saved. The shop shows this order now.' : "Couldn't save the order. Try again.")
+      const r = await onReorder(next.map((c) => c.id))
+      setNotice(r.ok ? savedText : "Couldn't save the order. Try again.")
     })
   }
 

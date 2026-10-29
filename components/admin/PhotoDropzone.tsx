@@ -35,10 +35,17 @@ export default function PhotoDropzone({
   photos,
   setPhotos,
   error,
+  label = 'Photos',
+  hint,
+  single = false,
 }: {
   photos: Photo[]
   setPhotos: Dispatch<SetStateAction<Photo[]>>
   error?: string
+  label?: string
+  hint?: string
+  /** One photo only: a new drop replaces the current one. */
+  single?: boolean
 }) {
   const input = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -47,7 +54,8 @@ export default function PhotoDropzone({
   const update = (key: string, patch: Partial<Photo>) =>
     setPhotos((list) => list.map((p) => (p.key === key ? { ...p, ...patch } : p)))
 
-  async function addFiles(files: File[]) {
+  async function addFiles(picked: File[]) {
+    const files = single ? picked.slice(0, 1) : picked
     const queued = files.map((file) => ({
       file,
       photo: {
@@ -58,7 +66,7 @@ export default function PhotoDropzone({
         preview: file.type.startsWith('image/') ? URL.createObjectURL(file) : undefined,
       },
     }))
-    setPhotos((list) => [...list, ...queued.map((q) => q.photo)])
+    setPhotos((list) => (single ? queued.map((q) => q.photo) : [...list, ...queued.map((q) => q.photo)]))
 
     let next = 0
     const worker = async () => {
@@ -91,7 +99,7 @@ export default function PhotoDropzone({
 
   return (
     <div className={`mr-admin-field${error ? ' mr-admin-field--invalid' : ''}`}>
-      <span>Photos</span>
+      <span>{label}</span>
       <div
         className={`mr-admin-drop${over ? ' mr-admin-drop--over' : ''}`}
         role="button"
@@ -111,13 +119,15 @@ export default function PhotoDropzone({
           if (e.dataTransfer.files.length) addFiles(Array.from(e.dataTransfer.files))
         }}
       >
-        <strong>Drag your photos here, or click to choose</strong>
-        <span className="mr-admin-muted">You can add several at once. The first one is the cover.</span>
+        <strong>{single ? 'Drag a photo here, or click to choose' : 'Drag your photos here, or click to choose'}</strong>
+        <span className="mr-admin-muted">
+          {hint ?? (single ? 'A new photo replaces the current one.' : 'You can add several at once. The first one is the cover.')}
+        </span>
         <input
           ref={input}
           type="file"
           accept="image/jpeg,image/png,image/webp,image/heic"
-          multiple
+          multiple={!single}
           hidden
           onChange={(e) => {
             if (e.target.files?.length) addFiles(Array.from(e.target.files))
@@ -148,7 +158,7 @@ export default function PhotoDropzone({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.url ? `${p.url}?w=400&fit=max&auto=format` : p.preview ?? ''} alt="" draggable={false} />
               )}
-              {p.key === firstGood && <span className="mr-admin-photo__cover">Cover</span>}
+              {!single && p.key === firstGood && <span className="mr-admin-photo__cover">Cover</span>}
               <button
                 type="button"
                 className="mr-admin-photo__remove"

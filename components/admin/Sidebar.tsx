@@ -8,9 +8,17 @@ const ITEMS = [
   { href: '/admin', label: 'Home' },
   { href: '/admin/orders', label: 'Orders' },
   { href: '/admin/shop', label: 'Shop' },
+  { href: '/admin/projects', label: 'Projects' },
+  { href: '/admin/press', label: 'Press' },
+  { href: '/admin/messages', label: 'Messages' },
+  { href: '/admin/website', label: 'Website' },
 ]
 
-export default function Sidebar({ toShip }: { toShip: number }) {
+export default function Sidebar({ toShip, newMessages }: { toShip: number; newMessages: number }) {
+  const counts: Record<string, { n: number; label: string }> = {
+    '/admin/orders': { n: toShip, label: 'to ship' },
+    '/admin/messages': { n: newMessages, label: 'new' },
+  }
   const pathname = usePathname()
   const isActive = (href: string) =>
     href === '/admin' ? pathname === '/admin' : pathname.startsWith(href)
@@ -26,9 +34,9 @@ export default function Sidebar({ toShip }: { toShip: number }) {
           aria-current={isActive(item.href) ? 'page' : undefined}
         >
           {item.label}
-          {item.href === '/admin/orders' && toShip > 0 && (
-            <span className="mr-admin-side__count" aria-label={`${toShip} to ship`}>
-              {toShip}
+          {counts[item.href]?.n > 0 && (
+            <span className="mr-admin-side__count" aria-label={`${counts[item.href].n} ${counts[item.href].label}`}>
+              {counts[item.href].n}
             </span>
           )}
         </Link>
