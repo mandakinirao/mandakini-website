@@ -60,6 +60,21 @@ export const siteSettingsShopQuery = groq`
   }
 `
 
+// Homepage press marquee: items switched to "Show on homepage", in homepageOrder.
+export const featuredPressItemsQuery = groq`
+  *[_type == "pressItem" && featuredOnHomepage == true]
+    | order(coalesce(homepageOrder, 999) asc, coalesce(displayOrder, 99) asc) [0...8] {
+    _id,
+    link,
+    type,
+    headlineOverride,
+    thumbnailOverride { asset, alt },
+    logoCard,
+    source,
+    displayOrder
+  }
+`
+
 export const pressItemsQuery = groq`
   *[_type == "pressItem"] | order(coalesce(displayOrder, 99) asc) {
     _id,
@@ -74,15 +89,18 @@ export const pressItemsQuery = groq`
 `
 
 
+// Homepage shop teaser: prints switched to "Show on homepage" (featuredOnHomepage),
+// in homepageOrder. lib/home-data.ts falls back to firstShopItemsQuery when none are.
 export const featuredShopItemsQuery = groq`
-  coalesce(
-    *[_type == "siteSettings"][0].featuredShopItems[]->
-      [coalesce(purchaseType, "buy") != "privateCollection"
-       && coalesce(availabilityStatus, "available") != "hidden"] {
+  *[_type == "shopItem"
+      && featuredOnHomepage == true
+      && coalesce(availabilityStatus, "available") != "hidden"
+      && coalesce(purchaseType, "buy") != "privateCollection"]
+    | order(coalesce(homepageOrder, 999) asc, coalesce(displayOrder, 999) asc) [0...3] {
       _id,
       title,
       "slug": slug.current,
-      desc,
+      "desc": coalesce(description, desc),
       "basePrice": coalesce(basePrice, price),
       images,
       "availabilityStatus": coalesce(availabilityStatus, "available"),
@@ -91,25 +109,27 @@ export const featuredShopItemsQuery = groq`
       stock,
       "purchaseType": coalesce(purchaseType, "buy"),
       stripePriceId
-    },
-    *[_type == "shopItem"
-        && coalesce(availabilityStatus, "available") != "hidden"
-        && coalesce(purchaseType, "buy") != "privateCollection"]
-      | order(coalesce(displayOrder, 999) asc, _createdAt asc) [0...3] {
-        _id,
-        title,
-        "slug": slug.current,
-        desc,
-        "basePrice": coalesce(basePrice, price),
-        images,
-        "availabilityStatus": coalesce(availabilityStatus, "available"),
-        editionSize,
-        sold,
-        stock,
-        "purchaseType": coalesce(purchaseType, "buy"),
-        stripePriceId
-      }
-  )
+    }
+`
+
+export const firstShopItemsQuery = groq`
+  *[_type == "shopItem"
+      && coalesce(availabilityStatus, "available") != "hidden"
+      && coalesce(purchaseType, "buy") != "privateCollection"]
+    | order(coalesce(displayOrder, 999) asc, _createdAt asc) [0...3] {
+      _id,
+      title,
+      "slug": slug.current,
+      "desc": coalesce(description, desc),
+      "basePrice": coalesce(basePrice, price),
+      images,
+      "availabilityStatus": coalesce(availabilityStatus, "available"),
+      editionSize,
+      sold,
+      stock,
+      "purchaseType": coalesce(purchaseType, "buy"),
+      stripePriceId
+    }
 `
 
 // Full shop listing — no slice, used by /shop page.
@@ -122,7 +142,7 @@ export const allShopItemsQuery = groq`
       _id,
       title,
       "slug": slug.current,
-      desc,
+      "desc": coalesce(description, desc),
       "basePrice": coalesce(basePrice, price),
       images,
       "availabilityStatus": coalesce(availabilityStatus, "available"),
@@ -185,29 +205,18 @@ export const aboutHomeDataQuery = groq`
   *[_type == "aboutPage"][0] { homeSnippet, aboutTeaserLine }
 `
 
-// Curated featured series (Site Settings → Featured Projects), falling
-// back to the first four published. Drives the homepage Projects stage
-// and /works Tier 1.
+// Homepage projects: series switched to "Show on homepage", in homepageOrder.
+// lib/home-data.ts falls back to the first four published when none are.
 export const featuredSeriesQuery = groq`
-  coalesce(
-    *[_type == "siteSettings"][0].featuredProjects[]-> {
+  *[_type == "project" && featuredOnHomepage == true]
+    | order(coalesce(homepageOrder, 999) asc, coalesce(displayOrder, 999) asc) [0...4] {
       _id,
       seriesName,
       "slug": slug.current,
       description,
       gallery,
       year
-    },
-    *[_type == "project"]
-      | order(coalesce(displayOrder, 999) asc, _createdAt asc) {
-        _id,
-        seriesName,
-        "slug": slug.current,
-        description,
-        gallery,
-        year
-      }
-  )[0...4]
+    }
 `
 
 // Journal listing — /journal. Cover + card copy only, no body (kept light).

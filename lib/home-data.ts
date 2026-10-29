@@ -1,3 +1,4 @@
+import { pickFeatured } from '@/lib/admin/featured'
 import type { Image as SanityImageType } from 'sanity'
 import type { RawPressItem } from '@/lib/press'
 
@@ -402,9 +403,9 @@ function mapSeriesDoc(
 }
 
 /**
- * Curated featured series — Site Settings → Featured Projects, falling
- * back to the first four published. Drives the homepage Projects stage
- * and /works Tier 1.
+ * Featured series: projects switched to "Show on homepage", falling back
+ * to the first four published. Drives the homepage Projects stage and
+ * /works Tier 1.
  */
 export async function getFeaturedSeries(): Promise<HomeSeries[]> {
   try {
@@ -416,10 +417,10 @@ export async function getFeaturedSeries(): Promise<HomeSeries[]> {
     const docs = await client.fetch<SanitySeriesLite[] | null>(
       queries.featuredSeriesQuery
     )
-    if (!docs || !docs.length) return (await getAllSeries()).slice(0, 4)
-    return docs
+    const featured = (docs ?? [])
       .filter((d): d is SanitySeriesLite => Boolean(d))
       .map((d, i) => mapSeriesDoc(d, i, urlForImage))
+    return pickFeatured(featured, featured.length ? null : await getAllSeries(), 4)
   } catch {
     return PLACEHOLDER_SERIES.slice(0, 4)
   }
@@ -478,9 +479,11 @@ export async function getHomeData(): Promise<HomeData> {
   const ok = <T>(r: PromiseSettledResult<T>): T | null =>
     r.status === 'fulfilled' ? r.value : null
 
-  const [shopRes, pressRes, heroRes, heroRevealRes, basicRes, testiRes, aboutRes] = await Promise.allSettled([
+  const [shopRes, firstShopRes, pressRes, featuredPressRes, heroRes, heroRevealRes, basicRes, testiRes, aboutRes] = await Promise.allSettled([
     client.fetch<ShopDoc[] | null>(queries.featuredShopItemsQuery),
+    client.fetch<ShopDoc[] | null>(queries.firstShopItemsQuery),
     client.fetch<RawPressItem[] | null>(queries.pressItemsQuery),
+    client.fetch<RawPressItem[] | null>(queries.featuredPressItemsQuery),
     client.fetch<string[] | null>(queries.heroImagesQuery),
     client.fetch<{ heroRevealTop?: SanityImageType; heroRevealBottom?: SanityImageType } | null>(queries.homepageHeroQuery),
     client.fetch<{ tagline?: string } | null>(queries.siteSettingsBasicQuery),
@@ -488,8 +491,8 @@ export async function getHomeData(): Promise<HomeData> {
     client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string } | null>(queries.aboutHomeDataQuery),
   ])
 
-  const shopItems = ok(shopRes)
-  const rawPressItems = ok(pressRes)
+  const shopItems = pickFeatured(ok(shopRes), ok(firstShopRes), 3)
+  const rawPressItems = pickFeatured(ok(featuredPressRes), ok(pressRes), 8)
   const rawHeroImages = ok(heroRes)
   const heroReveal = ok(heroRevealRes)
   const siteBasic = ok(basicRes)
@@ -502,7 +505,7 @@ export async function getHomeData(): Promise<HomeData> {
     : null
 
   const prints: HomePrint[] = shopItems?.length
-    ? shopItems.slice(0, 3).map((s, i) => mapShopDoc(s, i, urlForImage))
+    ? shopItems.map((s, i) => mapShopDoc(s, i, urlForImage))
     : PLACEHOLDER_PRINTS
 
   const tickerItems = enrichedPress?.filter((p) => p.headline && p.source) ?? []
