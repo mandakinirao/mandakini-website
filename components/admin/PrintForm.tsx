@@ -13,6 +13,9 @@ export interface PrintFormValues {
   editionSize: string
   howManyLeft: string
   description: string
+  height: string
+  width: string
+  sizeUnit: 'cm' | 'in'
   purchaseType: 'buy' | 'privateCollection'
   showInShop: boolean
   showOnHomepage: boolean
@@ -25,6 +28,9 @@ export const EMPTY_PRINT: PrintFormValues = {
   editionSize: '',
   howManyLeft: '',
   description: '',
+  height: '',
+  width: '',
+  sizeUnit: 'cm',
   purchaseType: 'buy',
   showInShop: true,
   showOnHomepage: false,
@@ -155,6 +161,26 @@ export default function PrintForm({ id, initial }: { id?: string; initial: Print
         >
           <input inputMode="numeric" value={v.howManyLeft} onChange={(e) => set('howManyLeft', e.target.value)} />
         </Field>
+        <div className="mr-admin-field">
+          <span>Print size (optional)</span>
+          <div className="mr-admin-size">
+            <label className={`mr-admin-field${errors.height ? ' mr-admin-field--invalid' : ''}`}>
+              <small>Height</small>
+              <input inputMode="decimal" value={v.height} placeholder="e.g. 40" onChange={(e) => set('height', e.target.value)} />
+            </label>
+            <span className="mr-admin-size__x" aria-hidden="true">×</span>
+            <label className={`mr-admin-field${errors.width ? ' mr-admin-field--invalid' : ''}`}>
+              <small>Width</small>
+              <input inputMode="decimal" value={v.width} placeholder="e.g. 30" onChange={(e) => set('width', e.target.value)} />
+            </label>
+            <div className="mr-admin-choice mr-admin-size__unit">
+              <label><input type="radio" checked={v.sizeUnit === 'cm'} onChange={() => set('sizeUnit', 'cm')} /> cm</label>
+              <label><input type="radio" checked={v.sizeUnit === 'in'} onChange={() => set('sizeUnit', 'in')} /> inches</label>
+            </div>
+          </div>
+          <small>Leave both empty to hide the size on the website.</small>
+          {(errors.height || errors.width) && <p className="mr-admin-error">{errors.height || errors.width}</p>}
+        </div>
         <Field label="Description" error={errors.description}>
           <textarea value={v.description} maxLength={2000} onChange={(e) => set('description', e.target.value)} />
         </Field>

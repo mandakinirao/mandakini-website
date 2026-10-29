@@ -107,6 +107,9 @@ export const featuredShopItemsQuery = groq`
       editionSize,
       sold,
       stock,
+      height,
+      width,
+      sizeUnit,
       "purchaseType": coalesce(purchaseType, "buy"),
       stripePriceId
     }
@@ -127,6 +130,9 @@ export const firstShopItemsQuery = groq`
       editionSize,
       sold,
       stock,
+      height,
+      width,
+      sizeUnit,
       "purchaseType": coalesce(purchaseType, "buy"),
       stripePriceId
     }
@@ -149,6 +155,9 @@ export const allShopItemsQuery = groq`
       editionSize,
       sold,
       stock,
+      height,
+      width,
+      sizeUnit,
       "purchaseType": coalesce(purchaseType, "buy"),
       stripePriceId
     }

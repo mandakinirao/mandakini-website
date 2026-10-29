@@ -1,6 +1,7 @@
 export const RESERVED_SLUGS = ['learn', 'classes', 'login', 'account']
 
 export type Availability = 'available' | 'soldOut' | 'hidden'
+export type SizeUnit = 'cm' | 'in'
 
 export interface PrintImage {
   assetId: string
@@ -18,6 +19,10 @@ export interface PrintInput {
   showInShop: boolean
   showOnHomepage: boolean
   images: PrintImage[]
+  /** Print size, both or neither (blank = not shown on the site). */
+  height: number | null
+  width: number | null
+  sizeUnit: SizeUnit
 }
 
 export type PrintErrors = Partial<Record<keyof PrintInput, string>>
@@ -54,6 +59,14 @@ function wholeNumber(v: unknown): number | null {
   if (!s) return null
   const n = Number(s)
   return Number.isInteger(n) && n >= 0 ? n : NaN
+}
+
+/** Blank → null; otherwise a positive number (decimals allowed), or NaN. */
+function positiveNumber(v: unknown): number | null {
+  const s = String(v ?? '').trim().replace(',', '.')
+  if (!s) return null
+  const n = Number(s)
+  return Number.isFinite(n) && n > 0 && n < 10000 ? Math.round(n * 100) / 100 : NaN
 }
 
 function bool(v: unknown): boolean {
@@ -104,6 +117,15 @@ export function validatePrintInput(
     errors.howManyLeft = "Can't be more than the edition size"
   }
 
+  const height = positiveNumber(raw.height)
+  const width = positiveNumber(raw.width)
+  if (Number.isNaN(height)) errors.height = 'Use a number, like 40 or 29.7'
+  if (Number.isNaN(width)) errors.width = 'Use a number, like 40 or 29.7'
+  if (!errors.height && !errors.width) {
+    if (height !== null && width === null) errors.width = 'Add the width too, or leave both empty'
+    if (width !== null && height === null) errors.height = 'Add the height too, or leave both empty'
+  }
+
   if (!errors.images && imgs.length === 0) errors.images = 'Add at least one photo'
 
   if (Object.keys(errors).length) return { ok: false, errors }
@@ -119,6 +141,9 @@ export function validatePrintInput(
       showInShop: bool(raw.showInShop),
       showOnHomepage: bool(raw.showOnHomepage),
       images: imgs,
+      height,
+      width,
+      sizeUnit: raw.sizeUnit === 'in' ? 'in' : 'cm',
     },
   }
 }
@@ -137,6 +162,9 @@ export function toShopItemFields(input: PrintInput): Record<string, unknown> {
     purchaseType: input.purchaseType,
     availabilityStatus: deriveAvailability(input),
     featuredOnHomepage: input.showOnHomepage,
+    height: input.height,
+    width: input.width,
+    sizeUnit: input.height && input.width ? input.sizeUnit : null,
     images: input.images.map((img) => ({
       _type: 'image',
       _key: img.key || key(),
