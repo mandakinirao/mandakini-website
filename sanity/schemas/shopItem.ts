@@ -77,6 +77,24 @@ export const shopItemSchema = defineType({
       description: 'Total prints in this edition (e.g. 30, 50).',
     }),
     defineField({
+      name: 'height',
+      title: 'Print height',
+      type: 'number',
+      description: 'Leave height and width empty to hide the size on the site.',
+    }),
+    defineField({
+      name: 'width',
+      title: 'Print width',
+      type: 'number',
+    }),
+    defineField({
+      name: 'sizeUnit',
+      title: 'Size unit',
+      type: 'string',
+      options: { list: [{ title: 'cm', value: 'cm' }, { title: 'inches', value: 'in' }], layout: 'radio' },
+      initialValue: 'cm',
+    }),
+    defineField({
       name: 'stock',
       title: 'Stock Remaining',
       type: 'number',

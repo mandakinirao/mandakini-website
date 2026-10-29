@@ -56,6 +56,16 @@ export default function ProductDetail({
     return () => ctx.revert()
   }, [print])
 
+  // Each detail line shows only when it has a value.
+  const details = (
+    [
+      ['Size', print.size],
+      ['Paper', paperSpec],
+      ['Signature', signatureSpec],
+      ['Shipping', shippingSpec],
+    ] as [string, string | undefined][]
+  ).filter(([, v]) => v?.trim())
+
   return (
     <section ref={rootRef} className="mr-page mr-pdp" aria-label={print.title}>
       <Link href="/shop" className="mr-detail__back">
@@ -73,11 +83,13 @@ export default function ProductDetail({
           {print.price && <p className="mr-pdp__price">{print.price}</p>}
           {print.desc && <p className="mr-pdp__desc">{print.desc}</p>}
 
-          <dl className="mr-pdp__meta">
-            <div><dt>Paper</dt><dd>{paperSpec}</dd></div>
-            <div><dt>Signature</dt><dd>{signatureSpec}</dd></div>
-            <div><dt>Shipping</dt><dd>{shippingSpec}</dd></div>
-          </dl>
+          {details.length > 0 && (
+            <dl className="mr-pdp__meta">
+              {details.map(([label, value]) => (
+                <div key={label}><dt>{label}</dt><dd>{value}</dd></div>
+              ))}
+            </dl>
+          )}
 
           <BuyControls print={print} variant="full" />
         </div>

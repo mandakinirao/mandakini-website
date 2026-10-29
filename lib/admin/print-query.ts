@@ -1,6 +1,7 @@
 /** Shared GROQ projection for prints in /admin. */
 export const ADMIN_PRINT_FIELDS = `
   _id, title, "slug": slug.current, basePrice, editionSize, stock, sold, description,
+  height, width, "sizeUnit": coalesce(sizeUnit, "cm"),
   "purchaseType": coalesce(purchaseType, "buy"),
   "availabilityStatus": coalesce(availabilityStatus, "available"),
   "featuredOnHomepage": coalesce(featuredOnHomepage, false),
@@ -16,6 +17,9 @@ export interface AdminPrint {
   stock?: number | null
   sold?: number
   description?: string
+  height?: number
+  width?: number
+  sizeUnit: 'cm' | 'in'
   purchaseType: 'buy' | 'privateCollection'
   availabilityStatus: 'available' | 'soldOut' | 'hidden'
   featuredOnHomepage: boolean

@@ -82,6 +82,31 @@ describe('validatePrintInput', () => {
     expect(!r.ok && r.errors).toEqual({ editionSize: 'Use a whole number, like 50' })
   })
 
+  test('size: height and width parse with decimals and a unit', () => {
+    const r = validatePrintInput(raw({ height: '29.7', width: '21', sizeUnit: 'cm' }), 'create')
+    expect(r.ok && r.value).toMatchObject({ height: 29.7, width: 21, sizeUnit: 'cm' })
+  })
+
+  test('size: both empty is fine and stays empty', () => {
+    const r = validatePrintInput(raw({ height: '', width: '' }), 'create')
+    expect(r.ok && r.value).toMatchObject({ height: null, width: null })
+  })
+
+  test('size: only one side filled is an error', () => {
+    const r = validatePrintInput(raw({ height: '40', width: '' }), 'create')
+    expect(!r.ok && r.errors.width).toBe('Add the width too, or leave both empty')
+  })
+
+  test('size: not a number is an error', () => {
+    const r = validatePrintInput(raw({ height: 'big', width: '30' }), 'create')
+    expect(!r.ok && r.errors.height).toBe('Use a number, like 40 or 29.7')
+  })
+
+  test('size: unknown unit falls back to cm', () => {
+    const r = validatePrintInput(raw({ height: '10', width: '8', sizeUnit: 'mm' }), 'create')
+    expect(r.ok && r.value.sizeUnit).toBe('cm')
+  })
+
   test('at least one photo', () => {
     const r = validatePrintInput(raw({ images: [] }), 'create')
     expect(!r.ok && r.errors.images).toBe('Add at least one photo')
@@ -104,6 +129,9 @@ describe('toShopItemFields', () => {
     showInShop: false,
     showOnHomepage: true,
     images: [{ assetId: 'image-abc-100x100-jpg', alt: '', key: 'k1' }],
+    height: 40,
+    width: 30,
+    sizeUnit: 'cm',
   }
 
   test('maps to the stored fields', () => {
@@ -117,6 +145,9 @@ describe('toShopItemFields', () => {
       purchaseType: 'buy',
       availabilityStatus: 'hidden',
       featuredOnHomepage: true,
+      height: 40,
+      width: 30,
+      sizeUnit: 'cm',
     })
     expect(f.images).toEqual([
       { _type: 'image', _key: 'k1', asset: { _type: 'reference', _ref: 'image-abc-100x100-jpg' }, alt: 'Dhyanam' },

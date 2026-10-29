@@ -1,4 +1,5 @@
 import { pickFeatured } from '@/lib/admin/featured'
+import { formatPrintSize } from '@/lib/print-size'
 import type { Image as SanityImageType } from 'sanity'
 import type { RawPressItem } from '@/lib/press'
 
@@ -24,6 +25,8 @@ export interface HomePrint {
   amount: number
   /** Units purchasable right now. 0 ⇒ quiet "Sold" state, no CTA. */
   stock: number
+  /** "40 × 30 cm", or '' when no size is set (hidden on the page). */
+  size?: string
 }
 
 export interface HomePress {
@@ -274,6 +277,9 @@ interface ShopDoc {
   editionSize?: number
   sold?: number
   stock?: number
+  height?: number
+  width?: number
+  sizeUnit?: string
 }
 
 function resolveShopImages(sanityImages: SanityImageType[] | undefined, urlForImage: UrlFor): string[] {
@@ -302,6 +308,7 @@ function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
     available: printAvailable(s),
     amount: s.basePrice ?? 0,
     stock: resolveStock(s.stock, printAvailable(s)),
+    size: formatPrintSize(s.height, s.width, s.sizeUnit),
   }
 }
 

@@ -760,3 +760,23 @@
   justify-content: center;
   margin: 14px 0;
 }
+
+.mr-admin-size {
+  display: flex;
+  align-items: flex-end;
+  gap: 10px;
+}
+
+.mr-admin-size .mr-admin-field {
+  flex: 1;
+}
+
+.mr-admin-size__x {
+  padding-bottom: 12px;
+  color: var(--a-muted);
+}
+
+.mr-admin-size__unit {
+  padding-bottom: 12px;
+  gap: 12px;
+}
