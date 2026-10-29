@@ -1,6 +1,6 @@
 # /admin — a friendly CMS for Mandakini, on top of Sanity
 
-_Design, 29 Oct 2026. Status: draft for approval._
+_Design, 29 Oct 2026. Status: approved._
 
 ## 1. Intent
 
@@ -268,8 +268,8 @@ merging to `main` (merging to `main` deploys to production).
 
 - Homepage featuring uses the per-item "Show on homepage" switch (approved
   by the user, option A), not separate curated lists.
-- Cancel = **full refund only** (no partial refunds), and it **restores stock**.
-  _(Still awaiting the user's confirmation.)_
+- Cancel = **full refund only** (no partial refunds), and it **restores stock**
+  (confirmed by the user).
 - "Delivered" is a manual button, no courier tracking integration.
 - No draft/publish: save is live.
 - Single shared password login, not Google sign-in (can be added later).
