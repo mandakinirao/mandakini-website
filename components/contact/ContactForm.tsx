@@ -33,18 +33,18 @@ export default function ContactForm() {
         setStatus('success')
       } else {
         setStatus('idle')
-        setErrors({ server: json.error ?? 'Something went wrong — please try again.' })
+        setErrors({ server: json.error ?? 'Something went wrong. Please try again.' })
       }
     } catch {
       setStatus('idle')
-      setErrors({ server: 'Something went wrong — please try again.' })
+      setErrors({ server: 'Something went wrong. Please try again.' })
     }
   }
 
   if (status === 'success') {
     return (
       <div className="mr2-contact__success" role="status">
-        <p>Thank you — Mandakini will be in touch soon.</p>
+        <p>Thank you. Mandakini will be in touch soon.</p>
       </div>
     )
   }

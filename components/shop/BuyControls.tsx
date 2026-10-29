@@ -20,8 +20,8 @@ export default function BuyControls({ print, variant = 'compact' }: BuyControlsP
       <div className={`mr-buy mr-buy--${variant}`}>
         <p className="mr-buy__sold">Sold out</p>
         <p className="mr-buy__hint">
-          This edition is complete —{' '}
-          <a href="/contact">get in touch</a> about other works.
+          This edition is complete.{' '}
+          <a href="/contact">Get in touch</a> about other works.
         </p>
       </div>
     )

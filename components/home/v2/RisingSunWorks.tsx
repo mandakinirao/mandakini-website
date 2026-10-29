@@ -226,7 +226,7 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
 
         <div className="mr2-works__meta">
           <p className="mr2-works__counter">
-            <b>1</b> / {series.length} — Projects
+            <b>1</b> / {series.length} Projects
           </p>
           <div className="mr2-works__titles">
             {series.map((item) => (

@@ -18,7 +18,7 @@ export async function POST(req: NextRequest) {
   const rl = checkRateLimit(`enquiry:${ip}`, 5, 10 * 60_000)
   if (rl.limited) {
     return NextResponse.json(
-      { ok: false, error: 'Too many requests — please try again later.' },
+      { ok: false, error: 'Too many requests. Please try again later.' },
       { status: 429, headers: { 'Retry-After': String(rl.retryAfterSec) } }
     )
   }
@@ -79,7 +79,7 @@ export async function POST(req: NextRequest) {
     } catch (err) {
       console.error('[enquiry] Sanity write failed:', err)
       return NextResponse.json(
-        { ok: false, error: 'Something went wrong — please try again.' },
+        { ok: false, error: 'Something went wrong. Please try again.' },
         { status: 500 }
       )
     }
@@ -95,7 +95,7 @@ export async function POST(req: NextRequest) {
     if (!from || !to) {
       console.error('[enquiry] EMAIL_FROM / MANDAKINI_ORDER_EMAIL not set — cannot send email')
       return NextResponse.json(
-        { ok: false, error: 'Your message was saved, but email is misconfigured — please reach out directly in the meantime.' },
+        { ok: false, error: 'Your message was saved, but email is misconfigured. Please reach out directly in the meantime.' },
         { status: 500 }
       )
     }
@@ -116,7 +116,7 @@ export async function POST(req: NextRequest) {
       }
       if (noteResult.error || confResult.error) {
         return NextResponse.json(
-          { ok: false, error: 'Your message was saved, but the notification email failed to send — Mandakini may not see it right away.' },
+          { ok: false, error: 'Your message was saved, but the notification email failed to send, so Mandakini may not see it right away.' },
           { status: 502 }
         )
       }

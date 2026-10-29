@@ -8,7 +8,7 @@ import { commerceEnabled } from '@/lib/commerce'
 import '@/styles/pages.css'
 
 export const metadata: Metadata = {
-  title: 'Shop — Mandakini Rao',
+  title: 'Shop | Mandakini Rao',
   description: 'Signed, numbered print editions from Mandakini Rao\'s Hyderabad studio.',
 }
 

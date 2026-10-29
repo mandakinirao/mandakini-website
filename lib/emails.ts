@@ -34,7 +34,7 @@ export interface OrderEmailPayload {
 const wrap = (body: string) => `
   <div style="background:#F5EFE4;padding:48px 24px;font-family:Georgia,'Times New Roman',serif;color:#2C1A0E;">
     <div style="max-width:560px;margin:0 auto;">
-      <p style="font-size:12px;letter-spacing:0.3em;text-transform:uppercase;color:#B8572A;margin:0 0 28px;">Mandakini Rao — Hyderabad</p>
+      <p style="font-size:12px;letter-spacing:0.3em;text-transform:uppercase;color:#B8572A;margin:0 0 28px;">Mandakini Rao · Hyderabad</p>
       ${body}
       <hr style="border:none;border-top:1px solid rgba(44,26,14,0.18);margin:36px 0 16px;" />
       <p style="font-size:12px;color:rgba(44,26,14,0.6);margin:0;">Painted in Hyderabad · mandakinirao.com</p>
@@ -56,16 +56,16 @@ const itemRows = (items: OrderEmailItem[]) =>
 
 function orderConfirmationEmail(o: OrderEmailPayload) {
   return {
-    subject: `Your order is confirmed — ${o.orderNumber}`,
+    subject: `Your order is confirmed: ${o.orderNumber}`,
     html: wrap(`
       <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">Thank you${o.customerName ? `, ${esc(o.customerName.split(' ')[0])}` : ''}.</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
         Your order <strong>${esc(o.orderNumber)}</strong> is confirmed. Each print is
-        signed and numbered by hand in the Hyderabad studio — a shipping
+        signed and numbered by hand in the Hyderabad studio. A shipping
         confirmation with the waybill number will follow once it is on its way.
       </p>
       <table style="width:100%;border-collapse:collapse;margin:0 0 22px;">${itemRows(o.items)}</table>
-      <p style="font-size:16px;margin:0 0 22px;">Total — <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong></p>
+      <p style="font-size:16px;margin:0 0 22px;">Total: <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong></p>
       <p style="font-size:14px;line-height:1.6;color:rgba(44,26,14,0.6);margin:0;">
         Shipping to<br/>${esc(o.shippingAddress).replace(/\n/g, '<br/>')}
       </p>
@@ -75,14 +75,14 @@ function orderConfirmationEmail(o: OrderEmailPayload) {
 
 function ownerNotificationEmail(o: OrderEmailPayload) {
   return {
-    subject: `New order — ${o.orderNumber}`,
+    subject: `New order: ${o.orderNumber}`,
     html: wrap(`
       <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">New order ${esc(o.orderNumber)}</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
         ${esc(o.customerName) || 'A collector'} (${esc(o.customerEmail)}) just placed an order.
       </p>
       <table style="width:100%;border-collapse:collapse;margin:0 0 22px;">${itemRows(o.items)}</table>
-      <p style="font-size:16px;margin:0 0 22px;">Total — <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong></p>
+      <p style="font-size:16px;margin:0 0 22px;">Total: <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong></p>
       <p style="font-size:14px;line-height:1.6;color:rgba(44,26,14,0.6);margin:0;">
         Shipping to<br/>${esc(o.shippingAddress).replace(/\n/g, '<br/>')}
       </p>
@@ -99,13 +99,13 @@ export interface ShippingEmailPayload {
 
 function shippingUpdateEmail(o: ShippingEmailPayload) {
   return {
-    subject: `Your order has shipped — ${o.orderNumber}`,
+    subject: `Your order has shipped: ${o.orderNumber}`,
     html: wrap(`
       <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">On its way${o.customerName ? `, ${esc(o.customerName.split(' ')[0])}` : ''}.</h1>
       <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
         Order <strong>${esc(o.orderNumber)}</strong> has shipped via <strong>${esc(o.courierName)}</strong>.
       </p>
-      <p style="font-size:16px;margin:0;">Tracking / AWB — <strong>${esc(o.awbNumber)}</strong></p>
+      <p style="font-size:16px;margin:0;">Tracking / AWB: <strong>${esc(o.awbNumber)}</strong></p>
     `),
   }
 }

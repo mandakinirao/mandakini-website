@@ -68,7 +68,7 @@ function PhotoCard({ item }: { item: EnrichedPressItem }) {
       target="_blank"
       rel="noopener noreferrer"
       className="mr2-press-card mr2-press-card--img"
-      aria-label={[item.headline, item.source].filter(Boolean).join(' — ') || label}
+      aria-label={[item.headline, item.source].filter(Boolean).join(', ') || label}
     >
       <Image
         src={item.thumbnail as string}
@@ -96,7 +96,7 @@ function LogoCard({ item }: { item: EnrichedPressItem }) {
       target="_blank"
       rel="noopener noreferrer"
       className="mr2-press-card mr2-press-card--logo"
-      aria-label={[item.headline, item.source].filter(Boolean).join(' — ') || label}
+      aria-label={[item.headline, item.source].filter(Boolean).join(', ') || label}
     >
       <span className="mr2-press-card__label mr2-press-card__label--logo">{label}</span>
       {item.thumbnail ? (
@@ -132,7 +132,7 @@ function ClippingCard({ item, onOpen }: { item: EnrichedPressItem; onOpen: () =>
       type="button"
       onClick={onOpen}
       className="mr2-press-card mr2-press-card--clipping"
-      aria-label={`Expand: ${[item.headline, item.source].filter(Boolean).join(' — ') || label}`}
+      aria-label={`Expand: ${[item.headline, item.source].filter(Boolean).join(', ') || label}`}
     >
       <span className="mr2-press-card__frame">
         <Image
@@ -257,7 +257,7 @@ export default function PressPage({ items }: { items: EnrichedPressItem[] }) {
       {items.length === 0 ? (
         <>
           <GhostGrid />
-          <p className="mr2-press-empty">Coverage coming soon — check back shortly.</p>
+          <p className="mr2-press-empty">Coverage coming soon. Check back shortly.</p>
         </>
       ) : (
         <div className="mr2-press-bento">

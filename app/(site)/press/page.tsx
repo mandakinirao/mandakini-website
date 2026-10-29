@@ -5,7 +5,7 @@ import type { EnrichedPressItem } from '@/lib/press'
 import '@/styles/pages.css'
 
 export const metadata: Metadata = {
-  title: 'Press — Mandakini Rao',
+  title: 'Press | Mandakini Rao',
   description: 'Press, features, interviews and podcasts featuring Mandakini Rao.',
 }
 

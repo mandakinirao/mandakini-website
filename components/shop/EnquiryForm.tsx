@@ -44,7 +44,7 @@ export default function EnquiryForm({ contactEmail = 'mandakinirao@gmail.com' }:
 
     const mailto =
       `mailto:${contactEmail}` +
-      `?subject=${encodeURIComponent(`Private Collection Enquiry — ${name}`)}` +
+      `?subject=${encodeURIComponent(`Private Collection Enquiry: ${name}`)}` +
       `&body=${encodeURIComponent(body)}`
 
     window.location.href = mailto

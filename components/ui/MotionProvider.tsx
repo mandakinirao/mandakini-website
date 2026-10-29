@@ -8,12 +8,10 @@ import {
   initLenis,
   initVelocitySkew,
 } from '@/lib/motion'
-import CursorFollower from '@/components/ui/CursorFollower'
 
 /**
  * Mounted once in the root layout: owns the Lenis instance, the
- * velocity-skew binding, the global cursor follower, and the route
- * transition contract.
+ * velocity-skew binding, and the route transition contract.
  *
  * Route transitions: persistent components (nav, footer) keep their
  * ScrollTriggers across client-side navigation, so their measured
@@ -50,6 +48,5 @@ export default function MotionProvider() {
     }
   }, [pathname, isStudio])
 
-  if (isStudio) return null
-  return <CursorFollower />
+  return null
 }

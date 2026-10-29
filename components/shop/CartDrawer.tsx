@@ -109,7 +109,7 @@ export default function CartDrawer() {
 
             {items.length === 0 ? (
               <p className="mr-cart__empty">
-                Nothing here yet — the editions await.
+                Nothing here yet. The editions await.
               </p>
             ) : (
               <>

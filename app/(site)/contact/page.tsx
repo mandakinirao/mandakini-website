@@ -5,7 +5,7 @@ import { getSiteSettings } from '@/lib/site-settings'
 import '@/styles/pages.css'
 
 export const metadata: Metadata = {
-  title: 'Contact — Mandakini Rao',
+  title: 'Contact | Mandakini Rao',
   description: 'Get in touch with Mandakini Rao about commissions, workshops, and original works.',
 }
 

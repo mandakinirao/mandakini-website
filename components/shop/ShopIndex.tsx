@@ -53,7 +53,7 @@ export default function ShopIndex({
           <h1>New editions are on the easel</h1>
         </header>
         <div className="mr-page__note">
-          <p>Nothing is listed right now — check back soon, or ask about original works.</p>
+          <p>Nothing is listed right now. Check back soon, or ask about original works.</p>
           <PillCta href="/">Back home</PillCta>
         </div>
       </section>

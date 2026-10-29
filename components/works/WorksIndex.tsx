@@ -39,7 +39,7 @@ export default function WorksIndex({
   featured,
   headline = 'Bodies of work',
   emptyHeadline = 'New work is on the easel',
-  emptyBody = 'No projects are published yet — the studio is busy. Check back soon.',
+  emptyBody = 'No projects are published yet. The studio is busy. Check back soon.',
 }: WorksIndexProps) {
   const rootRef = useRef<HTMLElement>(null)
   const previewRef = useRef<HTMLDivElement>(null)
@@ -177,7 +177,7 @@ export default function WorksIndex({
             <span className="mr-wfeat__image mr-mask">
               <Image
                 src={item.images[0]}
-                alt={`${item.name} — cover`}
+                alt={`${item.name}, cover`}
                 fill
                 sizes="(max-width: 800px) 92vw, 44vw"
                 data-reveal-img

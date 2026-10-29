@@ -6,8 +6,8 @@ import { getSiteSettings } from '@/lib/site-settings'
 import '@/styles/pages.css'
 
 export const metadata: Metadata = {
-  title: 'Projects — Mandakini Rao',
-  description: 'Bodies of work by Mandakini Rao — series of paintings and photographs from the Hyderabad studio.',
+  title: 'Projects | Mandakini Rao',
+  description: 'Bodies of work by Mandakini Rao: series of paintings and photographs from the Hyderabad studio.',
 }
 
 export const revalidate = 60

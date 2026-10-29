@@ -14,7 +14,7 @@ interface Params {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const print = await getShopItemBySlug(params.slug)
   return {
-    title: print ? `${print.title} — Mandakini Rao` : 'Print — Mandakini Rao',
+    title: print ? `${print.title} | Mandakini Rao` : 'Print | Mandakini Rao',
     description: print?.desc,
   }
 }

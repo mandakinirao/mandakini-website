@@ -12,7 +12,7 @@ interface Params {
 export async function generateMetadata({ params }: Params): Promise<Metadata> {
   const series = await getSeriesBySlug(params.slug)
   return {
-    title: series ? `${series.name} — Mandakini Rao` : 'Project — Mandakini Rao',
+    title: series ? `${series.name} | Mandakini Rao` : 'Project | Mandakini Rao',
     description: series?.desc,
   }
 }

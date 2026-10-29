@@ -8,7 +8,7 @@ export const homepageSchema = defineType({
   fields: [
     defineField({
       name: 'heroRevealTop',
-      title: 'Hero Reveal — Top image',
+      title: 'Hero Reveal: Top image',
       type: 'image',
       options: { hotspot: true },
       description:
@@ -23,7 +23,7 @@ export const homepageSchema = defineType({
     }),
     defineField({
       name: 'heroRevealBottom',
-      title: 'Hero Reveal — Bottom image',
+      title: 'Hero Reveal: Bottom image',
       type: 'image',
       options: { hotspot: true },
       description:

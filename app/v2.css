@@ -38,10 +38,6 @@ body.mr2-mode {
   --rule-current: var(--v2-fg-faint);
 }
 
-body.mr2-mode .mr-cursor {
-  display: none;
-}
-
 /* ── Scrollbar — follows v2 theme stage ────────────────────────────── */
 body.mr2-mode::-webkit-scrollbar-track { background: var(--v2-bg); }
 body.mr2-mode::-webkit-scrollbar-thumb { background: var(--v2-fg-faint); }
@@ -106,62 +102,10 @@ body.mr2-mode .menu-overlay__links a {
   display: block;
 }
 
-/* ── Custom cursor — ring + dot ────────────────────────────────────
-   Outer ring trails (0.5s power3.out); inner dot is tighter (0.14s).
-   Portal-mounted to body; absent on touch / non-(pointer:fine).
-   Ring uses --v2-fg so it reads on both the dark and light stages;
-   dot is fixed terracotta. */
-
-@media (pointer: fine) {
-  body.mr2-mode,
-  body.mr2-mode * {
-    cursor: none !important;
-  }
-
-  /* Cart drawer / address modal: restore the native pointer and hide the
-     custom cursor so it can't render as a stray dot over the panel UI. */
-  body.mr2-mode.mr-modal-open,
-  body.mr2-mode.mr-modal-open * {
-    cursor: auto !important;
-  }
-}
-
-/* GSAP's autoAlpha sets opacity/visibility via inline style (higher
-   priority than any class selector), so this needs !important to win —
-   same technique as the cursor:none rule above. */
-body.mr-modal-open .mr2-cursor__ring,
-body.mr-modal-open .mr2-cursor__dot {
-  opacity: 0 !important;
-  visibility: hidden !important;
-}
-
-.mr2-cursor__ring,
-.mr2-cursor__dot {
-  position: fixed;
-  top: 0;
-  left: 0;
-  pointer-events: none;
-  z-index: 9999;
-  will-change: transform;
-  border-radius: 50%;
-}
-
-.mr2-cursor__ring {
-  width: 34px;
-  height: 34px;
-  border: 1.5px solid var(--v2-fg);
-}
-
-.mr2-cursor__dot {
-  width: 8px;
-  height: 8px;
-  background: #b8572a; /* terracotta — fixed, visible on both stages */
-}
-
 /* ── Corner cat — persistent bottom-right mascot ───────────────────────
    A small black cat fixed to the bottom-right on every site page. z-index
    100 keeps it below the nav (120), fullscreen menu (110), loader (300),
-   cart chip (310) and cursor (9999) — the menu and loader cleanly cover it
+   cart chip (310) — the menu and loader cleanly cover it
    and it never blocks chrome. pointer-events:none so it never eats clicks. */
 
 .mr2-cat {
@@ -654,7 +598,6 @@ html.mr-intro-seen .mr2-loader {
   inset: 0;
   width: 100%;
   height: 100%;
-  cursor: none; /* custom cursor handles pointer — no default crosshair */
 }
 
 /* Top scrim — darkens the crown of the hero so the cream logo mark reads

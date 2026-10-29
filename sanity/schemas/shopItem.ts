@@ -23,7 +23,7 @@ export const shopItemSchema = defineType({
           const current = slug?.current
           if (!current) return true
           if (RESERVED_SLUGS.includes(current)) {
-            return `"${current}" is a reserved route — choose a different slug.`
+            return `"${current}" is a reserved route. Choose a different slug.`
           }
           return true
         }),
@@ -61,9 +61,9 @@ export const shopItemSchema = defineType({
       type: 'string',
       options: {
         list: [
-          { title: '✅ Available — listed & purchasable', value: 'available' },
-          { title: '🔴 Sold Out — visible but not purchasable', value: 'soldOut' },
-          { title: '📦 Hidden / Delisted — removed from all listings', value: 'hidden' },
+          { title: '✅ Available: listed & purchasable', value: 'available' },
+          { title: '🔴 Sold Out: visible but not purchasable', value: 'soldOut' },
+          { title: '📦 Hidden / Delisted: removed from all listings', value: 'hidden' },
         ],
         layout: 'radio',
       },

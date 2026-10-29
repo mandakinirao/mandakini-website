@@ -36,7 +36,7 @@ const client = createClient({
 const ITEMS = [
   {
     _type: 'shopItem',
-    title: 'Subbulakshmi, Singing — Print',
+    title: 'Subbulakshmi, Singing (Print)',
     slug: { _type: 'slug', current: 'subbulakshmi-singing-print' },
     desc: 'Archival giclée print of the duotone portrait, on 308gsm cotton rag. Signed and numbered by hand in the Hyderabad studio, shipped rolled with a certificate of authenticity.',
     itemType: 'print',
@@ -55,7 +55,7 @@ const ITEMS = [
   },
   {
     _type: 'shopItem',
-    title: 'Palette No. 9 — Print',
+    title: 'Palette No. 9 (Print)',
     slug: { _type: 'slug', current: 'palette-no-9-print' },
     desc: 'A study in earth and ochre from the palette series. Archival print on cotton rag, signed and numbered, shipped rolled from Hyderabad.',
     itemType: 'print',
@@ -74,9 +74,9 @@ const ITEMS = [
   },
   {
     _type: 'shopItem',
-    title: 'Raga in Ochre — Print',
+    title: 'Raga in Ochre (Print)',
     slug: { _type: 'slug', current: 'raga-in-ochre-print' },
-    desc: 'From the Subbulakshmi series — a small edition of thirty. Archival giclée on cotton rag, signed and numbered, with certificate.',
+    desc: 'From the Subbulakshmi series: a small edition of thirty. Archival giclée on cotton rag, signed and numbered, with certificate.',
     itemType: 'print',
     purchaseType: 'buy',
     basePrice: 5200,

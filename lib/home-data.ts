@@ -89,7 +89,7 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
     index: '01',
     name: 'The Subbulakshmi Series',
     slug: 'the-subbulakshmi-series',
-    desc: 'One voice, many faces — a tribute to M.S. Subbulakshmi.',
+    desc: 'One voice, many faces: a tribute to M.S. Subbulakshmi.',
     href: '/works/the-subbulakshmi-series',
     images: [
       '/art/subbulakshmi/ms-sq-1.jpg',
@@ -101,14 +101,14 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
       {
         src: '/art/subbulakshmi/ms-sq-1.jpg',
         title: 'Raga in Ochre',
-        note: 'The first of the series — the gaze that started it.',
-        sale: { href: '/shop/raga-in-ochre-print', label: 'Edition of 30 — from ₹5,200' },
+        note: 'The first of the series, the gaze that started it.',
+        sale: { href: '/shop/raga-in-ochre-print', label: 'Edition of 30 , from ₹5,200' },
       },
       {
         src: '/art/subbulakshmi/ms-sq-2.jpg',
         title: 'Subbulakshmi, Singing',
         note: 'Mid-phrase, eyes upward.',
-        sale: { href: '/shop/subbulakshmi-singing-print', label: 'Edition of 50 — from ₹4,800' },
+        sale: { href: '/shop/subbulakshmi-singing-print', label: 'Edition of 50 , from ₹4,800' },
       },
       {
         src: '/art/subbulakshmi/ms-sq-3.jpg',
@@ -154,8 +154,8 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
       {
         src: '/art/loader/color-palette-vivid.jpeg',
         title: 'Palette No. 9',
-        note: 'Vivid set — the loudest table in the studio.',
-        sale: { href: '/shop/palette-no-9-print', label: 'Edition of 50 — from ₹3,600' },
+        note: 'Vivid set, the loudest table in the studio.',
+        sale: { href: '/shop/palette-no-9-print', label: 'Edition of 50 , from ₹3,600' },
       },
       { src: '/art/loader/portrait-home-studio-color.jpg', title: 'The Studio Wall' },
     ],
@@ -166,12 +166,12 @@ const PLACEHOLDER_SERIES: HomeSeries[] = [
 const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
   {
     quote: 'Mandakini sees warmth where the rest of us see walls.',
-    personName: 'Priya N. — collector, Hyderabad',
+    personName: 'Priya N., collector, Hyderabad',
     personImage: '',
   },
   {
     quote: 'A painter’s eye behind every photograph.',
-    personName: 'Editor — Paint & Process',
+    personName: 'Editor, Paint & Process',
     personImage: '',
   },
   {
@@ -184,9 +184,9 @@ const PLACEHOLDER_TESTIMONIALS: HomeTestimonial[] = [
 // Placeholder prints — shown until real shop items are added in Studio.
 const PLACEHOLDER_PRINTS: HomePrint[] = [
   {
-    title: 'Subbulakshmi, Singing — Print',
+    title: 'Subbulakshmi, Singing (Print)',
     slug: 'subbulakshmi-singing-print',
-    price: 'Edition of 50 — from ₹4,800',
+    price: 'Edition of 50 , from ₹4,800',
     image: '/art/subbulakshmi/ms-sq-3.jpg',
     images: ['/art/subbulakshmi/ms-sq-3.jpg'],
     href: '/shop/subbulakshmi-singing-print',
@@ -196,9 +196,9 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
     stock: 50,
   },
   {
-    title: 'Palette No. 9 — Print',
+    title: 'Palette No. 9 (Print)',
     slug: 'palette-no-9-print',
-    price: 'Edition of 50 — from ₹3,600',
+    price: 'Edition of 50 , from ₹3,600',
     image: '/art/studio/palette-earthy.jpg',
     images: ['/art/studio/palette-earthy.jpg'],
     href: '/shop/palette-no-9-print',
@@ -208,13 +208,13 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
     stock: 50,
   },
   {
-    title: 'Raga in Ochre — Print',
+    title: 'Raga in Ochre (Print)',
     slug: 'raga-in-ochre-print',
-    price: 'Edition of 30 — from ₹5,200',
+    price: 'Edition of 30 , from ₹5,200',
     image: '/art/subbulakshmi/ms-sq-1.jpg',
     images: ['/art/subbulakshmi/ms-sq-1.jpg'],
     href: '/shop/raga-in-ochre-print',
-    desc: 'From the Subbulakshmi series — a small edition of thirty. Archival giclée on cotton rag, signed and numbered, with certificate.',
+    desc: 'From the Subbulakshmi series: a small edition of thirty. Archival giclée on cotton rag, signed and numbered, with certificate.',
     available: true,
     amount: 5200,
     stock: 30,
@@ -225,8 +225,8 @@ const PLACEHOLDER_PRINTS: HomePrint[] = [
 const PLACEHOLDER_PRESS: HomePress[] = [
   { source: 'The Hindu', title: 'A studio where music becomes paint', year: '2025' },
   { source: 'Deccan Chronicle', title: 'Hyderabad artists to watch', year: '2024' },
-  { source: 'Telangana Today', title: 'Portraits of a voice — the Subbulakshmi series', year: '2024' },
-  { source: 'Paint & Process', title: 'Podcast — episode 41', year: '2023' },
+  { source: 'Telangana Today', title: 'Portraits of a voice: the Subbulakshmi series', year: '2024' },
+  { source: 'Paint & Process', title: 'Podcast: episode 41', year: '2023' },
 ]
 
 interface SanitySeriesLite {
@@ -292,7 +292,7 @@ function mapShopDoc(s: ShopDoc, i: number, urlForImage: UrlFor): HomePrint {
     title: s.title ?? 'Untitled print',
     slug: s.slug ?? `print-${i + 1}`,
     price: s.editionSize
-      ? `Edition of ${s.editionSize}${s.basePrice ? ' — from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
+      ? `Edition of ${s.editionSize}${s.basePrice ? ', from ₹' + s.basePrice.toLocaleString('en-IN') : ''}`
       : s.basePrice ? `from ₹${s.basePrice.toLocaleString('en-IN')}` : '',
     image: allImages[0],
     images: allImages,
