@@ -40,7 +40,7 @@ const securityHeaders = [
       // i.ytimg.com, etc.) — the source list can't be known in advance. They
       // load unoptimized (components/press/PressPage.tsx) so this only ever
       // permits a direct browser fetch, never the image-optimizer proxy.
-      "img-src 'self' data: https:",
+      "img-src 'self' data: blob: https:",
       "font-src 'self' data: https://fonts.gstatic.com",
       "frame-src https://*.razorpay.com",
       "connect-src 'self' https://i4t9kzxg.api.sanity.io https://*.razorpay.com",
