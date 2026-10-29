@@ -134,3 +134,15 @@ export function toPostFields(v: PostInput) {
     }),
   }
 }
+
+/** A blank paragraph for the editor (shared by server pages and the client editor). */
+export function newParagraph() {
+  return {
+    key: newKey(),
+    text: [] as PTBlock[],
+    photos: [] as never[],
+    position: 'right' as PhotoPosition,
+    displayMode: 'collage' as PhotoDisplay,
+    pullQuote: false,
+  }
+}

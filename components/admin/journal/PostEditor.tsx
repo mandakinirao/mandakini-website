@@ -7,6 +7,7 @@ import ConfirmButton from '@/components/admin/ConfirmButton'
 import type { Photo } from '@/components/admin/PhotoDropzone'
 import SinglePhoto from '@/components/admin/SinglePhoto'
 import ParagraphCard, { type ParagraphState } from '@/components/admin/journal/ParagraphCard'
+import { newParagraph } from '@/lib/admin/journal'
 import { toPrintImage } from '@/lib/admin/photos'
 
 export interface PostValues {
@@ -19,8 +20,6 @@ export interface PostValues {
   paragraphs: ParagraphState[]
 }
 
-const newKey = () => Math.random().toString(36).slice(2, 14)
-export const emptyParagraph = (): ParagraphState => ({ key: newKey(), text: [], photos: [], position: 'right', displayMode: 'collage', pullQuote: false })
 
 export default function PostEditor({ id, initial }: { id?: string; initial: PostValues }) {
   const router = useRouter()
@@ -48,7 +47,7 @@ export default function PostEditor({ id, initial }: { id?: string; initial: Post
     []
   )
   const insertAt = (i: number) => {
-    setParas((ps) => [...ps.slice(0, i), emptyParagraph(), ...ps.slice(i)])
+    setParas((ps) => [...ps.slice(0, i), newParagraph(), ...ps.slice(i)])
     setDirty(true)
   }
   const move = (i: number, dir: -1 | 1) => {

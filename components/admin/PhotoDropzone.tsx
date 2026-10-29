@@ -162,7 +162,7 @@ export default function PhotoDropzone({
                 // eslint-disable-next-line @next/next/no-img-element
                 <img src={p.url ? `${p.url}?w=400&fit=max&auto=format` : p.preview ?? ''} alt="" draggable={false} />
               )}
-              {!single && p.key === firstGood && <span className="mr-admin-photo__cover">Cover</span>}
+              {!single && !captions && p.key === firstGood && <span className="mr-admin-photo__cover">Cover</span>}
               <button
                 type="button"
                 className="mr-admin-photo__remove"
