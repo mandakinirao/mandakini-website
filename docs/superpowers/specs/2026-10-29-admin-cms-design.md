@@ -178,8 +178,10 @@ mail client.
 ### 6.7 Website
 Plain pages, one per area:
 - **Homepage** — the two hero reveal photos (top/bottom), each a drop zone.
-  Featured prints/projects/press are managed via the "Show on homepage" switches
-  in their own sections, plus a drag-to-order list here.
+  Featured prints/projects/press are chosen via the "Show on homepage" switch
+  on each item in its own section; this page shows what's currently featured
+  as drag-to-order lists (writes `homepageOrder`). See §7 "Homepage featuring"
+  — the public site must be changed to actually honour these switches.
 - **About** — writes the **`aboutPage`** document (the one the site actually
   reads: `name`, `discipline`, hero words/images, `bodyParagraph`,
   `aboutBlockBio`, `aboutBlockPortrait`, `edgeWords`, `homeSnippet`,
@@ -206,10 +208,25 @@ Plain pages, one per area:
   enquiries).
 - **Writes:** Next.js server actions using `@sanity/client` with
   `SANITY_API_WRITE_TOKEN` (server-only). Validate input server-side.
-- **Images:** upload via Sanity assets API from a server action (or a
-  server-issued upload, as long as the token never reaches the browser); keep
-  `hotspot` support. Respect Vercel's 4.5 MB request-body limit — resize/compress
-  in the browser before upload, or upload per-file.
+- **Images:** uploaded to the Sanity assets API by our server, one file per
+  request, so the token never reaches the browser; keep `hotspot` support.
+  Two size limits apply: Next.js 14 server actions accept only **1 MB** bodies
+  by default, and Vercel functions cap request bodies at **4.5 MB**. So: resize
+  and compress each photo in the browser before upload (long edge ~2500 px,
+  quality ~0.85, comfortably under 4.5 MB), and send it to a dedicated
+  authenticated route handler (`/api/admin/upload`) rather than a server action.
+  The route returns the Sanity asset reference; the form's save action then
+  stores that reference.
+- **Homepage featuring (public-site change required):** today the homepage
+  ignores the per-item `featuredOnHomepage` switch. Prints and projects are
+  read from `siteSettings.featuredShopItems` / `featuredProjects` curated
+  arrays (`featuredShopItemsQuery`, `featuredSeriesQuery` in
+  `sanity/lib/queries.ts`), which have no field in the Studio schema and don't
+  exist in the dataset — so the homepage silently falls back to "first N".
+  Press uses all items by `displayOrder`. Change these queries to select
+  `featuredOnHomepage == true` ordered by `homepageOrder`, keeping the existing
+  caps (4 projects, 3 prints, 8 press) and the existing "first N" fallback when
+  nothing is featured. Remove the unused curated-array references.
 - **Live on save:** after each write, `revalidatePath` the affected public pages
   (or `revalidatePath('/', 'layout')`, matching the current `/api/revalidate`
   approach).
@@ -229,7 +246,8 @@ Plain pages, one per area:
 2. **Orders** — list, order page, mark shipped (+ email), mark delivered,
    cancel & refund (+ email, stock restore).
 3. **Shop** — list with drag-reorder, add/edit print with multi-photo upload.
-4. **Website** — homepage photos, About, Contact & footer, Testimonials.
+4. **Website** — homepage photos, About, Contact & footer, Testimonials; plus
+   the public-site query change so "Show on homepage" works (§7).
 5. **Projects**, **Press**, **Messages**.
 6. **Journal** editor.
 
@@ -248,7 +266,10 @@ merging to `main` (merging to `main` deploys to production).
 
 ## 10. Decisions made by the developer (please check)
 
+- Homepage featuring uses the per-item "Show on homepage" switch (approved
+  by the user, option A), not separate curated lists.
 - Cancel = **full refund only** (no partial refunds), and it **restores stock**.
+  _(Still awaiting the user's confirmation.)_
 - "Delivered" is a manual button, no courier tracking integration.
 - No draft/publish: save is live.
 - Single shared password login, not Google sign-in (can be added later).
