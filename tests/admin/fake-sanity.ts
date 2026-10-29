@@ -7,7 +7,10 @@ export interface PatchOp {
   unset?: string[]
 }
 
-export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
+export function makeFakeClient(
+  docs: Record<string, Record<string, unknown>>,
+  fetchOverride?: (query: string, params?: Record<string, unknown>) => unknown
+) {
   const patches: PatchOp[] = []
   const created: Record<string, unknown>[] = []
   const transactions: PatchOp[][] = []
@@ -26,7 +29,8 @@ export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
   }
 
   const client = {
-    async fetch(_query: string, params?: Record<string, unknown>) {
+    async fetch(query: string, params?: Record<string, unknown>) {
+      if (fetchOverride) return fetchOverride(query, params)
       if (params?.id) return docs[params.id as string] ?? null
       if (params?.ids) return (params.ids as string[]).map((i) => docs[i]).filter(Boolean)
       return null
