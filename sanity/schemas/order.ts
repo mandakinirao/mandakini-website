@@ -100,6 +100,16 @@ export const orderSchema = defineType({
       type: 'string',
       description: 'e.g. Delhivery, Bluedart. Enter after shipping the order.',
     }),
+    defineField({ name: 'shippedAt', title: 'Shipped At', type: 'datetime', readOnly: true }),
+    defineField({ name: 'deliveredAt', title: 'Delivered At', type: 'datetime', readOnly: true }),
+    defineField({
+      name: 'refundId',
+      title: 'Razorpay Refund ID',
+      type: 'string',
+      description: 'Set when the order is cancelled and refunded from /admin.',
+      readOnly: true,
+    }),
+    defineField({ name: 'refundedAt', title: 'Refunded At', type: 'datetime', readOnly: true }),
     defineField({
       name: 'shippedEmailSent',
       title: 'Shipped Email Sent',
