@@ -48,6 +48,9 @@
 @tailwind utilities;
 
 :root {
+  /* One vertical rhythm for homepage sections (shop, private collection,
+     testimonials, press, footer). */
+  --section-pad-y: clamp(4.5rem, 10vh, 7rem);
   /* ── Color tokens (spec §2) ── */
   --bg-cream: #FAF3EA;
   --bg-linen: #F0E8DC;
@@ -519,8 +522,7 @@ button:focus-visible {
   display: grid;
   justify-items: center;
   row-gap: 1.8rem;
-  margin-top: clamp(6rem, 13vh, 10rem);
-  padding: clamp(7rem, 16vh, 11rem) clamp(20px, 6vw, 80px);
+  padding: var(--section-pad-y) clamp(20px, 6vw, 80px);
   border-radius: clamp(28px, 3.5vw, 56px) clamp(28px, 3.5vw, 56px) 0 0;
   background: var(--ink-night);
   color: var(--ink-cream);
@@ -1773,5 +1775,11 @@ body.home-intro-active .site-nav {
     animation-duration: 1ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 1ms !important;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --section-pad-y: 3.5rem;
   }
 }

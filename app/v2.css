@@ -786,7 +786,9 @@ html.mr-intro-seen .mr2-loader {
   top: 6%;
   left: 50%;
   z-index: 2;
-  width: min(36vw, 400px);
+  /* Larger stack so each project screen isn't mostly empty cream; the vh cap
+     keeps it clear of the title on short laptop screens. */
+  width: min(40vw, 460px, 50vh);
   aspect-ratio: 4 / 5;
   transform: translateX(-50%);
   will-change: transform;
@@ -956,12 +958,12 @@ html.mr-intro-seen .mr2-loader {
 .mr2-shop {
   position: relative;
   overflow: hidden;
-  padding: 16vh clamp(20px, 6vw, 80px);
+  padding: var(--section-pad-y) clamp(20px, 6vw, 80px);
 }
 
 .mr2-shop__head {
   position: relative;
-  margin-bottom: 9vh;
+  margin-bottom: clamp(2.5rem, 6vh, 4rem);
   text-align: center;
 }
 
@@ -1032,14 +1034,14 @@ html.mr-intro-seen .mr2-loader {
 .mr2-shop__cta {
   display: flex;
   justify-content: center;
-  margin-top: 9vh;
+  margin-top: clamp(2.5rem, 6vh, 4rem);
 }
 
 /* ── Press — opposing marquees ─────────────────────────────────────── */
 
 .mr2-press {
   overflow: hidden;
-  padding: 13vh 0;
+  padding: var(--section-pad-y) 0;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
   row-gap: 2.4rem;
@@ -1140,9 +1142,8 @@ html.mr-intro-seen .mr2-loader {
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  min-height: 92vh;
   overflow: hidden;
-  padding: 12vh clamp(20px, 6vw, 80px) 0;
+  padding: var(--section-pad-y) clamp(20px, 6vw, 80px) 0;
 }
 
 .mr2-footer__cols {
@@ -1194,7 +1195,7 @@ html.mr-intro-seen .mr2-loader {
 .mr2-footer__legal {
   display: flex;
   justify-content: space-between;
-  padding: 6vh 0 2vh;
+  padding: clamp(2.5rem, 6vh, 4rem) 0 2vh;
   color: var(--v2-fg-dim);
   font-family: var(--font-ui);
   font-size: 12px;
@@ -1327,12 +1328,60 @@ body.mr2-mode .mr-detail__sale:hover {
 /* Quiet beat between the hero and stripe; cream/cacao, no amber field */
 
 .mr2-teaser {
+  position: relative;
+  z-index: 1;
   background: var(--v2-bg);
-  padding: clamp(4rem, 7vh, 6rem) clamp(20px, 6vw, 80px);
+  padding: var(--section-pad-y) clamp(20px, 6vw, 80px);
+  display: grid;
+  grid-template-columns: minmax(220px, 0.8fr) 1.2fr;
+  align-items: center;
+  gap: clamp(2rem, 6vw, 6rem);
+  max-width: 1240px;
+  margin: 0 auto;
+}
+
+.mr2-teaser__photo {
+  position: relative;
+  aspect-ratio: 4 / 5;
+  overflow: hidden;
+  border-radius: clamp(18px, 2.4vw, 32px);
+  box-shadow: 0 18px 40px rgba(44, 26, 14, 0.18);
+}
+
+.mr2-teaser__photo img {
+  object-fit: cover;
+}
+
+.mr2-teaser__text {
   display: flex;
   flex-direction: column;
   align-items: flex-start;
-  gap: clamp(1.5rem, 3vh, 2.5rem);
+  gap: clamp(1.2rem, 2.6vh, 2rem);
+}
+
+.mr2-teaser__eyebrow {
+  color: var(--accent-terracotta);
+  font-family: var(--font-label);
+  font-size: 13px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+}
+
+.mr2-teaser__body {
+  max-width: 46ch;
+  color: var(--v2-fg-dim);
+  font-family: var(--font-body);
+  font-size: clamp(16px, 1.35vw, 19px);
+  line-height: 1.75;
+}
+
+@media (max-width: 780px) {
+  .mr2-teaser {
+    grid-template-columns: 1fr;
+  }
+  .mr2-teaser__photo {
+    max-width: 320px;
+  }
 }
 
 .mr2-teaser__line {

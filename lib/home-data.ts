@@ -488,7 +488,7 @@ export async function getHomeData(): Promise<HomeData> {
     client.fetch<{ heroRevealTop?: SanityImageType; heroRevealBottom?: SanityImageType } | null>(queries.homepageHeroQuery),
     client.fetch<{ tagline?: string } | null>(queries.siteSettingsBasicQuery),
     client.fetch<{ _id: string; quote: string; personName: string; personImage?: SanityImageType }[] | null>(queries.testimonialsQuery),
-    client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string } | null>(queries.aboutHomeDataQuery),
+    client.fetch<{ homeSnippet?: string; aboutTeaserLine?: string; aboutBlockPortrait?: SanityImageType } | null>(queries.aboutHomeDataQuery),
   ])
 
   const shopItems = pickFeatured(ok(shopRes), ok(firstShopRes), 3)
@@ -538,8 +538,10 @@ export async function getHomeData(): Promise<HomeData> {
       : '',
     tagline: siteBasic?.tagline ?? 'Painter · Educator · Storyteller',
     aboutBio: homeSnippet,
-    // Hardcoded until a colour portrait is uploaded to Studio (current upload is B&W).
-    aboutPortrait: '/art/about-portrait.jpg',
+    // Same portrait as the About page (editable in /admin → Website → About).
+    aboutPortrait: aboutData?.aboutBlockPortrait?.asset
+      ? urlForImage(aboutData.aboutBlockPortrait).width(900).height(1100).fit('crop').url()
+      : '/art/about-portrait.jpg',
     aboutTeaserLine: aboutData?.aboutTeaserLine ?? homeSnippet,
   }
 }

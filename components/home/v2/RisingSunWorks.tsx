@@ -139,7 +139,7 @@ export default function RisingSunWorks({ series: allSeries }: RisingSunWorksProp
         scrollTrigger: {
           trigger: stage,
           start: 'top top',
-          end: `+=${(steps + 1) * 60}%`,
+          end: `+=${(steps + 1) * 42}%`,
           pin: true,
           scrub: true,
           snap: {
