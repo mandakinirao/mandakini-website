@@ -106,8 +106,7 @@ body.mr2-mode .menu-overlay__links a {
    A small black cat fixed to the bottom-right on every site page. z-index
    100 keeps it below the nav (120), fullscreen menu (110), loader (300),
    cart chip (310) — the menu and loader cleanly cover it
-   and it never blocks chrome. Only the cat itself and its bubble take
-   clicks; the wrapper stays pointer-events:none. */
+   and it never blocks chrome. pointer-events:none so it never eats clicks. */
 
 .mr2-cat {
   position: fixed;
@@ -119,82 +118,6 @@ body.mr2-mode .menu-overlay__links a {
   pointer-events: none;
   opacity: 1;
   transition: opacity 0.45s ease, visibility 0.45s ease;
-}
-
-.mr2-cat__btn {
-  display: block;
-  width: 100%;
-  height: 100%;
-  padding: 0;
-  border: 0;
-  background: none;
-  cursor: pointer;
-  pointer-events: auto;
-}
-
-.mr2-cat__lean {
-  display: block;
-  width: 100%;
-  height: 100%;
-  transform-origin: 50% 100%;
-  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
-  will-change: transform;
-}
-
-.mr2-cat__btn--hop {
-  animation: mr2-cat-hop 0.65s cubic-bezier(0.34, 1.56, 0.64, 1);
-}
-
-@keyframes mr2-cat-hop {
-  0% { transform: translateY(0) scale(1, 1); }
-  20% { transform: translateY(0) scale(1.06, 0.92); }
-  50% { transform: translateY(-14%) scale(0.96, 1.05); }
-  80% { transform: translateY(0) scale(1.03, 0.97); }
-  100% { transform: translateY(0) scale(1, 1); }
-}
-
-.mr2-cat__bubble {
-  position: absolute;
-  right: 55%;
-  bottom: 88%;
-  width: max-content;
-  max-width: min(240px, 70vw);
-  padding: 0.7rem 1rem;
-  border-radius: 1rem 1rem 0.25rem 1rem;
-  background: var(--bg-cream, #f5efe4);
-  color: var(--ink-cacao, #2c1a0e);
-  box-shadow: 0 6px 24px rgba(44, 26, 14, 0.16);
-  font-family: var(--font-ui);
-  font-size: 0.9rem;
-  line-height: 1.35;
-  pointer-events: auto;
-  animation: mr2-cat-bubble 0.3s cubic-bezier(0.22, 1, 0.36, 1);
-  transform-origin: 100% 100%;
-}
-
-.mr2-cat__bubble a {
-  color: inherit;
-  text-decoration: none;
-}
-
-.mr2-cat__bubble a:hover {
-  text-decoration: underline;
-  text-underline-offset: 3px;
-}
-
-@keyframes mr2-cat-bubble {
-  from { opacity: 0; transform: translateY(6px) scale(0.92); }
-  to { opacity: 1; transform: none; }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .mr2-cat__bubble,
-  .mr2-cat__btn--hop {
-    animation: none;
-  }
-  .mr2-cat__lean {
-    transition: none;
-  }
 }
 
 /* Smaller floor on phones — at ~104px the cat reads as ~27% of a narrow
