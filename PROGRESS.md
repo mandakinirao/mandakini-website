@@ -1,5 +1,29 @@
 # Progress Log
 
+## /admin CMS — Phase 3: Journal (2026-10-29)
+- **Plan:** `docs/superpowers/plans/2026-10-29-admin-cms-phase3.md`. Branch `feat/admin-cms`, local only.
+- **Built:** Journal in the sidebar. List of posts (cover, date, Featured). Post editor on one page: cover photo, title, small line above the title, summary, date, Featured switch; then paragraphs, each with a writing box (Bold / Italic / Link; pasted text arrives as plain paragraphs), optional photos with captions, photo position Left / Right / Above / Below, Show together / One at a time, or "Make this a big quote"; move up/down, remove, add a paragraph anywhere. Publish / Save changes, delete with confirm.
+- **Safety:** text is re-cleaned on the server (normal paragraphs, bold, italic, http/https/mailto links only); empty paragraphs dropped.
+- **Tests:** 94. The live "100 Days Project" text round-trips through the editor unchanged.
+- **Not verified:** publishing/saving a real post (needs go-ahead to write to live data).
+
+## /admin CMS — Phase 2: Website, Projects, Press, Messages (2026-10-29)
+- **Branch:** `feat/admin-cms`, local only. Plan: `docs/superpowers/plans/2026-10-29-admin-cms-phase2.md`.
+- **Built:** sidebar now Home / Orders / Shop / Projects / Press / Messages / Website. Website hub → Homepage (two opening photos + drag order of homepage prints/projects/press), About (writes the `aboutPage` record the site reads: portrait, About text, homepage intro, teaser), Website words (the 13 site texts, blank = built-in wording, creates `siteSettings`), Testimonials (add/edit/delete/reorder). Projects and Press: grid, add/edit/delete, drag to reorder; Press has "Look it up" to prefill headline/publication from the link. Messages: New / Replied / Archived with Reply by email.
+- **Tests:** 77 unit tests.
+- **Verified:** every page renders against live data on a production build. **Not verified:** saving against live records (blocked pending go-ahead).
+- **Next:** Phase 3, the Journal editor.
+
+## /admin CMS — Phase 1: login, orders, shop, homepage featuring (2026-10-29)
+- **Branch:** `feat/admin-cms` (based on `chore/native-cursor-no-em-dashes`). Not pushed, not merged.
+- **Spec / plan:** `docs/superpowers/specs/2026-10-29-admin-cms-design.md`, `docs/superpowers/plans/2026-10-29-admin-cms-phase1.md`.
+- **Built:** password login at `/admin/login` (signed 30-day cookie, 5 tries / 15 min), admin shell + home summary, Orders (tabs, order page, Mark as shipped → tracking email, Mark as delivered, Cancel → full Razorpay refund + restock + email), Shop (grid with drag-to-reorder, add/edit/delete prints, multi-photo upload compressed in the browser to 2500px JPEG via `/api/admin/upload`), owner new-order email links to the order in /admin.
+- **Public site fixes:** homepage now follows each item's "Featured on Homepage" switch (prints 3, projects 4, press 8, falling back to the first N); it previously read Site Settings lists that don't exist. Print descriptions now show (queries read `desc`, data stores `description`). Visible effect today: "The Summit Collection" leaves the homepage because it isn't switched on.
+- **Tests:** Vitest added (`npm test`), 48 unit tests over session, orders/refunds/restock, shop rules, uploads, emails, featuring.
+- **Verified:** login/lockout/guard in the browser on a production build; upload route 401/400; homepage featuring + description against the live dataset.
+- **Not yet verified (needs a local `SANITY_API_WRITE_TOKEN` and Razorpay test keys):** order and shop screens against real data, a Test-mode refund.
+- **Vercel env to add before release:** `ADMIN_PASSWORD`, `ADMIN_SESSION_SECRET` (32+ random chars). `SANITY_API_WRITE_TOKEN` already exists.
+
 ## Font diagnosis — Konya.otf is a bad licensed source file, vendor copy needed (2026-08-10, Phase 4)
 - **Date:** 2026-08-10
 - **Task:** Diagnose the "OTS parsing error: CFF : Failed validating CharStrings INDEX" / "Failed to decode downloaded font" console errors. Original framing ("corrupt Staff woff2") was wrong on both counts — no Staff font exists anywhere in this repo (Phase 1), and a 404 cannot produce an OTS parsing error, since OTS only runs against a file that was successfully downloaded (correction the user supplied going into this phase).

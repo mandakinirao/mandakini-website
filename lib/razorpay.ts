@@ -124,3 +124,16 @@ export function safeCheckoutError(err: unknown): CheckoutErrorDetails {
   const redact = (s: string) => s.replace(/rzp_\S*/gi, '[redacted]')
   return { message: redact(message), code: code ? redact(code) : undefined }
 }
+
+/** Full refund of a captured payment. Server-side only. */
+export async function refundPayment(paymentId: string, amountPaise: number): Promise<{ id: string }> {
+  const keyId = process.env.RAZORPAY_KEY_ID?.trim()
+  const keySecret = process.env.RAZORPAY_KEY_SECRET?.trim()
+  if (!keyId) throw new RazorpayConfigError('RAZORPAY_KEY_ID')
+  if (!keySecret) throw new RazorpayConfigError('RAZORPAY_KEY_SECRET')
+
+  const Razorpay = (await import('razorpay')).default
+  const client = new Razorpay({ key_id: keyId, key_secret: keySecret })
+  const refund = await client.payments.refund(paymentId, { amount: amountPaise, speed: 'normal' })
+  return { id: refund.id }
+}

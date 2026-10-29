@@ -195,12 +195,14 @@ export async function POST(req: NextRequest) {
       items: items.map(({ title, quantity, priceAtPurchase }) => ({ title, quantity, priceAtPurchase })),
       amountTotal,
     }
+    const siteUrl = (process.env.NEXT_PUBLIC_SITE_URL ?? 'https://www.mandakinirao.com').split(',')[0].trim()
+    const adminUrl = `${siteUrl}/admin/orders/${encodeURIComponent(sanityId)}`
 
     if (customerEmail) {
       const confResult = await sendOrderConfirmation(emailPayload)
       if (!confResult.ok) console.error('[rzp-webhook] confirmation email failed:', confResult.error)
     }
-    const notifyResult = await sendOwnerNotification(emailPayload)
+    const notifyResult = await sendOwnerNotification({ ...emailPayload, adminUrl })
     if (!notifyResult.ok) console.error('[rzp-webhook] owner notification failed:', notifyResult.error)
 
     return NextResponse.json({ received: true })

@@ -14,7 +14,7 @@ export interface SiteSettings {
   privateCollectionLine: string
 }
 
-const DEFAULTS: SiteSettings = {
+export const DEFAULTS: SiteSettings = {
   worksPageHeadline: 'Bodies of work',
   worksEmptyHeadline: 'New work is on the easel',
   worksEmptyBody: 'No projects are published yet. The studio is busy. Check back soon.',

@@ -29,6 +29,8 @@ export interface OrderEmailPayload {
   shippingAddress: string
   items: OrderEmailItem[]
   amountTotal: number
+  /** Link to the order in /admin, owner email only. */
+  adminUrl?: string
 }
 
 const wrap = (body: string) => `
@@ -73,7 +75,7 @@ function orderConfirmationEmail(o: OrderEmailPayload) {
   }
 }
 
-function ownerNotificationEmail(o: OrderEmailPayload) {
+export function ownerNotificationEmail(o: OrderEmailPayload) {
   return {
     subject: `New order: ${o.orderNumber}`,
     html: wrap(`
@@ -86,6 +88,7 @@ function ownerNotificationEmail(o: OrderEmailPayload) {
       <p style="font-size:14px;line-height:1.6;color:rgba(44,26,14,0.6);margin:0;">
         Shipping to<br/>${esc(o.shippingAddress).replace(/\n/g, '<br/>')}
       </p>
+      ${o.adminUrl ? `<p style="margin:28px 0 0;"><a href="${esc(o.adminUrl)}" style="display:inline-block;padding:12px 24px;border-radius:999px;background:#B8572A;color:#F5EFE4;text-decoration:none;font-size:15px;">Open this order</a></p>` : ''}
     `),
   }
 }
@@ -106,6 +109,27 @@ function shippingUpdateEmail(o: ShippingEmailPayload) {
         Order <strong>${esc(o.orderNumber)}</strong> has shipped via <strong>${esc(o.courierName)}</strong>.
       </p>
       <p style="font-size:16px;margin:0;">Tracking / AWB: <strong>${esc(o.awbNumber)}</strong></p>
+    `),
+  }
+}
+
+export interface CancellationEmailPayload {
+  orderNumber: string
+  customerName: string
+  amountTotal: number
+}
+
+function cancellationEmail(o: CancellationEmailPayload) {
+  return {
+    subject: `Your order has been cancelled: ${o.orderNumber}`,
+    html: wrap(`
+      <h1 style="font-size:26px;font-weight:normal;margin:0 0 18px;">Your order has been cancelled${o.customerName ? `, ${esc(o.customerName.split(' ')[0])}` : ''}.</h1>
+      <p style="font-size:16px;line-height:1.6;margin:0 0 22px;">
+        Order <strong>${esc(o.orderNumber)}</strong> has been cancelled and
+        <strong>₹${o.amountTotal.toLocaleString('en-IN')}</strong> has been refunded to your
+        original payment method. Refunds usually arrive within 5 to 7 working days.
+      </p>
+      <p style="font-size:16px;line-height:1.6;margin:0;">If you have any questions, just reply to this email.</p>
     `),
   }
 }
@@ -166,5 +190,19 @@ export async function sendShippingUpdate(payload: ShippingEmailPayload, customer
     return { ok: false, error: 'EMAIL_FROM missing' }
   }
   const { subject, html } = shippingUpdateEmail(payload)
+  return send(from, customerEmail, subject, html)
+}
+
+/** To the customer: order cancelled and refunded. */
+export async function sendCancellationEmail(
+  payload: CancellationEmailPayload,
+  customerEmail: string
+): Promise<SendResult> {
+  const from = process.env.EMAIL_FROM
+  if (!from) {
+    console.error('[emails] EMAIL_FROM not set, cannot send cancellation email')
+    return { ok: false, error: 'EMAIL_FROM missing' }
+  }
+  const { subject, html } = cancellationEmail(payload)
   return send(from, customerEmail, subject, html)
 }
