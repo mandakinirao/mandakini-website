@@ -4,10 +4,12 @@ export interface PatchOp {
   set?: Record<string, unknown>
   inc?: Record<string, number>
   dec?: Record<string, number>
+  unset?: string[]
 }
 
 export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
   const patches: PatchOp[] = []
+  const created: Record<string, unknown>[] = []
   const transactions: PatchOp[][] = []
 
   const patchBuilder = (id: string, sink: PatchOp[]) => {
@@ -16,6 +18,7 @@ export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
       set(obj: Record<string, unknown>) { op.set = { ...op.set, ...obj }; return b },
       inc(obj: Record<string, number>) { op.inc = { ...op.inc, ...obj }; return b },
       dec(obj: Record<string, number>) { op.dec = { ...op.dec, ...obj }; return b },
+      unset(keys: string[]) { op.unset = [...(op.unset ?? []), ...keys]; return b },
       async commit() { sink.push(op); return { _id: id } },
       _op: op,
     }
@@ -27,6 +30,14 @@ export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
       if (params?.id) return docs[params.id as string] ?? null
       if (params?.ids) return (params.ids as string[]).map((i) => docs[i]).filter(Boolean)
       return null
+    },
+    async createIfNotExists(doc: Record<string, unknown>) {
+      created.push(doc)
+      return doc
+    },
+    async create(doc: Record<string, unknown>) {
+      created.push(doc)
+      return { _id: 'new-id', ...doc }
     },
     patch(id: string) {
       return patchBuilder(id, patches)
@@ -46,5 +57,5 @@ export function makeFakeClient(docs: Record<string, Record<string, unknown>>) {
     },
   }
 
-  return { client, patches, transactions }
+  return { client, patches, transactions, created }
 }
