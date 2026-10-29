@@ -1,5 +1,12 @@
 # Progress Log
 
+## /admin CMS — Phase 3: Journal (2026-10-29)
+- **Plan:** `docs/superpowers/plans/2026-10-29-admin-cms-phase3.md`. Branch `feat/admin-cms`, local only.
+- **Built:** Journal in the sidebar. List of posts (cover, date, Featured). Post editor on one page: cover photo, title, small line above the title, summary, date, Featured switch; then paragraphs, each with a writing box (Bold / Italic / Link; pasted text arrives as plain paragraphs), optional photos with captions, photo position Left / Right / Above / Below, Show together / One at a time, or "Make this a big quote"; move up/down, remove, add a paragraph anywhere. Publish / Save changes, delete with confirm.
+- **Safety:** text is re-cleaned on the server (normal paragraphs, bold, italic, http/https/mailto links only); empty paragraphs dropped.
+- **Tests:** 94. The live "100 Days Project" text round-trips through the editor unchanged.
+- **Not verified:** publishing/saving a real post (needs go-ahead to write to live data).
+
 ## /admin CMS — Phase 2: Website, Projects, Press, Messages (2026-10-29)
 - **Branch:** `feat/admin-cms`, local only. Plan: `docs/superpowers/plans/2026-10-29-admin-cms-phase2.md`.
 - **Built:** sidebar now Home / Orders / Shop / Projects / Press / Messages / Website. Website hub → Homepage (two opening photos + drag order of homepage prints/projects/press), About (writes the `aboutPage` record the site reads: portrait, About text, homepage intro, teaser), Website words (the 13 site texts, blank = built-in wording, creates `siteSettings`), Testimonials (add/edit/delete/reorder). Projects and Press: grid, add/edit/delete, drag to reorder; Press has "Look it up" to prefill headline/publication from the link. Messages: New / Replied / Archived with Reply by email.
