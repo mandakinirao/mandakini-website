@@ -29,6 +29,8 @@ export interface OrderEmailPayload {
   shippingAddress: string
   items: OrderEmailItem[]
   amountTotal: number
+  /** Link to the order in /admin, owner email only. */
+  adminUrl?: string
 }
 
 const wrap = (body: string) => `
@@ -73,7 +75,7 @@ function orderConfirmationEmail(o: OrderEmailPayload) {
   }
 }
 
-function ownerNotificationEmail(o: OrderEmailPayload) {
+export function ownerNotificationEmail(o: OrderEmailPayload) {
   return {
     subject: `New order: ${o.orderNumber}`,
     html: wrap(`
@@ -86,6 +88,7 @@ function ownerNotificationEmail(o: OrderEmailPayload) {
       <p style="font-size:14px;line-height:1.6;color:rgba(44,26,14,0.6);margin:0;">
         Shipping to<br/>${esc(o.shippingAddress).replace(/\n/g, '<br/>')}
       </p>
+      ${o.adminUrl ? `<p style="margin:28px 0 0;"><a href="${esc(o.adminUrl)}" style="display:inline-block;padding:12px 24px;border-radius:999px;background:#B8572A;color:#F5EFE4;text-decoration:none;font-size:15px;">Open this order</a></p>` : ''}
     `),
   }
 }
