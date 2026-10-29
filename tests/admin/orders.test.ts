@@ -197,6 +197,16 @@ describe('cancelOrder', () => {
     expect(transactions).toHaveLength(0)
   })
 
+  test('missing Razorpay keys give a plain message, not a setting name', async () => {
+    const { RazorpayConfigError } = await import('@/lib/razorpay')
+    const { deps, transactions } = cancelSetup(order(), {}, async () => {
+      throw new RazorpayConfigError('RAZORPAY_KEY_ID')
+    })
+    const r = await cancelOrder(deps, 'order.order_abc')
+    expect(r).toEqual({ ok: false, error: "Refunds aren't set up on this website yet, so nothing was changed." })
+    expect(transactions).toHaveLength(0)
+  })
+
   test('delivered order cannot be cancelled', async () => {
     const { deps, refundPayment } = cancelSetup(order({ status: 'delivered' }), {})
     const r = await cancelOrder(deps, 'order.order_abc')

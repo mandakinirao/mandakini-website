@@ -142,8 +142,12 @@ export default function PhotoDropzone({
               }}
               onDragEnd={() => setDragKey(null)}
             >
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img src={p.url ? `${p.url}?w=400&fit=max&auto=format` : p.preview ?? ''} alt="" draggable={false} />
+              {p.status === 'error' ? (
+                <div className="mr-admin-photo__failed" aria-hidden="true">!</div>
+              ) : (
+                // eslint-disable-next-line @next/next/no-img-element
+                <img src={p.url ? `${p.url}?w=400&fit=max&auto=format` : p.preview ?? ''} alt="" draggable={false} />
+              )}
               {p.key === firstGood && <span className="mr-admin-photo__cover">Cover</span>}
               <button
                 type="button"

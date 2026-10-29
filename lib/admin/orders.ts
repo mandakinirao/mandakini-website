@@ -163,7 +163,10 @@ export async function cancelOrder(
   try {
     refundId = (await deps.refundPayment(order.razorpayPaymentId, Math.round(order.amountTotal * 100))).id
   } catch (err) {
-    const { safeCheckoutError } = await import('@/lib/razorpay')
+    const { RazorpayConfigError, safeCheckoutError } = await import('@/lib/razorpay')
+    if (err instanceof RazorpayConfigError) {
+      return { ok: false, error: "Refunds aren't set up on this website yet, so nothing was changed." }
+    }
     return { ok: false, error: `Razorpay could not refund this payment: ${safeCheckoutError(err).message}` }
   }
 

@@ -102,7 +102,7 @@ export default function PrintForm({ id, initial }: { id?: string; initial: Print
       const text = live ? `${v.title} is live.` : `Saved. ${v.title} is hidden from the shop.`
       setMessage({ kind: 'ok', text, href: live && r.slug ? `/shop/${r.slug}` : undefined })
       if (!id) router.replace(`/admin/shop/${encodeURIComponent(r.id)}?saved=1`)
-      else router.refresh()
+      else router.replace(`/admin/shop/${encodeURIComponent(id)}`)
     })
   }
 

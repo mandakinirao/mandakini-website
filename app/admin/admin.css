@@ -252,6 +252,7 @@
   display: flex;
   align-items: center;
   gap: 8px;
+  white-space: nowrap;
 }
 
 .mr-admin-switch {
@@ -577,6 +578,16 @@
   border-radius: 6px;
   font: inherit;
   font-size: 0.82rem;
+}
+
+.mr-admin-photo__failed {
+  display: grid;
+  place-items: center;
+  aspect-ratio: 1;
+  border-radius: 10px;
+  background: var(--a-error-bg);
+  color: var(--a-error);
+  font-size: 1.6rem;
 }
 
 .mr-admin-photo__remove {

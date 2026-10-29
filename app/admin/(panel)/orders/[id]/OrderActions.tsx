@@ -45,7 +45,7 @@ export default function OrderActions(p: Props) {
 
   return (
     <aside className="mr-admin-panel">
-      <Notice state={shipState} />
+      {p.status === 'shipped' && <Notice state={shipState} />}
       <Notice state={other} />
 
       {p.status === 'paid' && (
