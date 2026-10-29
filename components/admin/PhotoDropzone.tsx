@@ -13,6 +13,7 @@ export interface Photo {
   url?: string
   preview?: string
   error?: string
+  caption?: string
 }
 
 const PARALLEL = 3
@@ -38,6 +39,7 @@ export default function PhotoDropzone({
   label = 'Photos',
   hint,
   single = false,
+  captions = false,
 }: {
   photos: Photo[]
   setPhotos: Dispatch<SetStateAction<Photo[]>>
@@ -46,6 +48,8 @@ export default function PhotoDropzone({
   hint?: string
   /** One photo only: a new drop replaces the current one. */
   single?: boolean
+  /** Show a caption box under each photo (journal). */
+  captions?: boolean
 }) {
   const input = useRef<HTMLInputElement>(null)
   const [over, setOver] = useState(false)
@@ -169,6 +173,14 @@ export default function PhotoDropzone({
               </button>
               {p.status === 'uploading' && <span className="mr-admin-photo__status">Uploading…</span>}
               {p.status === 'error' && <span className="mr-admin-photo__status mr-admin-photo__status--error">{p.error}</span>}
+              {p.status === 'done' && captions && (
+                <input
+                  value={p.caption ?? ''}
+                  placeholder="Caption under the photo (optional)"
+                  maxLength={200}
+                  onChange={(e) => update(p.key, { caption: e.target.value })}
+                />
+              )}
               {p.status === 'done' && (
                 <input
                   value={p.alt}

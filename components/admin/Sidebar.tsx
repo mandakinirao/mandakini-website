@@ -10,6 +10,7 @@ const ITEMS = [
   { href: '/admin/shop', label: 'Shop' },
   { href: '/admin/projects', label: 'Projects' },
   { href: '/admin/press', label: 'Press' },
+  { href: '/admin/journal', label: 'Journal' },
   { href: '/admin/messages', label: 'Messages' },
   { href: '/admin/website', label: 'Website' },
 ]

@@ -652,3 +652,111 @@
   letter-spacing: 0.2em;
   text-transform: uppercase;
 }
+
+/* ── Journal editor ──────────────────────────────────────────────────── */
+
+.mr-admin-rt {
+  border: 1px solid var(--a-line);
+  border-radius: 10px;
+  background: #fff;
+}
+
+.mr-admin-rt__bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-bottom: 1px solid var(--a-line);
+}
+
+.mr-admin-rt__bar button {
+  min-width: 34px;
+  height: 32px;
+  padding: 0 10px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--a-ink);
+  font: inherit;
+  cursor: pointer;
+}
+
+.mr-admin-rt__bar button:hover {
+  background: rgba(44, 26, 14, 0.07);
+}
+
+.mr-admin-rt__link {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.mr-admin-rt__link input {
+  width: 260px;
+  padding: 5px 8px;
+  border: 1px solid var(--a-line);
+  border-radius: 6px;
+  font: inherit;
+}
+
+.mr-admin-rt__box {
+  position: relative;
+  min-height: 140px;
+  padding: 14px 16px;
+  font-family: 'EB Garamond', Georgia, serif;
+  font-size: 1.15rem;
+  line-height: 1.6;
+  outline: none;
+}
+
+.mr-admin-rt__box--big {
+  font-size: 1.6rem;
+  text-align: center;
+}
+
+.mr-admin-rt__box p {
+  margin: 0 0 0.8em;
+}
+
+.mr-admin-rt__box a {
+  color: var(--a-primary);
+}
+
+.mr-admin-rt__box--empty::before {
+  content: attr(data-placeholder);
+  position: absolute;
+  color: var(--a-muted);
+  pointer-events: none;
+}
+
+.mr-admin-para {
+  position: relative;
+}
+
+.mr-admin-para__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.mr-admin-para__tools {
+  display: flex;
+  gap: 4px;
+}
+
+.mr-admin-para__body {
+  display: grid;
+  grid-template-columns: 1.3fr 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+.mr-admin-add-para {
+  display: flex;
+  justify-content: center;
+  margin: 14px 0;
+}
