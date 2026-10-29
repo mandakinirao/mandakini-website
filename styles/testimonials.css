@@ -47,7 +47,8 @@
   position: absolute;
   inset: 0;
   transform-origin: bottom center;
-  transition: opacity 0.5s ease, transform 0.5s ease;
+  /* No CSS transition: GSAP alone animates these cards (a CSS transition
+     on the same properties fights every GSAP frame and stutters). */
   will-change: transform, opacity;
 }
 
@@ -67,7 +68,20 @@
   box-shadow: 0 18px 40px rgba(44, 26, 14, 0.12);
 }
 
-.testimonial-content { min-width: 0; }
+/* All quotes are stacked in one grid cell, so the block is always as tall
+   as the longest quote — switching testimonials never changes the height. */
+.testimonial-content {
+  min-width: 0;
+  display: grid;
+}
+
+.testimonial-slide {
+  grid-area: 1 / 1;
+}
+
+.testimonial-slide[aria-hidden='true'] {
+  visibility: hidden;
+}
 
 /* Attribution: Konya script (--font-accent) in rosehip */
 .testimonial-author {
