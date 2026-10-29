@@ -26,7 +26,7 @@ export default async function AdminHome() {
           {s.toShip ? plural(s.toShip, 'order to ship', 'orders to ship') : 'Nothing to ship'}
         </Link>
         {' · '}
-        <span>{plural(s.newMessages, 'new message', 'new messages')}</span>
+        <Link href="/admin/messages">{plural(s.newMessages, 'new message', 'new messages')}</Link>
         {' · '}
         <Link href="/admin/shop">{plural(s.inShop, 'print in the shop', 'prints in the shop')}</Link>
       </p>
