@@ -36,7 +36,7 @@ export default function ImageCarousel({ images, title }: ImageCarouselProps) {
           <Image
             key={src}
             src={src}
-            alt={`${title} — view ${i + 1}`}
+            alt={`${title}, view ${i + 1}`}
             fill
             sizes="(max-width: 900px) 92vw, 46vw"
             data-reveal-img={i === 0 ? true : undefined}

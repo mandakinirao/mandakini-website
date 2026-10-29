@@ -34,7 +34,7 @@ export default function JournalCarousel({
           <Image
             key={img.url}
             src={img.url}
-            alt={`${img.alt} — ${i + 1} of ${images.length}`}
+            alt={`${img.alt}, ${i + 1} of ${images.length}`}
             fill
             sizes={sizes}
             data-reveal-img={i === 0 ? true : undefined}

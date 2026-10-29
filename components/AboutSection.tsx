@@ -200,7 +200,7 @@ export default function AboutSection({ data }: { data: AboutData }) {
           <blockquote>
             <p className="about-quote-text">{data.quote}</p>
             {data.quoteAttribution && (
-              <cite className="about-quote-attr">— {data.quoteAttribution}</cite>
+              <cite className="about-quote-attr">{data.quoteAttribution}</cite>
             )}
           </blockquote>
         </section>

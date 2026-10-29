@@ -28,7 +28,7 @@ export const orderSchema = defineType({
       name: 'razorpayPaymentId',
       title: 'Razorpay Payment ID',
       type: 'string',
-      description: 'Idempotency key from Razorpay — one order per payment.',
+      description: 'Idempotency key from Razorpay. One order per payment.',
       readOnly: true,
     }),
     defineField({ name: 'customerName', title: 'Customer Name', type: 'string', readOnly: true }),
@@ -131,7 +131,7 @@ export const orderSchema = defineType({
       status: 'status',
     },
     prepare({ orderNumber, customerName, amountTotal, status }) {
-      const amount = typeof amountTotal === 'number' ? `₹${amountTotal.toLocaleString('en-IN')}` : '—'
+      const amount = typeof amountTotal === 'number' ? `₹${amountTotal.toLocaleString('en-IN')}` : 'No amount'
       const statusLabel = status ? status.charAt(0).toUpperCase() + status.slice(1) : 'Paid'
       return {
         title: orderNumber || customerName || 'Untitled order',

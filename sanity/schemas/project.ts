@@ -25,7 +25,7 @@ export const projectSchema = defineType({
           const current = slug?.current
           if (!current) return true
           if (RESERVED_SLUGS.includes(current)) {
-            return `"${current}" is a reserved route — choose a different slug.`
+            return `"${current}" is a reserved route. Choose a different slug.`
           }
           return true
         }),
@@ -36,9 +36,9 @@ export const projectSchema = defineType({
       type: 'text',
       rows: 5,
       description:
-        'Shown on the Works listing next to the cover image and on the series page. Keep it brief — 1–2 sentences read best; longer text gets clipped on the Works listing.',
+        'Shown on the Works listing next to the cover image and on the series page. Keep it brief: 1–2 sentences read best; longer text gets clipped on the Works listing.',
       validation: (Rule) =>
-        Rule.max(220).warning('Long descriptions get visually clipped on the Works listing — keep it to 1–2 sentences.'),
+        Rule.max(220).warning('Long descriptions get visually clipped on the Works listing. Keep it to 1–2 sentences.'),
     }),
     defineField({
       name: 'gallery',

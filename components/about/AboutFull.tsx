@@ -11,7 +11,7 @@ interface AboutFullProps {
 }
 
 const FALLBACK_BIO =
-  'Painter, photographer, and educator based in Hyderabad, India. Her work moves between portraiture and still life — finding warmth in the studio, the face, and the palette.'
+  'Painter, photographer, and educator based in Hyderabad, India. Her work moves between portraiture and still life, finding warmth in the studio, the face, and the palette.'
 
 export default function AboutFull({ portrait, bio }: AboutFullProps) {
   const rootRef = useRef<HTMLElement>(null)

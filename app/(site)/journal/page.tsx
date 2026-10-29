@@ -7,8 +7,8 @@ import '@/styles/pages.css'
 import '@/styles/journal.css'
 
 export const metadata: Metadata = {
-  title: 'Journal — Mandakini Rao',
-  description: 'Notes from the studio — process, inspiration, and stories behind the work.',
+  title: 'Journal | Mandakini Rao',
+  description: 'Notes from the studio: process, inspiration, and stories behind the work.',
 }
 
 export const revalidate = 60

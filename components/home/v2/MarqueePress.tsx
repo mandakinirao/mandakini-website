@@ -9,7 +9,7 @@ const PLACEHOLDER_ITEMS: HomePress[] = [
   { source: 'The Hindu', title: 'A studio where music becomes paint', year: '2025' },
   { source: 'Deccan Chronicle', title: 'Hyderabad artists to watch', year: '2024' },
   { source: 'Telangana Today', title: 'Portraits of a voice', year: '2024' },
-  { source: 'Paint & Process', title: 'Podcast — episode 41', year: '2023' },
+  { source: 'Paint & Process', title: 'Podcast: episode 41', year: '2023' },
 ]
 
 interface MarqueePressProps {

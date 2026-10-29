@@ -16,7 +16,7 @@ export const testimonialSchema = defineType({
       name: 'personName',
       title: 'Person Name',
       type: 'string',
-      description: 'Role or context can go here too, e.g. "Priya N. — collector, Hyderabad".',
+      description: 'Role or context can go here too, e.g. "Priya N., collector, Hyderabad".',
       validation: (Rule) => Rule.required(),
     }),
     defineField({

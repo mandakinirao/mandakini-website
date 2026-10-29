@@ -86,7 +86,7 @@ export default function SeriesDetail({ series, prev, next }: SeriesDetailProps) 
             <span className={`mr-detail__item mr-mask${i % 2 ? ' mr-mask--b' : ''}`}>
               <Image
                 src={piece.src}
-                alt={piece.title || `${series.name} — image ${i + 1}`}
+                alt={piece.title || `${series.name}, image ${i + 1}`}
                 fill
                 sizes="(max-width: 900px) 92vw, 60vw"
                 data-reveal-img

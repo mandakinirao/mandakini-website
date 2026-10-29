@@ -50,7 +50,7 @@ const HeroScene = forwardRef<HeroSceneHandle, HeroSceneProps>(
     }, [])
 
     return (
-      <section className="mr2-hscene" aria-label="Mandakini Rao — artist studio">
+      <section className="mr2-hscene" aria-label="Mandakini Rao, artist studio">
         {/* Static framed clip — cream mat visible on all sides */}
         <div className="mr2-hscene__clip">
           <InkReveal

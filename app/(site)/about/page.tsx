@@ -4,7 +4,7 @@ import { urlForImage } from '@/sanity/lib/image'
 import '@/styles/about.css'
 
 export const metadata: Metadata = {
-  title: 'About — Mandakini Rao',
+  title: 'About | Mandakini Rao',
   description: 'Painter, photographer and educator based in Hyderabad.',
 }
 

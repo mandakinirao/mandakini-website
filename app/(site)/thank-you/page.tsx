@@ -3,7 +3,7 @@ import Link from 'next/link'
 import { getSiteSettings } from '@/lib/site-settings'
 
 export const metadata: Metadata = {
-  title: 'Thank you — Mandakini Rao',
+  title: 'Thank you | Mandakini Rao',
   description: 'Your order is confirmed.',
 }
 

@@ -24,7 +24,7 @@ export const journalPostSchema = defineType({
           const current = slug?.current
           if (!current) return true
           if (RESERVED_SLUGS.includes(current)) {
-            return `"${current}" is a reserved route — choose a different slug.`
+            return `"${current}" is a reserved route. Choose a different slug.`
           }
           return true
         }),
