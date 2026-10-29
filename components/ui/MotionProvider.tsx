@@ -25,16 +25,16 @@ import {
 export default function MotionProvider() {
   const lenisRef = useRef<ReturnType<typeof initLenis>>(null)
   const pathname = usePathname()
-  const isStudio = pathname.startsWith('/studio')
+  const isBackOffice = pathname.startsWith('/studio') || pathname.startsWith('/admin')
 
   useEffect(() => {
-    if (isStudio) return
+    if (isBackOffice) return
     lenisRef.current = initLenis()
     return () => destroyLenis()
-  }, [isStudio])
+  }, [isBackOffice])
 
   useEffect(() => {
-    if (isStudio) return
+    if (isBackOffice) return
     lenisRef.current?.scrollTo(0, { immediate: true, force: true })
     const cleanupSkew = initVelocitySkew()
     let raf2 = 0
@@ -46,7 +46,7 @@ export default function MotionProvider() {
       cancelAnimationFrame(raf2)
       cleanupSkew()
     }
-  }, [pathname, isStudio])
+  }, [pathname, isBackOffice])
 
   return null
 }
