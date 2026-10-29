@@ -1,5 +1,12 @@
 # Progress Log
 
+## /admin CMS — Phase 2: Website, Projects, Press, Messages (2026-10-29)
+- **Branch:** `feat/admin-cms`, local only. Plan: `docs/superpowers/plans/2026-10-29-admin-cms-phase2.md`.
+- **Built:** sidebar now Home / Orders / Shop / Projects / Press / Messages / Website. Website hub → Homepage (two opening photos + drag order of homepage prints/projects/press), About (writes the `aboutPage` record the site reads: portrait, About text, homepage intro, teaser), Website words (the 13 site texts, blank = built-in wording, creates `siteSettings`), Testimonials (add/edit/delete/reorder). Projects and Press: grid, add/edit/delete, drag to reorder; Press has "Look it up" to prefill headline/publication from the link. Messages: New / Replied / Archived with Reply by email.
+- **Tests:** 77 unit tests.
+- **Verified:** every page renders against live data on a production build. **Not verified:** saving against live records (blocked pending go-ahead).
+- **Next:** Phase 3, the Journal editor.
+
 ## /admin CMS — Phase 1: login, orders, shop, homepage featuring (2026-10-29)
 - **Branch:** `feat/admin-cms` (based on `chore/native-cursor-no-em-dashes`). Not pushed, not merged.
 - **Spec / plan:** `docs/superpowers/specs/2026-10-29-admin-cms-design.md`, `docs/superpowers/plans/2026-10-29-admin-cms-phase1.md`.
