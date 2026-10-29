@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { DUR, mandaGsap, prefersReducedMotion } from '@/lib/motion'
 import '@/styles/testimonials.css'
 
@@ -11,60 +11,61 @@ type Testimonial = { _id?: string; quote: string; personName: string; personImag
  *  cards don't jump to a new random angle on every transition. */
 function useStackRotations(count: number) {
   return useMemo(
-    () => Array.from({ length: count }, () => `${Math.floor(Math.random() * 16) - 8}deg`),
+    () => Array.from({ length: count }, () => Math.floor(Math.random() * 16) - 8),
     [count]
   )
 }
 
+/** Card pose for a given active index. GSAP owns these properties after the
+ *  first paint — React never writes card transforms again, so nothing snaps
+ *  mid-animation. */
+function pose(i: number, active: number, count: number, rotation: number) {
+  const isActive = i === active
+  return {
+    opacity: isActive ? 1 : 0.5,
+    scale: isActive ? 1 : 0.9,
+    y: isActive ? 0 : 20,
+    rotate: isActive ? 0 : rotation,
+    zIndex: isActive ? count : count - Math.abs(i - active),
+  }
+}
+
 export default function Testimonials({ items }: { items: Testimonial[] }) {
   const [index, setIndex] = useState(0)
-  const contentRef = useRef<HTMLDivElement>(null)
   const cardRefs = useRef<(HTMLDivElement | null)[]>([])
+  const slideRefs = useRef<(HTMLDivElement | null)[]>([])
   const count = items?.length ?? 0
   const rotations = useStackRotations(count)
+
+  // First paint: set every card's pose and show only the first quote.
+  useLayoutEffect(() => {
+    cardRefs.current.forEach((card, i) => card && mandaGsap.set(card, pose(i, 0, count, rotations[i])))
+    slideRefs.current.forEach((slide, i) => slide && mandaGsap.set(slide, { autoAlpha: i === 0 ? 1 : 0, y: 0 }))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [count])
 
   const goTo = (next: number) => {
     if (count === 0) return
     const target = (next + count) % count
     if (target === index) return
+    const from = index
+    setIndex(target)
 
-    if (prefersReducedMotion()) {
-      setIndex(target)
-      return
-    }
+    const instant = prefersReducedMotion()
+    const d = instant ? 0 : DUR.fast
 
-    const content = contentRef.current
-    if (content) {
-      mandaGsap.to(content, {
-        opacity: 0,
-        y: -16,
-        duration: DUR.fast * 0.5,
-        ease: 'power2.in',
-        onComplete: () => {
-          setIndex(target)
-          mandaGsap.fromTo(
-            content,
-            { opacity: 0, y: 16 },
-            { opacity: 1, y: 0, duration: DUR.fast, ease: 'power2.out' }
-          )
-        },
-      })
-    } else {
-      setIndex(target)
-    }
+    // Quotes cross-fade in place (same grid cell, fixed height).
+    const out = slideRefs.current[from]
+    const inn = slideRefs.current[target]
+    if (out) mandaGsap.to(out, { autoAlpha: 0, y: -12, duration: d * 0.6, ease: 'power2.in', overwrite: true })
+    if (inn) mandaGsap.fromTo(inn, { autoAlpha: 0, y: 12 }, { autoAlpha: 1, y: 0, duration: d, delay: d * 0.35, ease: 'power2.out', overwrite: true })
 
     cardRefs.current.forEach((card, i) => {
       if (!card) return
-      const isActive = i === target
-      mandaGsap.to(card, {
-        opacity: isActive ? 1 : 0.5,
-        scale: isActive ? 1 : 0.9,
-        y: isActive ? 0 : 20,
-        rotate: isActive ? 0 : rotations[i],
-        zIndex: isActive ? count : count - Math.abs(i - target),
-        duration: DUR.fast,
-        ease: 'power2.inOut',
-      })
+      const p = pose(i, target, count, rotations[i])
+      // Bring the new card to the front immediately so it never slides under another.
+      if (i === target) mandaGsap.set(card, { zIndex: p.zIndex })
+      mandaGsap.to(card, { ...p, duration: d, ease: 'power2.inOut', overwrite: true })
     })
   }
 
@@ -76,8 +77,6 @@ export default function Testimonials({ items }: { items: Testimonial[] }) {
   }, [index, count])
 
   if (!count) return null
-
-  const current = items[index]
 
   return (
     <section className="testimonials" aria-roledescription="carousel" aria-label="Testimonials">
@@ -91,11 +90,6 @@ export default function Testimonials({ items }: { items: Testimonial[] }) {
                 key={t._id ?? i}
                 ref={(el) => { cardRefs.current[i] = el }}
                 className="testimonial-card"
-                style={{
-                  opacity: i === index ? 1 : 0.5,
-                  transform: `scale(${i === index ? 1 : 0.9}) translateY(${i === index ? 0 : 20}px) rotate(${i === index ? '0deg' : rotations[i]})`,
-                  zIndex: i === index ? count : count - Math.abs(i - index),
-                }}
                 aria-hidden={i !== index}
               >
                 {t.personImage ? (
@@ -113,9 +107,18 @@ export default function Testimonials({ items }: { items: Testimonial[] }) {
             ))}
           </div>
 
-          <div ref={contentRef} className="testimonial-content">
-            <div className="testimonial-author">{current.personName}</div>
-            <blockquote className="testimonial-quote">{current.quote}</blockquote>
+          <div className="testimonial-content">
+            {items.map((t, i) => (
+              <div
+                key={t._id ?? i}
+                ref={(el) => { slideRefs.current[i] = el }}
+                className="testimonial-slide"
+                aria-hidden={i !== index}
+              >
+                <div className="testimonial-author">{t.personName}</div>
+                <blockquote className="testimonial-quote">{t.quote}</blockquote>
+              </div>
+            ))}
           </div>
         </div>
 

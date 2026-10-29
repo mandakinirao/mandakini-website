@@ -202,7 +202,7 @@ export const aboutPageQuery = groq`
 // Homepage-only about fields — separate from the full aboutPageQuery so
 // getHomeData() fetches only what the homepage needs.
 export const aboutHomeDataQuery = groq`
-  *[_type == "aboutPage"][0] { homeSnippet, aboutTeaserLine }
+  *[_type == "aboutPage"][0] { homeSnippet, aboutTeaserLine, aboutBlockPortrait { asset, alt } }
 `
 
 // Homepage projects: series switched to "Show on homepage", in homepageOrder.
