@@ -948,10 +948,12 @@ html.mr-intro-seen .mr2-loader {
   opacity: 0.8;
 }
 
-/* persistent door to the full Projects index — positioning only; visual from .mr2-cta */
+/* persistent door to the full Projects index — positioning only; visual from .mr2-cta.
+   Sits just left of the fixed corner cat (same right inset + cat width + a gap),
+   so the cat — now clickable — never covers it. */
 .mr2-works__all {
   position: absolute;
-  right: clamp(20px, 5vw, 72px);
+  right: calc(clamp(0.7rem, 2vw, 1.5rem) + clamp(104px, 12vw, 160px) + 1rem);
   bottom: clamp(1.8rem, 5vh, 3.4rem);
   z-index: 4;
 }
