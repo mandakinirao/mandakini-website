@@ -44,7 +44,6 @@ export default function CheckoutAddressModal({
 
   useEffect(() => {
     if (!open) return
-    document.body.classList.add('mr-modal-open')
     lockScroll()
     const onKey = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && !busy) onClose()
@@ -64,7 +63,6 @@ export default function CheckoutAddressModal({
     }
     return () => {
       window.removeEventListener('keydown', onKey)
-      document.body.classList.remove('mr-modal-open')
       unlockScroll()
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
