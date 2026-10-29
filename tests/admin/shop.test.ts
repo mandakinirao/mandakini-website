@@ -123,3 +123,13 @@ describe('toShopItemFields', () => {
     ])
   })
 })
+
+describe('splitNulls', () => {
+  test('blank numbers become fields to remove', async () => {
+    const { splitNulls } = await import('@/lib/admin/shop')
+    expect(splitNulls({ title: 'A', stock: null, editionSize: 50, sold: 0 })).toEqual({
+      set: { title: 'A', editionSize: 50, sold: 0 },
+      unset: ['stock'],
+    })
+  })
+})

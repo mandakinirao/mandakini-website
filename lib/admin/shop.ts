@@ -145,3 +145,14 @@ export function toShopItemFields(input: PrintInput): Record<string, unknown> {
     })),
   }
 }
+
+/** Sanity has no "null" for a blank number — leave the field out (or unset it on edit). */
+export function splitNulls(fields: Record<string, unknown>) {
+  const set: Record<string, unknown> = {}
+  const unset: string[] = []
+  for (const [k, v] of Object.entries(fields)) {
+    if (v === null) unset.push(k)
+    else set[k] = v
+  }
+  return { set, unset }
+}
